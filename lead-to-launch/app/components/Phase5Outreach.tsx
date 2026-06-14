@@ -188,7 +188,7 @@ Reply karein "YES" agar interested?`,
 
 Quick recap: ${l.audit.biggestGap.split(".")[0]}.
 
-Iska monthly impact roughly ₹${l.audit.estLostRevenuePerMonth.toLocaleString("en-IN")} hai (Google search volume ke basis pe).
+Iska monthly impact roughly $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")} hai (Google search volume ke basis pe).
 
 Demo abhi bhi live hai:
 ${demoUrl}
@@ -210,7 +210,7 @@ Aapke business ke liye ek live website demo banayi hai. Saari information alread
 
 Demo: ${demoUrl}
 
-30 seconds lagega dekhne mein. Pasand aaye toh launch karwa denge — full price ₹15,000 (one-time), zero monthly fees.
+30 seconds lagega dekhne mein. Pasand aaye toh launch karwa denge — full price $15,000 (one-time), zero monthly fees.
 
 Reply with "YES" agar interested ho, ya "NO" agar relevant nahi — dono works.
 
@@ -222,7 +222,7 @@ Hi ${ownerName},
 
 Pichli email pe quick check-in. Demo abhi bhi live hai: ${demoUrl}
 
-Conservative estimate: ${l.audit.biggestGap.split(".")[0].toLowerCase()} costs around ₹${l.audit.estLostRevenuePerMonth.toLocaleString("en-IN")}/month in missed bookings.
+Conservative estimate: ${l.audit.biggestGap.split(".")[0].toLowerCase()} costs around $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month in missed bookings.
 
 Worth a 5-min call?
 
@@ -254,7 +254,7 @@ If you like it, we launch it. If not, the demo is yours to keep — free.
 Reply "YES" if interested?`,
       followUp: `Hi ${ownerName}, following up on the demo from a couple of days ago: ${demoUrl}
 
-The biggest gap I shared (${l.audit.biggestGap.split(".")[0]}) is costing roughly ₹${l.audit.estLostRevenuePerMonth.toLocaleString("en-IN")}/month in missed bookings.
+The biggest gap I shared (${l.audit.biggestGap.split(".")[0]}) is costing roughly $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month in missed bookings.
 
 Worth a quick 5-min call to walk through?`,
     };
@@ -273,7 +273,7 @@ So I built a free demo website for your business, pre-filled with services, loca
 
 Demo: ${demoUrl}
 
-If you like it, launch is ₹15,000 one-time, zero monthly. If not, demo is yours.
+If you like it, launch is $15,000 one-time, zero monthly. If not, demo is yours.
 
 Reply "YES" or "NO" — both work.
 
@@ -285,7 +285,7 @@ Hi ${ownerName},
 
 Quick check-in. Demo still live: ${demoUrl}
 
-Conservative estimate: the gap above costs around ₹${l.audit.estLostRevenuePerMonth.toLocaleString("en-IN")}/month.
+Conservative estimate: the gap above costs around $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month.
 
 5-min call?
 

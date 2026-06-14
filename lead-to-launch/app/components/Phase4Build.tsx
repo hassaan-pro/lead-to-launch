@@ -190,7 +190,7 @@ Biggest current gap: ${gap}
 9. Footer: WhatsApp + Phone + Address + Hours + social icons (Instagram, Google)
 
 # SEO & TECHNICAL
-- HTML lang="en-IN"
+- HTML lang="en-US"
 - Meta: "${name} | ${niche} in ${l.city} | Book on WhatsApp"
 - LocalBusiness schema markup (pick the closest @type for a ${niche}) in JSON-LD: name, address, geo, telephone, openingHours, aggregateRating
 - All images <img loading="lazy" alt="...">

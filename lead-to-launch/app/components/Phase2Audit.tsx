@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
-import { Loader2, AlertTriangle, IndianRupee, Gauge, Star, Phone, MessageCircle, Globe } from "lucide-react";
+import { Loader2, AlertTriangle, DollarSign, Gauge, Star, Phone, MessageCircle, Globe } from "lucide-react";
 import type { Lead, AuditResult } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -140,9 +140,9 @@ export function Phase2Audit({
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Est. ₹ lost / month</div>
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Est. $ lost / month</div>
             <div className="font-display text-3xl tabular-nums flex items-center mt-2">
-              <IndianRupee className="h-6 w-6" strokeWidth={1.5} />{totalLost.toLocaleString("en-IN")}
+              <DollarSign className="h-6 w-6" strokeWidth={1.5} />{totalLost.toLocaleString("en-US")}
             </div>
           </CardContent>
         </Card>
@@ -244,7 +244,7 @@ export function Phase2Audit({
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Est. lost / mo</div>
                           <div className="font-display text-lg tabular-nums flex items-center mt-0.5">
-                            <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.5} />{a.estLostRevenuePerMonth.toLocaleString("en-IN")}
+                            <DollarSign className="h-3.5 w-3.5" strokeWidth={1.5} />{a.estLostRevenuePerMonth.toLocaleString("en-US")}
                           </div>
                         </div>
                       </div>
