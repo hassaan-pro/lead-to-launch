@@ -27,7 +27,7 @@ export function Phase1Scrape({
   onNext: () => void;
   onPrev?: () => void;
 }) {
-  const [input, setInput] = useState<ScrapeInput>({ niche: "Dentist", city: "Bandra, Mumbai", count: 12 });
+  const [input, setInput] = useState<ScrapeInput>({ niche: "Salon", city: "Lahore, Pakistan", count: 12 });
   const [loading, setLoading] = useState(false);
 
   async function runScrape() {

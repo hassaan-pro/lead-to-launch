@@ -1,0 +1,11 @@
+{
+  "[project]/components/LeadMap.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/LeadMap.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_20cuh0k._.js",
+      "static/chunks/components_LeadMap_tsx_06f_45y._.js",
+      "static/chunks/node_modules_leaflet_dist_leaflet_1ybdq6v.css",
+      "static/chunks/components_LeadMap_tsx_17ooltb._.js"
+    ]
+  }
+}
