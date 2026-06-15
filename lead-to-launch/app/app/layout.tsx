@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en" className={`${inter.variable} ${calistoga.variable} ${jetbrainsMono.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
           <header className="flex justify-end items-center px-6 py-3 border-b border-border">
-            <UserButton afterSignOutUrl="/sign-in" />
+            <UserButton />
           </header>
           {children}
           <Toaster position="bottom-right" />
