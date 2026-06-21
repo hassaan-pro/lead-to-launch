@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
-import { Copy, ExternalLink, Sparkles, Loader2 } from "lucide-react";
-import type { RankedLead } from "@/lib/types";
+import { Copy, ExternalLink, Sparkles, Loader2, Search, RefreshCw } from "lucide-react";
+import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { getNichePlaybook } from "@/lib/niche-playbooks";
 import { toast } from "sonner";
 
@@ -32,12 +32,50 @@ export function Phase4Build({
   const [prompt, setPrompt] = useState("");
   const [typed, setTyped] = useState("");
   const [building, setBuilding] = useState(false);
+  const [research, setResearch] = useState<MarketResearchResult[] | null>(null);
+  const [researching, setResearching] = useState(false);
+  const [researchConfigured, setResearchConfigured] = useState(true);
+  const [researchError, setResearchError] = useState<string | null>(null);
+
+  async function runResearch(l: RankedLead) {
+    setResearching(true);
+    setResearchError(null);
+    try {
+      const res = await fetch("/api/market-research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: l.category, city: l.city }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setResearchError(data.error ?? "Research failed");
+        setResearch([]);
+      } else {
+        setResearch(data.results ?? []);
+        setResearchConfigured(data.configured !== false);
+      }
+    } catch (e) {
+      setResearchError(e instanceof Error ? e.message : "Research failed");
+      setResearch([]);
+    } finally {
+      setResearching(false);
+    }
+  }
+
+  // Kick off live research once per lead (not on every platform toggle).
+  useEffect(() => {
+    if (!selected) return;
+    setResearch(null);
+    setResearchError(null);
+    runResearch(selected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
 
   useEffect(() => {
     if (!selected) return;
-    const p = buildPrompt(selected, platform);
+    const p = buildPrompt(selected, platform, research ?? undefined);
     setPrompt(p);
-  }, [selected, platform]);
+  }, [selected, platform, research]);
 
   useEffect(() => {
     setTyped("");
@@ -73,7 +111,7 @@ export function Phase4Build({
     return (
       <PhaseShell
         title="Phase 4 — Generate website"
-        subtitle="Pick a platform. We craft a battle-tested prompt with brand, structure, sections, and SEO baked in."
+        subtitle="Pick a platform. We research this niche live, then craft a prompt with brand, structure, sections, and SEO baked in."
         onPrev={onPrev}
         onNext={onNext}
         nextDisabled
@@ -92,7 +130,7 @@ export function Phase4Build({
   return (
     <PhaseShell
       title="Phase 4 — Generate website"
-      subtitle={`Pick a platform. We craft a battle-tested prompt with brand, structure, sections, and SEO baked in.`}
+      subtitle={`Pick a platform. We research this niche live, then craft a prompt with brand, structure, sections, and SEO baked in.`}
       onPrev={onPrev}
       onNext={onNext}
       nextLabel="Draft outreach"
@@ -119,8 +157,24 @@ export function Phase4Build({
 
       <div className="grid lg:grid-cols-2 gap-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Generated prompt</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                {researching ? (
+                  <><Loader2 className="h-3 w-3 animate-spin" /> Researching {selected.category} market in {selected.city.split(",")[0]}…</>
+                ) : research && research.length > 0 ? (
+                  <><Search className="h-3 w-3" /> Live market research included ({research.length} sources)</>
+                ) : researchError ? (
+                  <span className="text-amber-600">Live research unavailable — using static inspiration only</span>
+                ) : !researchConfigured ? (
+                  <span>Static inspiration only — add TAVILY_API_KEY for live research</span>
+                ) : null}
+              </div>
+              <Button size="icon-xs" variant="ghost" onClick={() => runResearch(selected)} disabled={researching} title="Refresh live research">
+                <RefreshCw className={`h-3.5 w-3.5 ${researching ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <pre className="text-xs leading-relaxed whitespace-pre-wrap font-mono bg-muted/30 rounded-md p-4 max-h-[520px] overflow-y-auto border border-border">
@@ -151,7 +205,7 @@ export function Phase4Build({
   );
 }
 
-function buildPrompt(l: RankedLead, platform: string): string {
+function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchResult[]): string {
   const name = l.name;
   const niche = l.category;
   const phone = l.phone ?? "+91 XXXXX XXXXX";
@@ -188,7 +242,11 @@ Biggest current gap: ${gap}
 
 # INSPIRATION — what the best ${niche} sites do right now
 ${pb.inspiration.map((i) => `- ${i}`).join("\n")}
-
+${
+  research && research.length > 0
+    ? `\n# LIVE MARKET RESEARCH — pulled just now for "${niche}" in ${city}\n${research.map((r) => `- ${r.title}: ${r.snippet} (${r.url})`).join("\n")}\n\nUse this as real-world context for what's actually ranking/operating in this exact market right now — on top of the general ${niche} best practices above, not instead of them.\n`
+    : ""
+}
 # DESIGN
 - Mobile-first (90%+ of Pakistani traffic is mobile). Hero CTA visible above fold on 375px width.
 - ${pb.vibe} Accent: ${pb.accent}. Generous whitespace.

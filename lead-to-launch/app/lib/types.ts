@@ -50,3 +50,9 @@ export type ScrapeInput = {
 
 export type OutreachChannel = "whatsapp" | "email" | "instagram";
 export type OutreachLanguage = "english" | "roman-urdu";
+
+export type MarketResearchResult = {
+  title: string;
+  url: string;
+  snippet: string;
+};
