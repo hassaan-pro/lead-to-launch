@@ -10,6 +10,7 @@ import { IncompleteState } from "./IncompleteState";
 import { Copy, ExternalLink, Sparkles, Loader2, Search, RefreshCw } from "lucide-react";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { getNichePlaybook } from "@/lib/niche-playbooks";
+import { detectLocale } from "@/lib/locale";
 import { toast } from "sonner";
 
 const PLATFORMS = [
@@ -216,6 +217,7 @@ function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchR
   const gap = l.audit.biggestGap;
   const city = l.city.split(",")[0];
   const pb = getNichePlaybook(niche);
+  const locale = detectLocale(l);
 
   const sections = [
     `Hero: Business name + promise (${pb.heroAngle}) + "${pb.primaryCTA}" CTA + rating badge`,
@@ -229,7 +231,7 @@ function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchR
     `Footer: WhatsApp + Phone + Address + Hours + social icons (Instagram, Google)`,
   ];
 
-  return `You are building a high-converting local-business website for a Pakistani ${niche}.
+  return `You are building a high-converting local-business website for a ${niche} in ${l.city}.
 
 # BUSINESS
 Name: ${name}
@@ -248,7 +250,7 @@ ${
     : ""
 }
 # DESIGN
-- Mobile-first (90%+ of Pakistani traffic is mobile). Hero CTA visible above fold on 375px width.
+- ${locale.mobileTrafficNote} Hero CTA visible above fold on 375px width.
 - ${pb.vibe} Accent: ${pb.accent}. Generous whitespace.
 - Inter or DM Sans font. Large H1 (48-64px desktop, 32px mobile).
 - Trust signals everywhere: ${pb.trustSignals.join(", ")}.
@@ -260,7 +262,7 @@ ${
 ${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
 # SEO & TECHNICAL
-- HTML lang="en-PK"
+- HTML lang="${locale.htmlLang}"
 - Meta: "${name} | ${niche} in ${l.city} | ${pb.primaryCTA}"
 - LocalBusiness schema markup (pick the closest @type for a ${niche}) in JSON-LD: name, address, geo, telephone, openingHours, aggregateRating
 - All images <img loading="lazy" alt="...">
@@ -268,14 +270,14 @@ ${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 - HTTPS, semantic HTML, accessible color contrast
 
 # COPY TONE
-Warm, calm, confident. Roman Urdu / Urdu-English mix allowed for trust phrases ("zaroorat parne par seedha call kar lein"). Avoid jargon. Address common customer hesitations (cost, quality, trust) directly.
+${locale.copyToneGuidance}
 
 # CTA HIERARCHY
 Primary: ${pb.primaryCTA}. Secondary: ${pb.secondaryCTA}. Tertiary: Google Maps directions.
 
 ${
   platform === "lovable" || platform === "bolt"
-    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, pakistani local business).`
+    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, ${locale.imageSearchRegion}).`
     : platform === "claude-code"
       ? "OUTPUT: Next.js 15 app with app router, Tailwind, shadcn. Single landing page route. Include Suspense boundaries."
       : "OUTPUT: Static HTML + Tailwind CDN. Single index.html, self-contained."

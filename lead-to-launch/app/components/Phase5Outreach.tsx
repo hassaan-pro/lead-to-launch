@@ -11,6 +11,7 @@ import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
 import { MessageCircle, Mail, Camera, Copy, ExternalLink, Sparkles } from "lucide-react";
 import type { RankedLead, OutreachChannel, OutreachLanguage } from "@/lib/types";
+import { detectLocale } from "@/lib/locale";
 import { toast } from "sonner";
 
 export function Phase5Outreach({
@@ -21,9 +22,18 @@ export function Phase5Outreach({
   onPrev: () => void;
 }) {
   const [channel, setChannel] = useState<OutreachChannel>("whatsapp");
-  const [lang, setLang] = useState<OutreachLanguage>("roman-urdu");
+  const [lang, setLang] = useState<OutreachLanguage>("english");
   const [message, setMessage] = useState("");
   const [followUp, setFollowUp] = useState("");
+
+  // Default the language to match where this specific lead is actually
+  // based, instead of assuming Pakistan for every lead.
+  useEffect(() => {
+    if (!selected) return;
+    const locale = detectLocale(selected);
+    setLang(locale.id === "pakistan" ? "roman-urdu" : "english");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
 
   useEffect(() => {
     if (!selected) return;
@@ -56,7 +66,7 @@ export function Phase5Outreach({
     return (
       <PhaseShell
         title="Phase 5 — Outreach"
-        subtitle="Roman Urdu-first by default — converts better for local Pakistani businesses. Built-in day-3 follow-up."
+        subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up."
         onPrev={onPrev}
       >
         <IncompleteState
@@ -76,7 +86,7 @@ export function Phase5Outreach({
   ];
 
   return (
-    <PhaseShell title="Phase 5 — Outreach" subtitle="Roman Urdu-first by default — converts better for local Pakistani businesses. Built-in day-3 follow-up." onPrev={onPrev}>
+    <PhaseShell title="Phase 5 — Outreach" subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up." onPrev={onPrev}>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Sending to</div>
