@@ -175,7 +175,7 @@ function buildPrompt(l: RankedLead, platform: string): string {
     `Footer: WhatsApp + Phone + Address + Hours + social icons (Instagram, Google)`,
   ];
 
-  return `You are building a high-converting local-business website for an Indian ${niche}.
+  return `You are building a high-converting local-business website for a Pakistani ${niche}.
 
 # BUSINESS
 Name: ${name}
@@ -190,7 +190,7 @@ Biggest current gap: ${gap}
 ${pb.inspiration.map((i) => `- ${i}`).join("\n")}
 
 # DESIGN
-- Mobile-first (90% of Indian traffic is mobile). Hero CTA visible above fold on 375px width.
+- Mobile-first (90%+ of Pakistani traffic is mobile). Hero CTA visible above fold on 375px width.
 - ${pb.vibe} Accent: ${pb.accent}. Generous whitespace.
 - Inter or DM Sans font. Large H1 (48-64px desktop, 32px mobile).
 - Trust signals everywhere: ${pb.trustSignals.join(", ")}.
@@ -202,7 +202,7 @@ ${pb.inspiration.map((i) => `- ${i}`).join("\n")}
 ${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
 # SEO & TECHNICAL
-- HTML lang="en-US"
+- HTML lang="en-PK"
 - Meta: "${name} | ${niche} in ${l.city} | ${pb.primaryCTA}"
 - LocalBusiness schema markup (pick the closest @type for a ${niche}) in JSON-LD: name, address, geo, telephone, openingHours, aggregateRating
 - All images <img loading="lazy" alt="...">
@@ -210,14 +210,14 @@ ${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 - HTTPS, semantic HTML, accessible color contrast
 
 # COPY TONE
-Warm, calm, confident. Hindi/Hinglish allowed for trust phrases ("zaroorat padne pe call kariye"). Avoid jargon. Address common customer hesitations (cost, quality, trust) directly.
+Warm, calm, confident. Roman Urdu / Urdu-English mix allowed for trust phrases ("zaroorat parne par seedha call kar lein"). Avoid jargon. Address common customer hesitations (cost, quality, trust) directly.
 
 # CTA HIERARCHY
 Primary: ${pb.primaryCTA}. Secondary: ${pb.secondaryCTA}. Tertiary: Google Maps directions.
 
 ${
   platform === "lovable" || platform === "bolt"
-    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, indian local business).`
+    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, pakistani local business).`
     : platform === "claude-code"
       ? "OUTPUT: Next.js 15 app with app router, Tailwind, shadcn. Single landing page route. Include Suspense boundaries."
       : "OUTPUT: Static HTML + Tailwind CDN. Single index.html, self-contained."

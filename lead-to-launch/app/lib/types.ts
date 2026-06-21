@@ -49,4 +49,4 @@ export type ScrapeInput = {
 };
 
 export type OutreachChannel = "whatsapp" | "email" | "instagram";
-export type OutreachLanguage = "english" | "hinglish";
+export type OutreachLanguage = "english" | "roman-urdu";

@@ -21,7 +21,7 @@ export function Phase5Outreach({
   onPrev: () => void;
 }) {
   const [channel, setChannel] = useState<OutreachChannel>("whatsapp");
-  const [lang, setLang] = useState<OutreachLanguage>("hinglish");
+  const [lang, setLang] = useState<OutreachLanguage>("roman-urdu");
   const [message, setMessage] = useState("");
   const [followUp, setFollowUp] = useState("");
 
@@ -43,7 +43,7 @@ export function Phase5Outreach({
       const num = selected.whatsapp.replace(/\D/g, "");
       window.open(`https://wa.me/${num}?text=${encodeURIComponent(message)}`, "_blank");
     } else if (channel === "email" && selected.email) {
-      const subject = lang === "hinglish" ? "Aapke business ke liye ek website demo banayi hai" : "Built a website demo for your business";
+      const subject = lang === "roman-urdu" ? "Aap ke business ke liye ek website demo bana di hai" : "Built a website demo for your business";
       window.open(`mailto:${selected.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`, "_blank");
     } else if (channel === "instagram") {
       window.open(`https://instagram.com/`, "_blank");
@@ -56,7 +56,7 @@ export function Phase5Outreach({
     return (
       <PhaseShell
         title="Phase 5 — Outreach"
-        subtitle="Hinglish-first by default — converts 3x better in India. Built-in 5-day follow-up."
+        subtitle="Roman Urdu-first by default — converts better for local Pakistani businesses. Built-in day-3 follow-up."
         onPrev={onPrev}
       >
         <IncompleteState
@@ -76,7 +76,7 @@ export function Phase5Outreach({
   ];
 
   return (
-    <PhaseShell title="Phase 5 — Outreach" subtitle="Hinglish-first by default — converts 3x better in India. Built-in 5-day follow-up." onPrev={onPrev}>
+    <PhaseShell title="Phase 5 — Outreach" subtitle="Roman Urdu-first by default — converts better for local Pakistani businesses. Built-in day-3 follow-up." onPrev={onPrev}>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Sending to</div>
@@ -86,8 +86,8 @@ export function Phase5Outreach({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Label htmlFor="lang" className="text-sm">English</Label>
-            <Switch id="lang" checked={lang === "hinglish"} onCheckedChange={(c) => setLang(c ? "hinglish" : "english")} />
-            <Label htmlFor="lang" className="text-sm">Hinglish</Label>
+            <Switch id="lang" checked={lang === "roman-urdu"} onCheckedChange={(c) => setLang(c ? "roman-urdu" : "english")} />
+            <Label htmlFor="lang" className="text-sm">Roman Urdu</Label>
           </div>
         </div>
       </div>
@@ -167,52 +167,52 @@ function buildOutreach(l: RankedLead, channel: OutreachChannel, lang: OutreachLa
   const rating = l.rating ?? 4.5;
   const demoUrl = `[your-demo-link]`;
 
-  if (lang === "hinglish") {
+  if (lang === "roman-urdu") {
     if (channel === "whatsapp") {
       return {
         first: `Hi ${ownerName} 👋
 
-${l.city} mein ${niche} options dekh raha tha aur aapki ${l.name} sabse top ratings mein aayi — ${rating}★ aur ${reviews}+ reviews 🔥
+${l.city} mein ${niche} options dekh raha tha, aur ${l.name} top ratings mein nazar aayi — ${rating}★ aur ${reviews}+ reviews 🔥
 
-Ek baat noticed ki: ${l.audit.biggestGap}
+Ek cheez notice ki: ${l.audit.biggestGap}
 
-Iska ek solution banaya hai — aapke business ke liye ek FREE website demo bana di hai. WhatsApp booking, Google reviews, services, sab ready.
+Iska solution bana diya hai — aap ke business ke liye ek FREE website demo taiyar ki hai. WhatsApp booking, Google reviews, services — sab ready hai.
 
-Live demo dekhiye (30 seconds):
+Live demo dekh lein (30 second mein):
 ${demoUrl}
 
-Pasand aaye toh launch karwa denge. Nahi toh no problem — demo aapke paas free hi rahega.
+Pasand aaye to launch kar dete hain. Warna koi masla nahi — demo aap ke paas free hi rahega.
 
-Reply karein "YES" agar interested?`,
-        followUp: `Hi ${ownerName}, kal jo demo bheja tha — dekha aapne?
+"YES" reply kar dein agar interested hain?`,
+        followUp: `Hi ${ownerName}, pichle din jo demo bheja tha — dekha aap ne?
 
 Quick recap: ${l.audit.biggestGap.split(".")[0]}.
 
-Iska monthly impact roughly $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")} hai (Google search volume ke basis pe).
+Iska monthly impact taqreeban $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")} hai (Google search volume ke hisaab se).
 
 Demo abhi bhi live hai:
 ${demoUrl}
 
-5 minute call kar sakte hain to walk through? Bas batao kab free ho.`,
+5 minute ki call ho sakti hai walk-through ke liye? Bas bata dein kab free hain.`,
       };
     }
     if (channel === "email") {
       return {
-        first: `Subject: Aapki ${l.name} ke liye ek website demo (free, 30 sec dekhiye)
+        first: `Subject: Aap ki ${l.name} ke liye ek website demo (free, 30 second mein dekh lein)
 
 Hi ${ownerName},
 
-${l.city} mein ${niche} services research kar raha tha. ${l.name} top results mein aayi — ${rating}★, ${reviews}+ reviews.
+${l.city} mein ${niche} services research kar raha tha. ${l.name} top results mein nazar aayi — ${rating}★, ${reviews}+ reviews.
 
-Lekin ek gap noticed kiya: ${l.audit.biggestGap}
+Magar ek gap notice ki: ${l.audit.biggestGap}
 
-Aapke business ke liye ek live website demo banayi hai. Saari information already filled in — services, location, WhatsApp booking, Google reviews integration.
+Aap ke business ke liye ek live website demo bana di hai. Tamam information already fill ki gayi hai — services, location, WhatsApp booking, Google reviews integration.
 
 Demo: ${demoUrl}
 
-30 seconds lagega dekhne mein. Pasand aaye toh launch karwa denge — full price $15,000 (one-time), zero monthly fees.
+30 second lagenge dekhne mein. Pasand aaye to launch kar dete hain — full price $15,000 (one-time), koi monthly fee nahi.
 
-Reply with "YES" agar interested ho, ya "NO" agar relevant nahi — dono works.
+"YES" reply karein agar interested hain, ya "NO" agar relevant nahi — dono theek hai.
 
 Best,
 [Your Name]`,
@@ -222,17 +222,17 @@ Hi ${ownerName},
 
 Pichli email pe quick check-in. Demo abhi bhi live hai: ${demoUrl}
 
-Conservative estimate: ${l.audit.biggestGap.split(".")[0].toLowerCase()} costs around $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month in missed bookings.
+Conservative estimate: ${l.audit.biggestGap.split(".")[0].toLowerCase()} se taqreeban $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month ka nuqsan ho raha hai missed bookings mein.
 
-Worth a 5-min call?
+5-min call ho sakti hai?
 
 Best,
 [Your Name]`,
       };
     }
     return {
-      first: `Hi! 🙏 ${l.name} ke liye ek website demo banayi hai — ${l.audit.biggestGap} solve karne ke liye. ${demoUrl} pe live preview. Pasand aaye toh DM!`,
-      followUp: `Hey, kal jo website demo bheja tha — koi feedback? Demo: ${demoUrl} | 5 min call set kar sakte hain?`,
+      first: `Hi! 🙏 ${l.name} ke liye ek website demo bana di hai — ${l.audit.biggestGap} solve karne ke liye. ${demoUrl} pe live preview. Pasand aaye to DM karein!`,
+      followUp: `Hey, pichle din jo website demo bheja tha — koi feedback? Demo: ${demoUrl} | 5 min call set kar sakte hain?`,
     };
   }
 
