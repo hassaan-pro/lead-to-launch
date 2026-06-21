@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Calistoga, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider, UserButton } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </header>
           {children}
           <Toaster position="bottom-right" />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
