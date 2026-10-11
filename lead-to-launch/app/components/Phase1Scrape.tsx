@@ -46,7 +46,7 @@ export function Phase1Scrape({
         await new Promise((r) => setTimeout(r, 80));
         setLeads(data.leads.slice(0, i + 1));
       }
-      toast.success(`${data.leads.length} leads scraped from ${input.city}`);
+      toast.success(data.source === "demo" ? `${data.leads.length} DEMO leads loaded (not real scrapes)` : `${data.leads.length} leads scraped from ${input.city}`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {

@@ -19,6 +19,8 @@ export type Lead = {
 export type AuditResult = {
   leadId: string;
   pageSpeedScore: number;
+  /** False when no real PageSpeed measurement exists, so 0 does not mean a bad site. */
+  pageSpeedMeasured?: boolean;
   hasWebsite: boolean;
   mobileFriendly: boolean;
   https: boolean;
