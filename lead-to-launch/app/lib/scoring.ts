@@ -3,7 +3,9 @@ import type { Lead, AuditResult, RankedLead } from "./types";
 const HIGH_FIT_NICHES = ["dentist", "salon", "clinic", "spa", "gym", "restaurant", "cafe", "lawyer", "doctor", "coaching"];
 
 export function scoreLead(lead: Lead, audit: AuditResult): RankedLead {
-  const noOrBadSite = !audit.hasWebsite ? 25 : audit.pageSpeedScore < 50 ? 20 : audit.pageSpeedScore < 70 ? 10 : 0;
+  // An unmeasured site gets a neutral score. Treating "no data" as "terrible site" ranks unaudited leads as hot.
+  const measured = audit.pageSpeedMeasured ?? audit.pageSpeedScore > 0;
+  const noOrBadSite = !audit.hasWebsite ? 25 : !measured ? 10 : audit.pageSpeedScore < 50 ? 20 : audit.pageSpeedScore < 70 ? 10 : 0;
   const reviews = lead.reviewsCount ?? 0;
   const reviewVolume = Math.min(20, Math.round(reviews / 5));
   const rating = (lead.rating ?? 0) >= 4 ? 15 : (lead.rating ?? 0) >= 3.5 ? 8 : 0;

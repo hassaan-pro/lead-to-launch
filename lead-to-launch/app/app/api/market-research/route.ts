@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUser, clean } from "@/lib/api-guard";
 
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const TAVILY_ENDPOINT = "https://api.tavily.com/search";
@@ -10,6 +11,9 @@ type TavilyResult = {
 };
 
 export async function POST(req: Request) {
+  const user = await requireUser();
+  if (user instanceof NextResponse) return user;
+
   let body: { niche?: string; city?: string };
   try {
     body = await req.json();
@@ -17,7 +21,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body", results: [], configured: !!TAVILY_API_KEY }, { status: 400 });
   }
 
-  const { niche, city } = body;
+  const niche = clean(body.niche, 60);
+  const city = clean(body.city, 80);
   if (!niche || !city) {
     return NextResponse.json({ error: "niche and city are required", results: [], configured: !!TAVILY_API_KEY }, { status: 400 });
   }
