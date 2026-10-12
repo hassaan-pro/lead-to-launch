@@ -3,6 +3,11 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Lead, AuditResult } from "@/lib/types";
 import { requireUser, clean } from "@/lib/api-guard";
+import { fetchPage } from "@/lib/site-fetch";
+import { analyzeSite, classifyWebsite, describeBiggestGap, describeOpportunity } from "@/lib/site-analyze";
+
+// Fetching a real site plus an optional PageSpeed call can take a while.
+export const maxDuration = 60;
 
 const PSI_KEY = process.env.GOOGLE_PAGESPEED_KEY;
 
@@ -19,9 +24,10 @@ async function pagespeed(url: string): Promise<{ score: number; loadTimeMs: numb
   const res = await fetch(endpoint, { signal: AbortSignal.timeout(25000) }).catch(() => null);
   if (!res || !res.ok) return null;
   const j = await res.json();
-  const score = Math.round((j.lighthouseResult?.categories?.performance?.score ?? 0) * 100);
+  const raw = j.lighthouseResult?.categories?.performance?.score;
+  if (typeof raw !== "number") return null;
   const lcp = j.lighthouseResult?.audits?.["largest-contentful-paint"]?.numericValue ?? 0;
-  return { score, loadTimeMs: Math.round(lcp) };
+  return { score: Math.round(raw * 100), loadTimeMs: Math.round(lcp) };
 }
 
 export async function POST(req: Request) {
@@ -36,58 +42,39 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "A valid lead is required" }, { status: 400 });
   }
-  // Only http(s) URLs ever reach PageSpeed.
-  const site = clean(lead.website, 300);
-  if (site && !/^https?:\/\//i.test(site)) lead = { ...lead, website: undefined };
 
-  // Seed has rich pre-written audits for demo — use if id matches
+  // Demo seed audits only exist for the demo lead ids.
   const seed = await loadSeedAudits();
-  if (seed[lead.id]) {
-    return NextResponse.json({ audit: seed[lead.id] });
+  if (seed[lead.id]) return NextResponse.json({ audit: seed[lead.id] });
+
+  const site = clean(lead.website, 300);
+  const siteKind = classifyWebsite(site);
+
+  if (siteKind !== "own") {
+    const base = { leadId: lead.id, siteKind, hasWebsite: false, pageSpeedScore: 0, pageSpeedMeasured: false, mobileFriendly: false, https: false, hasSchema: false, loadTimeMs: 0 };
+    const gaps = siteKind === "social" ? ["Only a social page, no website"] : ["No website at all"];
+    const audit: AuditResult = {
+      ...base,
+      gaps,
+      strengths: [],
+      biggestGap: describeBiggestGap(lead, { siteKind }),
+      opportunity: describeOpportunity(lead, { siteKind, gaps }),
+    };
+    return NextResponse.json({ audit });
   }
 
-  // Fallback: real PageSpeed call or empty result
-  const hasWebsite = !!lead.website;
-  let score = 0;
-  let loadTimeMs = 0;
-  let measured = false;
-  if (hasWebsite) {
-    const r = await pagespeed(lead.website!);
-    if (r) {
-      score = r.score;
-      loadTimeMs = r.loadTimeMs;
-      measured = true;
-    }
-  }
-
-  const gaps: string[] = [];
-  if (!hasWebsite) gaps.push("No website at all");
-  if (hasWebsite && measured && score < 50) gaps.push(`${score} PageSpeed (mobile)`);
-  if (hasWebsite && loadTimeMs > 4000) gaps.push(`${(loadTimeMs / 1000).toFixed(1)}s load time`);
-  if (!lead.whatsapp) gaps.push("No WhatsApp click-to-chat");
-  gaps.push("No online booking", "No schema markup", "Weak local SEO");
-
-  const estLostRevenuePerMonth = Math.max(
-    20000,
-    (lead.reviewsCount ?? 30) * 400 + (hasWebsite ? 0 : 30000),
-  );
-
+  const [page, psi] = await Promise.all([fetchPage(site), pagespeed(site)]);
+  const result = analyzeSite(lead, page, psi);
   const audit: AuditResult = {
     leadId: lead.id,
-    pageSpeedScore: score,
-    pageSpeedMeasured: measured,
-    hasWebsite,
-    mobileFriendly: PSI_KEY ? score > 60 : true,
-    https: hasWebsite ? lead.website!.startsWith("https") : false,
-    hasSchema: false,
-    loadTimeMs,
-    gaps,
-    biggestGap: hasWebsite
-      ? loadTimeMs > 0
-        ? `Site loads in ${(loadTimeMs / 1000).toFixed(1)}s. Modern build fixes this overnight.`
-        : `Outdated site with no booking flow. A modern build with WhatsApp booking converts visitors into customers.`
-      : `${lead.reviewsCount ?? 0} reviews, zero web presence. Losing booking-ready customers to businesses that show up on Google search.`,
-    estLostRevenuePerMonth,
+    siteKind: "own",
+    hasWebsite: true,
+    ...result,
+    biggestGap: "",
   };
+  audit.biggestGap = page.ok
+    ? describeBiggestGap(lead, audit)
+    : `Could not load their site from our server (${page.error ?? "no response"}). Check it by hand before pitching.`;
+  audit.opportunity = page.ok ? describeOpportunity(lead, audit) : "Site could not be audited automatically. Verify manually.";
   return NextResponse.json({ audit });
 }

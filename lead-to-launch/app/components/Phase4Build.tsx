@@ -10,6 +10,7 @@ import { IncompleteState } from "./IncompleteState";
 import { Copy, ExternalLink, Sparkles, Loader2, Search, RefreshCw } from "lucide-react";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { getNichePlaybook } from "@/lib/niche-playbooks";
+import { buildDesignDirectives } from "@/lib/design-directives";
 import { detectLocale } from "@/lib/locale";
 import { toast } from "sonner";
 
@@ -209,10 +210,10 @@ export function Phase4Build({
 function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchResult[]): string {
   const name = l.name;
   const niche = l.category;
-  const phone = l.phone ?? "+91 XXXXX XXXXX";
+  const phone = l.phone ?? "[REPLACE: phone number]";
   const whatsapp = l.whatsapp ?? phone;
   const addr = l.address;
-  const rating = l.rating ?? 4.5;
+  const rating = l.rating;
   const reviews = l.reviewsCount ?? 0;
   const gap = l.audit.biggestGap;
   const city = l.city.split(",")[0];
@@ -221,11 +222,11 @@ function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchR
 
   const sections = [
     `Hero: Business name + promise (${pb.heroAngle}) + "${pb.primaryCTA}" CTA + rating badge`,
-    `Trust strip: "${rating}★ on Google · ${reviews}+ reviews · ${l.yearsInBusiness ?? 8}+ years in ${city}"`,
+    `Trust strip: "${[rating ? `${rating}★ on Google` : null, reviews ? `${reviews.toLocaleString("en-US")}+ reviews` : null, l.yearsInBusiness ? `${l.yearsInBusiness}+ years in ${city}` : null].filter(Boolean).join(" · ") || "[REPLACE: real proof points]"}" (only these facts, nothing invented)`,
     `Services/offerings grid: 6 cards — pick the 6 most-searched services for a ${niche} in this market. If the business has no public list, start from: ${pb.serviceExamples.join(", ")}`,
     `About + owner/team bio: 2-col, photo placeholder + credentials + years`,
     ...pb.signatureSections,
-    `Reviews carousel: pull 6 review snippets (use Lorem placeholder, mark for replacement)`,
+    `Reviews: the rating and review count as proof. Real quotes only if provided; otherwise a [REPLACE: add 3 real Google reviews] slot. Never invent testimonials.`,
     `FAQ accordion: answer what a first-time ${niche} customer actually asks — specifically: ${pb.faqTopics.join("; ")}`,
     `Location: Google Maps embed of ${addr} + business hours table + directions CTA`,
     `Footer: WhatsApp + Phone + Address + Hours + social icons (Instagram, Google)`,
@@ -239,7 +240,7 @@ Category: ${niche}
 Address: ${addr}
 Phone: ${phone}
 WhatsApp: ${whatsapp}
-Google rating: ${rating}★ (${reviews} reviews)
+Google rating: ${rating ? `${rating}★` : "n/a"} (${reviews.toLocaleString("en-US")} reviews)
 Biggest current gap: ${gap}
 
 # INSPIRATION — what the best ${niche} sites do right now
@@ -249,14 +250,11 @@ ${
     ? `\n# LIVE MARKET RESEARCH — pulled just now for "${niche}" in ${city}\n${research.map((r) => `- ${r.title}: ${r.snippet} (${r.url})`).join("\n")}\n\nUse this as real-world context for what's actually ranking/operating in this exact market right now — on top of the general ${niche} best practices above, not instead of them.\n`
     : ""
 }
-# DESIGN
-- ${locale.mobileTrafficNote} Hero CTA visible above fold on 375px width.
-- ${pb.vibe} Accent: ${pb.accent}. Generous whitespace.
-- Inter or DM Sans font. Large H1 (48-64px desktop, 32px mobile).
-- Trust signals everywhere: ${pb.trustSignals.join(", ")}.
-- ${pb.photographyNote}
+${buildDesignDirectives(l, pb, l.audit, locale.mobileTrafficNote)}
 - Floating WhatsApp button (bottom-right) on every page. Click → wa.me/${whatsapp.replace(/\D/g, "")}
 - Click-to-call phone in header. tel:${phone.replace(/\s/g, "")}
+- Trust signals to weave in: ${pb.trustSignals.join(", ")}.
+- ${pb.photographyNote}
 
 # SECTIONS (in order)
 ${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}

@@ -198,7 +198,7 @@ Pasand aaye to launch kar dete hain. Warna koi masla nahi — demo aap ke paas f
 
 Quick recap: ${l.audit.biggestGap.split(".")[0]}.
 
-Iska monthly impact taqreeban $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")} hai (Google search volume ke hisaab se).
+Demo mein yeh pehle se fix hai.
 
 Demo abhi bhi live hai:
 ${demoUrl}
@@ -220,7 +220,7 @@ Aap ke business ke liye ek live website demo bana di hai. Tamam information alre
 
 Demo: ${demoUrl}
 
-30 second lagenge dekhne mein. Pasand aaye to launch kar dete hain — full price $15,000 (one-time), koi monthly fee nahi.
+30 second lagenge dekhne mein. Pasand aaye to launch kar dete hain — full price [your price] (one-time), koi monthly fee nahi.
 
 "YES" reply karein agar interested hain, ya "NO" agar relevant nahi — dono theek hai.
 
@@ -232,7 +232,7 @@ Hi ${ownerName},
 
 Pichli email pe quick check-in. Demo abhi bhi live hai: ${demoUrl}
 
-Conservative estimate: ${l.audit.biggestGap.split(".")[0].toLowerCase()} se taqreeban $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month ka nuqsan ho raha hai missed bookings mein.
+Jo gap maine bataya tha (${l.audit.biggestGap.split(".")[0]}), woh demo mein pehle se fix hai.
 
 5-min call ho sakti hai?
 
@@ -264,7 +264,7 @@ If you like it, we launch it. If not, the demo is yours to keep — free.
 Reply "YES" if interested?`,
       followUp: `Hi ${ownerName}, following up on the demo from a couple of days ago: ${demoUrl}
 
-The biggest gap I shared (${l.audit.biggestGap.split(".")[0]}) is costing roughly $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month in missed bookings.
+The gap I flagged (${l.audit.biggestGap.split(".")[0]}) is already fixed in the demo.
 
 Worth a quick 5-min call to walk through?`,
     };
@@ -283,7 +283,7 @@ So I built a free demo website for your business, pre-filled with services, loca
 
 Demo: ${demoUrl}
 
-If you like it, launch is $15,000 one-time, zero monthly. If not, demo is yours.
+If you like it, launch is [your price] one-time, zero monthly. If not, demo is yours.
 
 Reply "YES" or "NO" — both work.
 
@@ -295,7 +295,7 @@ Hi ${ownerName},
 
 Quick check-in. Demo still live: ${demoUrl}
 
-Conservative estimate: the gap above costs around $${l.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/month.
+The gap I flagged is already fixed in the demo.
 
 5-min call?
 
