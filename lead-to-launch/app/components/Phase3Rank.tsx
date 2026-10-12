@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
-import { Crown, DollarSign, MessageCircle, Phone, Mail } from "lucide-react";
+import { Crown, AlertTriangle, MessageCircle, Phone, Mail } from "lucide-react";
 import type { Lead, AuditResult, RankedLead } from "@/lib/types";
 import { scoreLead } from "@/lib/scoring";
 
@@ -106,7 +106,7 @@ export function Phase3Rank({
                 <div className="font-medium text-base leading-snug">{lead.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">{lead.address}</div>
                 <div className="mt-4 flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1"><DollarSign className="h-3 w-3 text-muted-foreground" />{lead.audit.estLostRevenuePerMonth.toLocaleString("en-US")}/mo</span>
+                  <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-muted-foreground" />{lead.audit.gaps.length} gap{lead.audit.gaps.length === 1 ? "" : "s"}</span>
                   <span className="text-border">·</span>
                   <span className="text-muted-foreground">{lead.reviewsCount} reviews</span>
                 </div>
@@ -133,7 +133,7 @@ export function Phase3Rank({
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Business</TableHead>
                   <TableHead className="w-[260px]">Score</TableHead>
-                  <TableHead>$ Lost / mo</TableHead>
+                  <TableHead>Gaps</TableHead>
                   <TableHead>Site</TableHead>
                   <TableHead className="text-right">Select</TableHead>
                 </TableRow>
@@ -167,12 +167,16 @@ export function Phase3Rank({
                         <span className="font-mono text-sm tabular-nums w-9 text-right">{lead.score}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono tabular-nums text-sm">${lead.audit.estLostRevenuePerMonth.toLocaleString("en-US")}</TableCell>
+                    <TableCell className="font-mono tabular-nums text-sm">{lead.audit.gaps.length}</TableCell>
                     <TableCell>
                       {lead.audit.hasWebsite ? (
-                        <Badge variant="secondary" className="text-xs font-normal">{lead.audit.pageSpeedScore} PageSpeed</Badge>
+                        <Badge variant="secondary" className="text-xs font-normal">
+                          {(lead.audit.pageSpeedMeasured ?? lead.audit.pageSpeedScore > 0) ? `${lead.audit.pageSpeedScore} PageSpeed` : "Has site"}
+                        </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-xs font-normal text-[color:var(--destructive)] border-[color:var(--destructive)]/40 bg-[color:var(--destructive)]/5">None</Badge>
+                        <Badge variant="outline" className="text-xs font-normal text-[color:var(--destructive)] border-[color:var(--destructive)]/40 bg-[color:var(--destructive)]/5">
+                          {lead.audit.siteKind === "social" ? "Social only" : "None"}
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">

@@ -14,6 +14,13 @@ async function loadSeed(): Promise<{ leads: Lead[] }> {
   return { leads: json.leads as Lead[] };
 }
 
+/** A landline cannot be on WhatsApp. Only mark mobile-looking numbers (PK, UK, UAE, India). */
+function looksLikeMobile(phone: unknown): boolean {
+  if (typeof phone !== "string") return false;
+  const d = phone.replace(/[^\d+]/g, "");
+  return /^(\+?92|0)3\d{9}$/.test(d) || /^\+?447\d{9}$/.test(d) || /^\+?9715\d{8}$/.test(d) || /^\+?91[6-9]\d{9}$/.test(d);
+}
+
 export async function POST(req: Request) {
   const user = await requireUser();
   if (user instanceof NextResponse) return user;
@@ -69,7 +76,7 @@ export async function POST(req: Request) {
         address: String(it.address ?? ""),
         city: input.city,
         phone: it.phone ? String(it.phone) : undefined,
-        whatsapp: it.phone ? String(it.phone) : undefined,
+        whatsapp: looksLikeMobile(it.phone) ? String(it.phone) : undefined,
         email: undefined,
         website: it.website ? String(it.website) : undefined,
         rating: typeof it.totalScore === "number" ? it.totalScore : undefined,

@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
-import { Loader2, AlertTriangle, DollarSign, Gauge, Star, Phone, MessageCircle, Globe } from "lucide-react";
+import { Loader2, AlertTriangle, Gauge, Star, Phone, MessageCircle, Globe } from "lucide-react";
 import type { Lead, AuditResult } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -83,14 +83,17 @@ export function Phase2Audit({
   }
 
   const auditedCount = Object.keys(audits).length;
-  const totalLost = Object.values(audits).reduce((s, a) => s + (a?.estLostRevenuePerMonth ?? 0), 0);
+  const auditList = Object.values(audits);
+  const totalGaps = auditList.reduce((s, a) => s + (a?.gaps?.length ?? 0), 0);
+  const measuredSpeeds = auditList.filter((a) => a.pageSpeedMeasured ?? a.pageSpeedScore > 0);
+  const noBooking = auditList.filter((a) => a.checks?.some((c) => c.id === "booking" && c.status === "fail")).length;
 
   // Incomplete state: Phase 1 not run yet
   if (leads.length === 0) {
     return (
       <PhaseShell
         title="Phase 2 — Business audit"
-        subtitle="PageSpeed, mobile readiness, schema, gaps + AI-summarized biggest opportunity. Estimated revenue left on the table."
+        subtitle="We open each business's real website and check booking, WhatsApp, mobile, search markup and freshness. Every gap comes with the evidence we saw."
         onPrev={onPrev}
         onNext={onNext}
         nextDisabled
@@ -109,7 +112,7 @@ export function Phase2Audit({
   return (
     <PhaseShell
       title="Phase 2 — Business audit"
-      subtitle="PageSpeed, mobile readiness, schema, gaps + AI-summarized biggest opportunity. Estimated revenue left on the table."
+      subtitle="We open each business's real website and check booking, WhatsApp, mobile, search markup and freshness. Every gap comes with the evidence we saw."
       onPrev={onPrev}
       onNext={onNext}
       nextDisabled={auditedCount === 0}
@@ -132,17 +135,18 @@ export function Phase2Audit({
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Avg PageSpeed</div>
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Avg PageSpeed (measured)</div>
             <div className="font-display text-3xl tabular-nums mt-2">
-              {auditedCount ? Math.round(Object.values(audits).reduce((s, a) => s + a.pageSpeedScore, 0) / auditedCount) : 0}
+              {measuredSpeeds.length ? Math.round(measuredSpeeds.reduce((s, a) => s + a.pageSpeedScore, 0) / measuredSpeeds.length) : "n/a"}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Est. $ lost / month</div>
-            <div className="font-display text-3xl tabular-nums flex items-center mt-2">
-              <DollarSign className="h-6 w-6" strokeWidth={1.5} />{totalLost.toLocaleString("en-US")}
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Gaps found</div>
+            <div className="font-display text-3xl tabular-nums mt-2">
+              {totalGaps}
+              <span className="text-muted-foreground/50 text-base"> · {noBooking} no booking</span>
             </div>
           </CardContent>
         </Card>
@@ -240,12 +244,14 @@ export function Phase2Audit({
                   {a ? (
                     <>
                       <div className="flex items-center gap-3 pt-1 border-t border-border/60">
-                        <PageSpeedGauge score={a.pageSpeedScore} />
+                        {(a.pageSpeedMeasured ?? a.pageSpeedScore > 0) && a.hasWebsite ? <PageSpeedGauge score={a.pageSpeedScore} /> : null}
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Est. lost / mo</div>
-                          <div className="font-display text-lg tabular-nums flex items-center mt-0.5">
-                            <DollarSign className="h-3.5 w-3.5" strokeWidth={1.5} />{a.estLostRevenuePerMonth.toLocaleString("en-US")}
+                          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Findings</div>
+                          <div className="font-display text-lg tabular-nums mt-0.5">
+                            {a.gaps.length} gap{a.gaps.length === 1 ? "" : "s"}
+                            {a.strengths && a.strengths.length > 0 ? <span className="text-muted-foreground/60 text-sm"> · {a.strengths.length} passed</span> : null}
                           </div>
+                          {a.builder ? <div className="text-[10px] text-muted-foreground mt-0.5">Built on {a.builder}</div> : null}
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-1">
