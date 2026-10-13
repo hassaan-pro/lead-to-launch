@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { ScrapeInput } from "./types";
 
@@ -25,3 +25,25 @@ export function parseScrapeInput(body: unknown): ScrapeInput | null {
 }
 
 export const isDemoMode = () => process.env.DEMO_MODE === "true";
+
+/**
+ * Generation spends real Anthropic credits, so it is allowlist-only. Open sign-ups must never
+ * be able to run it. Set GENERATION_ALLOWED_EMAILS to a comma-separated list of emails.
+ */
+export async function requireGenerator(): Promise<{ userId: string } | NextResponse> {
+  const user = await requireUser();
+  if (user instanceof NextResponse) return user;
+  const allowed = (process.env.GENERATION_ALLOWED_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (allowed.length === 0) {
+    return NextResponse.json({ error: "Site generation is switched off. Set GENERATION_ALLOWED_EMAILS in Vercel to enable it for your email." }, { status: 403 });
+  }
+  const u = await currentUser();
+  const emails = (u?.emailAddresses ?? []).map((e) => e.emailAddress.toLowerCase());
+  if (!emails.some((e) => allowed.includes(e))) {
+    return NextResponse.json({ error: "Your account is not allowed to generate sites." }, { status: 403 });
+  }
+  return user;
+}

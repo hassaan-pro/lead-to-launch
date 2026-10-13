@@ -1,6 +1,6 @@
 # Third-party notices
 
-Lead to Launch builds website-generation prompts. The design rules in `lib/design-directives.ts`
+Lead to Launch builds website-generation prompts. The design rules in `lib/design-directives.ts` and `lib/generation/knowledge.ts`
 are condensed and adapted from the open source projects below. Their licenses require that the
 license text and notices travel with any derived work, so they are kept in this folder.
 
@@ -26,3 +26,7 @@ These changes are stated here because Apache-2.0 section 4(b) asks for it.
   fixes were rewritten as short prompt directives.
 
 Nothing in this folder is a statement of endorsement by the original authors.
+
+`lib/generation/knowledge.ts` is the larger of the two. It is the system prompt for the in-app generator and
+adds a library of page architectures and creative constraint cards. Those additions are original to this project.
+The architectures, constraint cards and prompt workflow are not taken from the projects above.

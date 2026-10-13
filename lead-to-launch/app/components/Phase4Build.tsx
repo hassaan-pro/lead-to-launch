@@ -1,23 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
-import { Copy, ExternalLink, Sparkles, Loader2, Search, RefreshCw } from "lucide-react";
+import { SiteStudio } from "./SiteStudio";
+import { Copy, ExternalLink, Loader2, Search, RefreshCw, ChevronDown } from "lucide-react";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { getNichePlaybook } from "@/lib/niche-playbooks";
 import { buildDesignDirectives } from "@/lib/design-directives";
+import { briefToExportSection } from "@/lib/generation/prompts";
+import type { CreativeBrief } from "@/lib/generation/brief";
 import { detectLocale } from "@/lib/locale";
 import { toast } from "sonner";
 
 const PLATFORMS = [
+  { id: "claude-ai", label: "Claude.ai or ChatGPT", url: "https://claude.ai" },
   { id: "lovable", label: "Lovable", url: "https://lovable.dev" },
-  { id: "claude-code", label: "Claude Code", url: "https://claude.com/claude-code" },
   { id: "bolt", label: "Bolt.new", url: "https://bolt.new" },
+  { id: "claude-code", label: "Claude Code", url: "https://claude.com/claude-code" },
   { id: "codex", label: "Codex", url: "https://chat.openai.com" },
 ];
 
@@ -30,10 +33,14 @@ export function Phase4Build({
   onNext: () => void;
   onPrev: () => void;
 }) {
-  const [platform, setPlatform] = useState("lovable");
-  const [prompt, setPrompt] = useState("");
-  const [typed, setTyped] = useState("");
-  const [building, setBuilding] = useState(false);
+  const [platform, setPlatform] = useState("claude-ai");
+  const [showPrompt, setShowPrompt] = useState(false);
+  // The direction belongs to one lead. Storing the lead id with it means switching leads clears it without an effect.
+  const [briefState, setBriefState] = useState<{ leadId: string; brief: CreativeBrief } | null>(null);
+  const brief = briefState && selected && briefState.leadId === selected.id ? briefState.brief : null;
+  function setBrief(b: CreativeBrief | null) {
+    setBriefState(b && selected ? { leadId: selected.id, brief: b } : null);
+  }
   const [research, setResearch] = useState<MarketResearchResult[] | null>(null);
   const [researching, setResearching] = useState(false);
   const [researchConfigured, setResearchConfigured] = useState(true);
@@ -64,7 +71,7 @@ export function Phase4Build({
     }
   }
 
-  // Kick off live research once per lead (not on every platform toggle).
+  // Kick off live research once per lead (not on every platform toggle). A new lead also clears the old direction.
   useEffect(() => {
     if (!selected) return;
     setResearch(null);
@@ -73,23 +80,7 @@ export function Phase4Build({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.id]);
 
-  useEffect(() => {
-    if (!selected) return;
-    const p = buildPrompt(selected, platform, research ?? undefined);
-    setPrompt(p);
-  }, [selected, platform, research]);
-
-  useEffect(() => {
-    setTyped("");
-    if (!prompt) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i += 8;
-      setTyped(prompt.slice(0, i));
-      if (i >= prompt.length) clearInterval(id);
-    }, 12);
-    return () => clearInterval(id);
-  }, [prompt]);
+  const prompt = useMemo(() => (selected ? buildPrompt(selected, platform, research ?? undefined, brief) : ""), [selected, platform, research, brief]);
 
   function copyPrompt() {
     navigator.clipboard.writeText(prompt);
@@ -101,27 +92,14 @@ export function Phase4Build({
     if (url) window.open(url, "_blank");
   }
 
-  function simulateBuild() {
-    setBuilding(true);
-    setTimeout(() => {
-      setBuilding(false);
-      toast.success("Demo site ready. Preview loaded.");
-    }, 1800);
-  }
+  const subtitle = "We decide the creative direction for this business first, then build the page and show it live. Nothing to unzip or deploy.";
 
   if (!selected) {
     return (
-      <PhaseShell
-        title="Phase 4 — Generate website"
-        subtitle="Pick a platform. We research this niche live, then craft a prompt with brand, structure, sections, and SEO baked in."
-        onPrev={onPrev}
-        onNext={onNext}
-        nextDisabled
-        nextLabel="Draft outreach"
-      >
+      <PhaseShell title="Phase 4 — Generate website" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextDisabled nextLabel="Draft outreach">
         <IncompleteState
           title="No lead selected yet"
-          description="Run scrape and audit, then pick the highest-scoring prospect in Phase 3. We'll generate a complete website prompt (Lovable / Bolt / Claude Code / Codex) plus a live preview here."
+          description="Run scrape and audit, then pick the highest-scoring prospect in Phase 3. We'll design and build a website for them."
           prevPhaseLabel="Rank"
           onPrev={onPrev}
         />
@@ -130,84 +108,62 @@ export function Phase4Build({
   }
 
   return (
-    <PhaseShell
-      title="Phase 4 — Generate website"
-      subtitle={`Pick a platform. We research this niche live, then craft a prompt with brand, structure, sections, and SEO baked in.`}
-      onPrev={onPrev}
-      onNext={onNext}
-      nextLabel="Draft outreach"
-    >
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Selected lead</div>
-          <div className="font-display text-2xl mt-1">{selected.name}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">{selected.address}</div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={platform} onValueChange={(v) => v && setPlatform(v)}>
-            <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {PLATFORMS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={openPlatform}><ExternalLink className="h-4 w-4 mr-2" /> Open</Button>
-          <Button onClick={copyPrompt}><Copy className="h-4 w-4 mr-2" /> Copy prompt</Button>
-        </div>
+    <PhaseShell title="Phase 4 — Generate website" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextLabel="Draft outreach">
+      <div className="mb-6">
+        <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Selected lead</div>
+        <div className="font-display text-2xl mt-1">{selected.name}</div>
+        <div className="text-xs text-muted-foreground mt-0.5">{selected.address}</div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Generated prompt</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                {researching ? (
-                  <><Loader2 className="h-3 w-3 animate-spin" /> Researching {selected.category} market in {selected.city.split(",")[0]}…</>
-                ) : research && research.length > 0 ? (
-                  <><Search className="h-3 w-3" /> Live market research included ({research.length} sources)</>
-                ) : researchError ? (
-                  <span className="text-amber-600">Live research unavailable — using static inspiration only</span>
-                ) : !researchConfigured ? (
-                  <span>Static inspiration only — add TAVILY_API_KEY for live research</span>
-                ) : null}
-              </div>
-              <Button size="icon-xs" variant="ghost" onClick={() => runResearch(selected)} disabled={researching} title="Refresh live research">
-                <RefreshCw className={`h-3.5 w-3.5 ${researching ? "animate-spin" : ""}`} />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs leading-relaxed whitespace-pre-wrap font-mono bg-muted/30 rounded-md p-4 max-h-[520px] overflow-y-auto border border-border">
-              {typed}<span className="animate-pulse">▌</span>
-            </pre>
-          </CardContent>
-        </Card>
+      <SiteStudio key={selected.id} lead={selected} research={research} brief={brief} onBrief={setBrief} />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Live preview</CardTitle>
-            <Button size="sm" variant="outline" onClick={simulateBuild} disabled={building}>
-              {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> Build site</>}
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
+          <button type="button" onClick={() => setShowPrompt((v) => !v)} className="flex items-center gap-2 text-left">
+            <CardTitle>Prompt for other tools</CardTitle>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${showPrompt ? "rotate-180" : ""}`} />
+          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              {researching ? (
+                <><Loader2 className="h-3 w-3 animate-spin" /> Researching {selected.category} market…</>
+              ) : research && research.length > 0 ? (
+                <><Search className="h-3 w-3" /> {research.length} research sources</>
+              ) : researchError ? (
+                <span className="text-amber-600">Live research unavailable</span>
+              ) : !researchConfigured ? (
+                <span>Add TAVILY_API_KEY for live research</span>
+              ) : null}
+            </div>
+            <Button size="icon-xs" variant="ghost" onClick={() => runResearch(selected)} disabled={researching} title="Refresh live research">
+              <RefreshCw className={`h-3.5 w-3.5 ${researching ? "animate-spin" : ""}`} />
             </Button>
-          </CardHeader>
+            <Select value={platform} onValueChange={(v) => v && setPlatform(v)}>
+              <SelectTrigger className="w-[190px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PLATFORMS.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={openPlatform}><ExternalLink className="h-4 w-4 mr-2" /> Open</Button>
+            <Button onClick={copyPrompt}><Copy className="h-4 w-4 mr-2" /> Copy prompt</Button>
+          </div>
+        </CardHeader>
+        {showPrompt ? (
           <CardContent>
-            <div className="rounded-lg overflow-hidden border border-border h-[520px]">
-              <iframe
-                title="Preview"
-                srcDoc={demoSiteHtml(selected)}
-                className="w-full h-full bg-[#f5efe6]"
-              />
-            </div>
+            {!brief ? (
+              <div className="text-xs text-amber-600 mb-2">No creative direction yet, so this prompt falls back to the generic structure. Create the direction above first for a distinctive result.</div>
+            ) : null}
+            <pre className="text-xs leading-relaxed whitespace-pre-wrap font-mono bg-muted/30 rounded-md p-4 max-h-[520px] overflow-y-auto border border-border">{prompt}</pre>
           </CardContent>
-        </Card>
-      </div>
+        ) : null}
+      </Card>
     </PhaseShell>
   );
 }
 
-function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchResult[]): string {
+function buildPrompt(l: RankedLead, platform: string, research?: MarketResearchResult[], brief?: CreativeBrief | null): string {
   const name = l.name;
   const niche = l.category;
   const phone = l.phone ?? "[REPLACE: phone number]";
@@ -250,16 +206,13 @@ ${
     ? `\n# LIVE MARKET RESEARCH — pulled just now for "${niche}" in ${city}\n${research.map((r) => `- ${r.title}: ${r.snippet} (${r.url})`).join("\n")}\n\nUse this as real-world context for what's actually ranking/operating in this exact market right now — on top of the general ${niche} best practices above, not instead of them.\n`
     : ""
 }
-${buildDesignDirectives(l, pb, l.audit, locale.mobileTrafficNote)}
+${brief ? briefToExportSection(brief) : buildDesignDirectives(l, pb, l.audit, locale.mobileTrafficNote)}
 - Floating WhatsApp button (bottom-right) on every page. Click → wa.me/${whatsapp.replace(/\D/g, "")}
 - Click-to-call phone in header. tel:${phone.replace(/\s/g, "")}
 - Trust signals to weave in: ${pb.trustSignals.join(", ")}.
 - ${pb.photographyNote}
 
-# SECTIONS (in order)
-${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
-
-# SEO & TECHNICAL
+${brief ? "" : `# SECTIONS (in order)\n${sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n`}# SEO & TECHNICAL
 - HTML lang="${locale.htmlLang}"
 - Meta: "${name} | ${niche} in ${l.city} | ${pb.primaryCTA}"
 - LocalBusiness schema markup (pick the closest @type for a ${niche}) in JSON-LD: name, address, geo, telephone, openingHours, aggregateRating
@@ -275,28 +228,11 @@ Primary: ${pb.primaryCTA}. Secondary: ${pb.secondaryCTA}. Tertiary: Google Maps 
 
 ${
   platform === "lovable" || platform === "bolt"
-    ? `OUTPUT: Single React + Tailwind page. No backend. Use placeholder images from unsplash.com (search: ${niche.toLowerCase()}, ${locale.imageSearchRegion}).`
+    ? `OUTPUT: Single-page React + Tailwind site. No backend. Build atmosphere from type, gradients and inline SVG as the creative direction describes. Where a real photo belongs, leave an art-directed frame labelled [REPLACE: photo of ...]. Do not use generic stock photos.`
     : platform === "claude-code"
       ? "OUTPUT: Next.js 15 app with app router, Tailwind, shadcn. Single landing page route. Include Suspense boundaries."
-      : "OUTPUT: Static HTML + Tailwind CDN. Single index.html, self-contained."
+      : `OUTPUT: ONE self-contained index.html file. Inline all CSS and JavaScript. The only external resource allowed is a Google Fonts link. Return it as a single artifact (Claude) or canvas (ChatGPT) so it renders as a live preview. Do NOT output a project, a zip, a folder structure or multiple files.`
 }
 
 Generate now. Then list 3 sentences I can use to show the owner why this beats their current ${l.audit.hasWebsite ? "outdated site" : "Google listing only"}.`;
-}
-
-function demoSiteHtml(l: RankedLead): string {
-  const wa = (l.whatsapp ?? l.phone ?? "919999999999").replace(/\D/g, "");
-  const pb = getNichePlaybook(l.category);
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${l.name}</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>body{font-family:ui-serif,Georgia,'Times New Roman',serif;background:#f5efe6;color:#2c2620}h1,h2,.sans{font-family:ui-sans-serif,system-ui,sans-serif}</style>
-</head><body>
-<header class="border-b border-stone-200 bg-[#faf6ee]"><div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between"><div class="font-medium tracking-tight text-stone-800">${l.name}</div><a href="tel:${(l.phone ?? "").replace(/\s/g, "")}" class="text-sm text-stone-600 sans">${l.phone ?? ""}</a></div></header>
-<section><div class="max-w-5xl mx-auto px-6 py-20 sm:py-28"><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 sans">${l.category} · ${l.city}</div><h1 class="text-4xl sm:text-6xl font-medium mt-4 leading-[1.05] tracking-tight text-stone-900">${pb.previewHeadline}</h1><p class="mt-6 text-lg text-stone-600 max-w-xl leading-relaxed">${l.rating} on Google · ${l.reviewsCount} reviews. Book in under a minute on WhatsApp — no calls, no waiting.</p><div class="mt-8 flex gap-3 sans"><a href="https://wa.me/${wa}" class="bg-stone-900 text-stone-50 font-medium px-7 py-3.5 rounded-full text-sm tracking-wide hover:bg-stone-700 transition">${pb.previewCtaLabel}</a><a href="tel:${(l.phone ?? "").replace(/\s/g, "")}" class="border border-stone-300 text-stone-700 px-7 py-3.5 rounded-full text-sm tracking-wide">Call us</a></div></div></section>
-<section class="bg-[#ede4d3] border-y border-stone-200"><div class="max-w-5xl mx-auto px-6 py-14 grid sm:grid-cols-3 gap-8 text-center"><div><div class="text-4xl font-medium tracking-tight text-stone-900">${l.reviewsCount}+</div><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 mt-2 sans">Happy customers</div></div><div><div class="text-4xl font-medium tracking-tight text-stone-900">${l.rating}</div><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 mt-2 sans">Google rating</div></div><div><div class="text-4xl font-medium tracking-tight text-stone-900">${l.yearsInBusiness ?? 8}+</div><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 mt-2 sans">Years in ${l.city.split(",")[0]}</div></div></div></section>
-<section class="max-w-5xl mx-auto px-6 py-16"><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 sans">Services</div><h2 class="text-3xl font-medium tracking-tight text-stone-900 mt-2">What we do well.</h2><div class="grid sm:grid-cols-3 gap-px bg-stone-200 mt-8 border border-stone-200">${pb.serviceExamples.map((s)=>`<div class="bg-[#faf6ee] p-6"><div class="font-medium tracking-tight text-stone-900">${s}</div><div class="text-xs text-stone-500 mt-1.5 sans">Reliable · modern · affordable</div></div>`).join("")}</div></section>
-<section class="max-w-5xl mx-auto px-6 py-16 border-t border-stone-200"><div class="text-[11px] uppercase tracking-[0.2em] text-stone-500 sans">Visit us</div><h2 class="text-3xl font-medium tracking-tight text-stone-900 mt-2">${l.address}</h2><div class="mt-6 rounded-lg overflow-hidden bg-stone-200/60 border border-stone-300 h-64 flex items-center justify-center text-stone-500 sans text-sm">[Google Maps embed]</div></section>
-<a href="https://wa.me/${wa}" class="fixed bottom-6 right-6 bg-stone-900 text-stone-50 rounded-full w-14 h-14 flex items-center justify-center text-xl shadow-md">○</a>
-<footer class="bg-[#ede4d3] border-t border-stone-200 sans"><div class="max-w-5xl mx-auto px-6 py-8 text-xs text-stone-500 flex justify-between"><span>© ${l.name}</span><span>${l.address}</span></div></footer>
-</body></html>`;
 }
