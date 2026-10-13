@@ -5,10 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
-import type { CreativeBrief } from "@/lib/generation/brief";
+import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
+import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
+import { cleanHtml, looksLikeFullPage } from "@/lib/generation/html";
+import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
 
 const RECENT_KEY = "l2l-recent-directions";
 type Recent = { concept: string; composition: string };
@@ -36,14 +40,10 @@ function leadPayload(l: RankedLead) {
   };
 }
 
-/** Models sometimes wrap the page in a markdown fence despite instructions. Strip it. */
-function cleanHtml(raw: string): string {
-  let t = raw.trim();
-  t = t.replace(/^```(?:html)?\s*\n/i, "").replace(/\n```\s*$/i, "");
-  const start = t.search(/<!doctype html|<html/i);
-  if (start > 0) t = t.slice(start);
-  return t.replace(/\n?<!-- L2L_(?:TRUNCATED|ERROR)[^>]*-->\s*$/i, "").trim();
-}
+/** Chat apps have no system prompt slot here, so the design rules travel at the top of the pasted prompt. */
+const withRules = (task: string) => `# YOUR ROLE AND RULES\n${DESIGN_KNOWLEDGE}\n\n# TASK\n${task}`;
+
+type Engine = { provider: "anthropic" | "gemini" | null; model: string | null; allowed: boolean; reason?: string };
 
 export function SiteStudio({
   lead,
@@ -65,6 +65,25 @@ export function SiteStudio({
   const [full, setFull] = useState(false);
   const [steer, setSteer] = useState("");
   const abortRef = useRef<AbortController | null>(null);
+  const [engine, setEngine] = useState<Engine | null>(null);
+  const [manualOverride, setManualOverride] = useState(false);
+  const [pasteBrief, setPasteBrief] = useState("");
+  const [pasteHtml, setPasteHtml] = useState("");
+
+  // Which engine is connected decides whether we generate here or hand off to free manual mode.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/generate/status")
+      .then((r) => r.json())
+      .then((d) => alive && setEngine(d as Engine))
+      .catch(() => alive && setEngine({ provider: null, model: null, allowed: false }));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const auto = !!engine?.provider && engine.allowed && !manualOverride;
+  const checking = engine === null;
+  const engineLabel = engine?.provider === "gemini" ? `Gemini ${engine.model ?? ""}` : engine?.provider === "anthropic" ? `Claude ${engine.model ?? ""}` : "";
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -146,6 +165,46 @@ export function SiteStudio({
     }
   }
 
+  function copyText(text: string, msg: string) {
+    navigator.clipboard.writeText(text);
+    toast.success(msg);
+  }
+
+  function copyBriefPrompt() {
+    const prompt = buildBriefPrompt({ lead: leadPayload(lead), research: research ?? undefined, recent: readRecent(), steer: steer.trim() || undefined, seed: Math.floor(Math.random() * 2 ** 31) });
+    copyText(withRules(prompt), "Direction prompt copied. Paste it into any chat.");
+  }
+
+  function useBriefFromPaste() {
+    try {
+      const b = parseBrief(extractJson(pasteBrief));
+      onBrief(b);
+      pushRecent({ concept: b.concept, composition: b.composition.name });
+      setPasteBrief("");
+      setHtml("");
+      setError(null);
+      toast.success("Direction loaded.");
+    } catch (e) {
+      setError(`That reply did not parse as a creative direction (${e instanceof Error ? e.message : "unknown"}). Paste the whole JSON reply.`);
+    }
+  }
+
+  function copyBuildPrompt() {
+    if (!brief) return;
+    copyText(withRules(buildSitePrompt(leadPayload(lead), brief)), "Build prompt copied. Paste it into any chat.");
+  }
+
+  function previewFromPaste() {
+    const out = cleanHtml(pasteHtml);
+    if (!looksLikeFullPage(out)) {
+      setError("That is not a complete HTML page. If the chat cut off mid-page, tell it to continue or to make the page shorter, then paste the whole reply.");
+      return;
+    }
+    setError(null);
+    setHtml(out);
+    toast.success("Preview loaded.");
+  }
+
   function download() {
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
@@ -189,7 +248,7 @@ export function SiteStudio({
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle>Creative direction</CardTitle>
           {brief ? (
-            <Button size="sm" variant="outline" onClick={() => makeBrief(true)} disabled={briefLoading || building}>
+            <Button size="sm" variant="outline" onClick={() => (auto ? makeBrief(true) : onBrief(null))} disabled={briefLoading || building}>
               {briefLoading ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 mr-2" />} New direction
             </Button>
           ) : null}
@@ -201,9 +260,35 @@ export function SiteStudio({
                 Before any code, we decide who this business is: its personality, the page architecture, the palette, the type, and the sections that earn their place. Every business gets its own decision.
               </p>
               <Input value={steer} onChange={(e) => setSteer(e.target.value)} placeholder="Optional steer: darker, more playful, very minimal…" maxLength={300} />
-              <Button onClick={() => makeBrief(false)} disabled={briefLoading} className="w-full">
-                {briefLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Thinking about {lead.name}…</> : <><Wand2 className="h-4 w-4 mr-2" /> Create creative direction</>}
-              </Button>
+              {checking ? (
+                <div className="text-xs text-muted-foreground flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking AI engine…</div>
+              ) : auto ? (
+                <>
+                  <Button onClick={() => makeBrief(false)} disabled={briefLoading} className="w-full">
+                    {briefLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Thinking about {lead.name}…</> : <><Wand2 className="h-4 w-4 mr-2" /> Create creative direction</>}
+                  </Button>
+                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Engine: {engineLabel}</span>
+                    <button type="button" onClick={() => setManualOverride(true)} className="underline">Use free manual mode</button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-2 rounded-md border border-dashed border-border p-3">
+                  <div className="text-xs font-medium">Free manual mode, no key needed</div>
+                  <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-0.5">
+                    <li>Copy the prompt</li>
+                    <li>Paste it into Claude.ai, ChatGPT or Gemini</li>
+                    <li>Paste the JSON reply below</li>
+                  </ol>
+                  {engine?.provider && !engine.allowed && engine.reason ? <div className="text-[11px] text-amber-600">{engine.reason}</div> : null}
+                  <Button variant="outline" onClick={copyBriefPrompt} className="w-full"><Copy className="h-3.5 w-3.5 mr-2" /> Copy direction prompt</Button>
+                  <Textarea value={pasteBrief} onChange={(e) => setPasteBrief(e.target.value)} placeholder="Paste the JSON reply here" rows={4} className="text-xs font-mono" />
+                  <Button onClick={useBriefFromPaste} disabled={!pasteBrief.trim()} className="w-full">Use this direction</Button>
+                  {engine?.provider && engine.allowed ? (
+                    <button type="button" onClick={() => setManualOverride(false)} className="text-[11px] underline text-muted-foreground">Use {engineLabel} instead</button>
+                  ) : null}
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4 text-sm">
@@ -266,12 +351,24 @@ export function SiteStudio({
                 <Button size="icon-xs" variant="ghost" onClick={download} title="Download .html"><Download className="h-3.5 w-3.5" /></Button>
               </>
             ) : null}
-            <Button size="sm" onClick={buildSite} disabled={!brief || building || briefLoading}>
-              {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> {html ? "Rebuild" : "Build site"}</>}
-            </Button>
+            {auto ? (
+              <Button size="sm" onClick={buildSite} disabled={!brief || building || briefLoading}>
+                {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> {html ? "Rebuild" : "Build site"}</>}
+              </Button>
+            ) : (
+              <Button size="sm" onClick={copyBuildPrompt} disabled={!brief}>
+                <Copy className="h-3.5 w-3.5 mr-2" /> Copy build prompt
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
+          {!auto && !checking && brief ? (
+            <div className="mb-3 space-y-2">
+              <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML reply from the chat here" rows={3} className="text-xs font-mono" />
+              <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+            </div>
+          ) : null}
           {html ? (
             previewBox(html, "h-[620px]")
           ) : (
@@ -283,7 +380,7 @@ export function SiteStudio({
                   <div className="text-xs tabular-nums">{chars.toLocaleString("en-US")} characters written. This usually takes one to three minutes.</div>
                 </>
               ) : (
-                <div className="text-sm">{brief ? "Direction ready. Build the site to see it here." : "Create the creative direction first, then build."}</div>
+                <div className="text-sm">{!brief ? "Create the creative direction first, then build." : auto ? "Direction ready. Build the site to see it here." : "Copy the build prompt, paste it into a chat, then paste the HTML reply above."}</div>
               )}
             </div>
           )}

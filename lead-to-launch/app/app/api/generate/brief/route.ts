@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireGenerator } from "@/lib/api-guard";
-import { claudeText, GenerationConfigError } from "@/lib/generation/anthropic";
+import { llmText, GenerationConfigError } from "@/lib/generation/llm";
 import { extractJson, parseBrief } from "@/lib/generation/brief";
 import { buildBriefPrompt, type BriefRequest, type LeadWithAudit } from "@/lib/generation/prompts";
 import type { MarketResearchResult } from "@/lib/types";
@@ -27,13 +27,13 @@ export async function POST(req: Request) {
   let lastError = "Brief failed";
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const text = await claudeText(prompt, 4000, AbortSignal.timeout(100_000));
+      const text = await llmText(prompt, 6000, AbortSignal.timeout(100_000), { json: true });
       const brief = parseBrief(extractJson(text));
       return NextResponse.json({ brief, seed });
     } catch (e) {
-      if (e instanceof GenerationConfigError) return NextResponse.json({ error: "Generation is not configured. Set ANTHROPIC_API_KEY in Vercel." }, { status: 503 });
+      if (e instanceof GenerationConfigError) return NextResponse.json({ error: "No AI engine is connected. Use manual mode, or set GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel.", manual: true }, { status: 503 });
       lastError = e instanceof Error ? e.message : "Brief failed";
-      if (/rejected the API key|rate limit/i.test(lastError)) break;
+      if (/rejected the|rate limit|limit reached|blocked/i.test(lastError)) break;
     }
   }
   console.error("brief failed", lastError);
