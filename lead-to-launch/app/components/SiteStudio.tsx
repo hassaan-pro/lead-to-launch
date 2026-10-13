@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2 } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
 import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
-import { cleanHtml, looksLikeFullPage } from "@/lib/generation/html";
+import { cleanHtml, looksLikeFullPage, readHtmlFile } from "@/lib/generation/html";
 import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
 
 const RECENT_KEY = "l2l-recent-directions";
@@ -69,6 +69,9 @@ export function SiteStudio({
   const [manualOverride, setManualOverride] = useState(false);
   const [pasteBrief, setPasteBrief] = useState("");
   const [pasteHtml, setPasteHtml] = useState("");
+  const [dragging, setDragging] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Which engine is connected decides whether we generate here or hand off to free manual mode.
   useEffect(() => {
@@ -191,7 +194,21 @@ export function SiteStudio({
 
   function copyBuildPrompt() {
     if (!brief) return;
-    copyText(withRules(buildSitePrompt(leadPayload(lead), brief)), "Build prompt copied. Paste it into any chat.");
+    copyText(withRules(buildSitePrompt(leadPayload(lead), brief)) + "\n\nDELIVERY: give me exactly one file named index.html (or one inline code block). Never a zip, a folder or several files.", "Build prompt copied. Paste it into any chat.");
+  }
+
+  async function loadFile(file: File | undefined) {
+    if (!file) return;
+    const r = await readHtmlFile(file);
+    if (!r.ok) {
+      setError(r.error);
+      return;
+    }
+    setError(null);
+    setHtml(r.html);
+    setFileName(file.name);
+    if (r.truncated) toast.warning("The page looks cut off at the end. Ask the chat to finish it, or to make the page shorter.");
+    else toast.success("Preview loaded.");
   }
 
   function previewFromPaste() {
@@ -293,7 +310,7 @@ export function SiteStudio({
           ) : (
             <div className="space-y-4 text-sm">
               <div>
-                <div className="font-display text-xl leading-snug">{brief.concept}</div>
+                <div className="font-display text-base sm:text-lg leading-snug">{brief.concept}</div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {brief.personality.map((p) => <Badge key={p} variant="secondary" className="font-normal">{p}</Badge>)}
                 </div>
@@ -339,10 +356,23 @@ export function SiteStudio({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          loadFile(e.dataTransfer.files?.[0]);
+        }}
+        className={dragging ? "ring-2 ring-foreground/40" : ""}
+      >
         <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap">
           <CardTitle>Live preview</CardTitle>
           <div className="flex items-center gap-2">
+            <Button size="icon-xs" variant="ghost" onClick={() => fileRef.current?.click()} title="Load an HTML file"><Upload className="h-3.5 w-3.5" /></Button>
             {html ? (
               <>
                 {deviceToggle}
@@ -363,10 +393,25 @@ export function SiteStudio({
           </div>
         </CardHeader>
         <CardContent>
-          {!auto && !checking && brief ? (
-            <div className="mb-3 space-y-2">
-              <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML reply from the chat here" rows={3} className="text-xs font-mono" />
-              <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+          <input ref={fileRef} type="file" accept=".html,.htm,text/html" className="hidden" onChange={(e) => { loadFile(e.target.files?.[0]); e.target.value = ""; }} />
+          {!auto && !checking ? (
+            <div className="mb-3">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className={`w-full rounded-lg border border-dashed px-4 py-5 text-center text-sm transition-colors ${dragging ? "border-foreground bg-muted/40 text-foreground" : "border-border text-muted-foreground hover:bg-muted/30"}`}
+              >
+                <Upload className="h-4 w-4 mx-auto mb-1.5" />
+                Drop the index.html here, or click to choose it
+                {fileName ? <div className="text-[11px] mt-1 text-foreground/70">Loaded: {fileName}</div> : null}
+              </button>
+              <details className="mt-2">
+                <summary className="text-[11px] text-muted-foreground cursor-pointer">Or paste the HTML as text</summary>
+                <div className="mt-2 space-y-2">
+                  <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML here" rows={3} className="text-xs font-mono" />
+                  <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+                </div>
+              </details>
             </div>
           ) : null}
           {html ? (
@@ -380,7 +425,7 @@ export function SiteStudio({
                   <div className="text-xs tabular-nums">{chars.toLocaleString("en-US")} characters written. This usually takes one to three minutes.</div>
                 </>
               ) : (
-                <div className="text-sm">{!brief ? "Create the creative direction first, then build." : auto ? "Direction ready. Build the site to see it here." : "Copy the build prompt, paste it into a chat, then paste the HTML reply above."}</div>
+                <div className="text-sm">{!brief ? "Create the creative direction first, then build." : auto ? "Direction ready. Build the site to see it here." : "Copy the build prompt, paste it into a chat, then drop the index.html it gives you above."}</div>
               )}
             </div>
           )}
