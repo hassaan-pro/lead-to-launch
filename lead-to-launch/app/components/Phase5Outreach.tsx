@@ -65,7 +65,7 @@ export function Phase5Outreach({
   if (!selected) {
     return (
       <PhaseShell
-        title="Phase 5 — Outreach"
+        title="Write the outreach"
         subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up."
         onPrev={onPrev}
       >
@@ -86,10 +86,10 @@ export function Phase5Outreach({
   ];
 
   return (
-    <PhaseShell title="Phase 5 — Outreach" subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up." onPrev={onPrev}>
+    <PhaseShell title="Write the outreach" subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up." onPrev={onPrev}>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Sending to</div>
+          <div className="text-[10px] text-muted-foreground">Sending to</div>
           <div className="font-display text-2xl mt-1">{selected.name}</div>
           <div className="text-xs text-muted-foreground mt-0.5">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</div>
         </div>

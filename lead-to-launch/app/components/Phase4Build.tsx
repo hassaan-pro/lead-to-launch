@@ -96,7 +96,7 @@ export function Phase4Build({
 
   if (!selected) {
     return (
-      <PhaseShell title="Phase 4 — Generate website" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextDisabled nextLabel="Draft outreach">
+      <PhaseShell title="Build the sample site" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextDisabled nextLabel="Draft outreach">
         <IncompleteState
           title="No lead selected yet"
           description="Run scrape and audit, then pick the highest-scoring prospect in Phase 3. We'll design and build a website for them."
@@ -108,9 +108,9 @@ export function Phase4Build({
   }
 
   return (
-    <PhaseShell title="Phase 4 — Generate website" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextLabel="Draft outreach">
+    <PhaseShell title="Build the sample site" subtitle={subtitle} onPrev={onPrev} onNext={onNext} nextLabel="Draft outreach">
       <div className="mb-6">
-        <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Selected lead</div>
+        <div className="text-[10px] text-muted-foreground">Selected lead</div>
         <div className="font-display text-2xl mt-1">{selected.name}</div>
         <div className="text-xs text-muted-foreground mt-0.5">{selected.address}</div>
       </div>

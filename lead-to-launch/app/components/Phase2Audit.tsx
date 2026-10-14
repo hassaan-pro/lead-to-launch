@@ -92,7 +92,7 @@ export function Phase2Audit({
   if (leads.length === 0) {
     return (
       <PhaseShell
-        title="Phase 2 — Business audit"
+        title="Audit the sites"
         subtitle="We open each business's real website and check booking, WhatsApp, mobile, search markup and freshness. Every gap comes with the evidence we saw."
         onPrev={onPrev}
         onNext={onNext}
@@ -111,7 +111,7 @@ export function Phase2Audit({
 
   return (
     <PhaseShell
-      title="Phase 2 — Business audit"
+      title="Audit the sites"
       subtitle="We open each business's real website and check booking, WhatsApp, mobile, search markup and freshness. Every gap comes with the evidence we saw."
       onPrev={onPrev}
       onNext={onNext}
@@ -121,13 +121,13 @@ export function Phase2Audit({
       <div className="grid md:grid-cols-4 gap-3 mb-6">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Audited</div>
+            <div className="text-[11px] text-muted-foreground">Audited</div>
             <div className="font-display text-3xl tabular-nums mt-2">{auditedCount}<span className="text-muted-foreground/50 text-2xl"> / {leads.length}</span></div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">No site at all</div>
+            <div className="text-[11px] text-muted-foreground">No site at all</div>
             <div className="font-display text-3xl tabular-nums text-[color:var(--destructive)] mt-2">
               {Object.values(audits).filter((a) => !a.hasWebsite).length}
             </div>
@@ -135,7 +135,7 @@ export function Phase2Audit({
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Avg PageSpeed (measured)</div>
+            <div className="text-[11px] text-muted-foreground">Avg PageSpeed (measured)</div>
             <div className="font-display text-3xl tabular-nums mt-2">
               {measuredSpeeds.length ? Math.round(measuredSpeeds.reduce((s, a) => s + a.pageSpeedScore, 0) / measuredSpeeds.length) : "n/a"}
             </div>
@@ -143,7 +143,7 @@ export function Phase2Audit({
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Gaps found</div>
+            <div className="text-[11px] text-muted-foreground">Gaps found</div>
             <div className="font-display text-3xl tabular-nums mt-2">
               {totalGaps}
               <span className="text-muted-foreground/50 text-base"> · {noBooking} no booking</span>
@@ -207,7 +207,7 @@ export function Phase2Audit({
                     />
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base font-medium leading-snug">{lead.name}</CardTitle>
-                      <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground mt-0.5">{lead.category}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{lead.category}</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -246,7 +246,7 @@ export function Phase2Audit({
                       <div className="flex items-center gap-3 pt-1 border-t border-border/60">
                         {(a.pageSpeedMeasured ?? a.pageSpeedScore > 0) && a.hasWebsite ? <PageSpeedGauge score={a.pageSpeedScore} /> : null}
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Findings</div>
+                          <div className="text-[10px] text-muted-foreground">Findings</div>
                           <div className="font-display text-lg tabular-nums mt-0.5">
                             {a.gaps.length} gap{a.gaps.length === 1 ? "" : "s"}
                             {a.strengths && a.strengths.length > 0 ? <span className="text-muted-foreground/60 text-sm"> · {a.strengths.length} passed</span> : null}

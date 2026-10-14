@@ -21,7 +21,7 @@ export function IncompleteState({
         <div className="h-12 w-12 rounded-full bg-muted mx-auto flex items-center justify-center mb-5">
           <Lock className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
         </div>
-        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
+        <div className="text-[10px] text-muted-foreground mb-2">
           Preview · No data yet
         </div>
         <h2 className="font-display text-2xl mb-3">{title}</h2>

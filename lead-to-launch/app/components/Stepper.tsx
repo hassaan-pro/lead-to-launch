@@ -23,9 +23,6 @@ export function Stepper({
 }) {
   return (
     <div className="max-w-5xl mx-auto px-4 pb-6 pt-2" role="navigation" aria-label="Pipeline progress">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground text-center mb-3">
-        Step <span className="font-mono text-foreground">{String(current).padStart(2, "0")}</span> of <span className="font-mono">05</span> · {STEPS[current - 1]?.label}
-      </div>
       <div className="w-full flex items-center justify-between gap-2">
       {STEPS.map((step, i) => {
         const isDone = completed.has(step.id);
@@ -61,8 +58,8 @@ export function Stepper({
               >
                 {isDone && !isCurrent ? <Check className="h-4 w-4" strokeWidth={1.75} /> : <Icon className="h-4 w-4" strokeWidth={1.5} />}
               </motion.div>
-              <span className={cn("text-[11px] tracking-wide uppercase", isCurrent ? "text-foreground font-medium" : "text-muted-foreground")}>
-                {String(step.id).padStart(2, "0")} · {step.label}
+              <span className={cn("text-[11px] ", isCurrent ? "text-foreground font-medium" : "text-muted-foreground")}>
+                {step.label}
               </span>
             </button>
             {i < STEPS.length - 1 && (

@@ -37,7 +37,7 @@ export function Phase3Rank({
   if (ranked.length === 0) {
     return (
       <PhaseShell
-        title="Phase 3 — Ranked prospects"
+        title="Ranked prospects"
         subtitle="Conversion score blends site quality, review volume, rating, reachability, and industry fit. Pick one to build for."
         onPrev={onPrev}
         onNext={onNext}
@@ -60,7 +60,7 @@ export function Phase3Rank({
 
   return (
     <PhaseShell
-      title="Phase 3 — Ranked prospects"
+      title="Ranked prospects"
       subtitle="Conversion score blends site quality, review volume, rating, reachability, and industry fit. Pick one to build for."
       onPrev={onPrev}
       onNext={onNext}
@@ -95,7 +95,7 @@ export function Phase3Rank({
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2 font-medium tracking-wide uppercase text-muted-foreground">
+                  <CardTitle className="text-sm flex items-center gap-2 font-medium text-muted-foreground">
                     <Crown className="h-3.5 w-3.5 text-[color:var(--chart-4)]" strokeWidth={1.5} />
                     Rank · {String(i + 1).padStart(2, "0")}
                   </CardTitle>
