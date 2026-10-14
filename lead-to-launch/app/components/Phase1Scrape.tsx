@@ -56,7 +56,7 @@ export function Phase1Scrape({
 
   return (
     <PhaseShell
-      title="Phase 1 — Scrape leads"
+      title="Scrape leads"
       subtitle="Pull local businesses from Google Maps. We capture contact, reviews, photos, and location to score conversion potential."
       onPrev={onPrev}
       onNext={onNext}
@@ -70,15 +70,15 @@ export function Phase1Scrape({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="niche" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Niche</Label>
+              <Label htmlFor="niche" className="text-xs text-muted-foreground">Niche</Label>
               <Input id="niche" autoComplete="off" value={input.niche} onChange={(e) => setInput({ ...input, niche: e.target.value })} placeholder="e.g. Dentist" className="h-10 text-base" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="city" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Location</Label>
+              <Label htmlFor="city" className="text-xs text-muted-foreground">Location</Label>
               <Input id="city" autoComplete="off" value={input.city} onChange={(e) => setInput({ ...input, city: e.target.value })} placeholder="e.g. Bandra, Mumbai" className="h-10 text-base" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="count" className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Count</Label>
+              <Label htmlFor="count" className="text-xs text-muted-foreground">Count</Label>
               <Input id="count" type="number" inputMode="numeric" min={1} max={50} value={input.count} onChange={(e) => setInput({ ...input, count: Number(e.target.value) })} className="h-10 text-base font-mono tabular-nums" />
               <p className="text-[11px] text-muted-foreground">Max 25 for free Apify tier.</p>
             </div>
@@ -175,7 +175,7 @@ export function Phase1Scrape({
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-md border border-border px-2.5 py-2">
-      <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{label}</div>
+      <div className="text-[10px] text-muted-foreground">{label}</div>
       <div className="font-display text-xl tabular-nums mt-0.5">{value}</div>
     </div>
   );

@@ -299,12 +299,12 @@ export function SiteStudio({
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">Architecture</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Architecture</div>
                 <div className="font-medium">{brief.composition.name}</div>
                 <div className="text-muted-foreground text-xs leading-relaxed mt-0.5">{brief.composition.why}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">Palette · {brief.palette.name}</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Palette: {brief.palette.name}</div>
                 <div className="flex gap-1.5">
                   {[brief.palette.bg, brief.palette.surface, brief.palette.text, brief.palette.muted, brief.palette.accent, brief.palette.accent2].filter(Boolean).map((c) => (
                     <div key={c} className="h-7 w-7 rounded-full border border-border" style={{ background: c }} title={c} />
@@ -312,11 +312,11 @@ export function SiteStudio({
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">Type</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Type</div>
                 <div className="text-xs">{brief.typography.display} <span className="text-muted-foreground">for display, </span>{brief.typography.body} <span className="text-muted-foreground">for text</span></div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">Sections, in order</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Sections, in order</div>
                 <ol className="space-y-1 text-xs list-decimal list-inside">
                   {brief.sections.map((s) => (
                     <li key={s.id}><span className="font-medium">{s.id}</span> <span className="text-muted-foreground">{s.purpose}</span></li>
@@ -324,7 +324,7 @@ export function SiteStudio({
                 </ol>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">Signature</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Signature</div>
                 <div className="text-xs leading-relaxed">{brief.signature}</div>
               </div>
               <div className="rounded-md bg-muted/40 p-3 text-xs leading-relaxed">
