@@ -108,7 +108,7 @@ export function Pipeline() {
   return (
     <section id="how" className="scroll-mt-24 border-y border-border/60 bg-card/30 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <h2 className="font-display text-4xl leading-[1.05] sm:text-5xl">Five steps, one pipeline.</h2>
+        <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Five steps, one pipeline.</h2>
         <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
           <div role="tablist" aria-label="Pipeline steps" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:gap-1 lg:overflow-visible">
             {STEPS.map((s, n) => (

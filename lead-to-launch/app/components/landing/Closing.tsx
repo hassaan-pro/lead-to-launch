@@ -29,7 +29,7 @@ export function Closing() {
   return (
     <section className="overflow-hidden px-5 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-32">
       <div className="mx-auto max-w-6xl">
-        <h2 className="font-display max-w-3xl text-4xl leading-[1.04] sm:text-6xl">Pick a niche and a city. See who is still in the dark.</h2>
+        <h2 className="title-heavy font-display max-w-3xl text-4xl leading-[1.04] sm:text-6xl">Pick a niche and a city. See who is still in the dark.</h2>
         <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
           <Link
             href="/app"

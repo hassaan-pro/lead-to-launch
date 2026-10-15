@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { DecodeText } from "@/components/brand/DecodeText";
 
 export type ReceiptRow = { state: "fail" | "pass" | "unknown"; label: string; evidence: string };
 
@@ -12,7 +15,7 @@ const GLYPH = {
 export function AuditReceipt({ rows, className }: { rows: ReceiptRow[]; className?: string }) {
   return (
     <ul className={cn("divide-y divide-border/80", className)}>
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <li key={r.label} className="flex gap-3.5 py-3.5">
           <span className={cn("mt-0.5 w-4 shrink-0 text-center font-mono text-sm leading-5", GLYPH[r.state].cls)}>
             <span aria-hidden="true">{GLYPH[r.state].mark}</span>
@@ -20,7 +23,7 @@ export function AuditReceipt({ rows, className }: { rows: ReceiptRow[]; classNam
           </span>
           <div className="min-w-0">
             <div className="text-[15px] leading-5">{r.label}</div>
-            <div className="mt-1 font-mono text-xs leading-5 text-muted-foreground">{r.evidence}</div>
+            <DecodeText text={r.evidence} delay={i * 110} className="mt-1 block font-mono text-xs leading-5 text-muted-foreground" />
           </div>
         </li>
       ))}
