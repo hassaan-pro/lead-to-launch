@@ -8,8 +8,8 @@ export function Hero() {
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-10">
         <div>
           <h1 className="font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.1rem]">
-            <span className="block text-foreground">Find the businesses that need a website.</span>
-            <span className="mt-3 block text-muted-foreground">Show up with it already built.</span>
+            <span className="title-heavy block text-foreground">Find the businesses that need a website.</span>
+            <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
           </h1>
           <p className="mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
             Lead to Launch pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.

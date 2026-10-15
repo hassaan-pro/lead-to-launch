@@ -17,7 +17,7 @@ export function Rules() {
   return (
     <section id="rules" className="scroll-mt-24 border-t border-border/60 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <h2 className="font-display max-w-xl text-4xl leading-[1.05] sm:text-5xl">Built so you never send something false.</h2>
+        <h2 className="title-heavy font-display max-w-xl text-4xl leading-[1.05] sm:text-5xl">Built so you never send something false.</h2>
         <div className="mt-14 divide-y divide-border/80 border-y border-border/80">
           {RULES.map((r) => (
             <div key={r.t} className="grid gap-3 py-8 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:gap-12">

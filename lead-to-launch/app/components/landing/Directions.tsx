@@ -58,7 +58,7 @@ export function Directions() {
     <section id="directions" className="scroll-mt-24 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
-          <h2 className="font-display text-4xl leading-[1.05] sm:text-5xl">Never the same site twice.</h2>
+          <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Never the same site twice.</h2>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
             Before any code, each business gets a creative direction: a concept, one of twelve page architectures, a palette, type, and only the sections that earn their place. It remembers what you made last, so the next one does not repeat it.
           </p>

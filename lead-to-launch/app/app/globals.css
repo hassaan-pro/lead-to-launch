@@ -162,3 +162,13 @@
 .lit {
   box-shadow: 0 0 0 1px rgba(240, 179, 74, 0.55), 0 0 28px 4px rgba(240, 179, 74, 0.28);
 }
+
+/* Two display voices: a heavy one for titles and a light one for the statement that follows. */
+.title-heavy {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+.title-light {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
