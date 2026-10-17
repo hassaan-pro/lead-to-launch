@@ -3,7 +3,7 @@ import { Viewfinder } from "@/components/brand/Viewfinder";
 
 export function Evidence() {
   return (
-    <section className="px-5 py-24 sm:px-8 sm:py-32">
+    <section id="proof" className="scroll-mt-24 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20">
         <div className="lg:sticky lg:top-32 lg:self-start lg:pt-6">
           <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Every gap comes with proof.</h2>
