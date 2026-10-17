@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { HowLink } from "./HowLink";
 
 export function Nav() {
   return (
@@ -9,7 +10,7 @@ export function Nav() {
           <Logo />
         </Link>
         <nav aria-label="Sections" className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#how" className="transition-colors hover:text-foreground">How it works</a>
+          <HowLink className="transition-colors hover:text-foreground" />
           <a href="#directions" className="transition-colors hover:text-foreground">The sites</a>
           <a href="#rules" className="transition-colors hover:text-foreground">Honest by default</a>
         </nav>

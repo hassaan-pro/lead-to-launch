@@ -172,3 +172,11 @@
   font-weight: 300;
   letter-spacing: -0.03em;
 }
+
+/* The scroll journey needs room and motion. Everyone else gets the static page. */
+.journey-only { display: none; }
+.static-only { display: block; }
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .journey-only { display: block; }
+  .static-only { display: none; }
+}
