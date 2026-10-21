@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <Logo markClassName="h-6 w-6" className="text-foreground" />
-          <span>Made in Lahore.</span>
+          <span>Built for local businesses everywhere.</span>
         </div>
         <nav aria-label="Footer" className="flex items-center gap-6 text-sm text-muted-foreground">
           <Link href="/sign-in" className="transition-colors hover:text-foreground">Sign in</Link>
