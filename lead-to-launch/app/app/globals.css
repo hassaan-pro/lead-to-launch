@@ -244,3 +244,24 @@ html.force-motion .static-only { display: none; }
 .light .lit {
   box-shadow: 0 0 0 1px rgba(206, 138, 36, 0.5), 0 0 24px 2px rgba(206, 138, 36, 0.22);
 }
+
+/* Text links: a lamp underline that sweeps in from the left on hover, so every link on the
+   page answers the cursor the same way. */
+.u-sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 2px;
+  transition: background-size 0.35s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s ease;
+}
+.u-sweep:hover { background-size: 100% 1px; }
+
+/* The shop-types ticker between the hero and the audit section. The track holds the list
+   twice and translates by half, so the loop has no seam. Pauses while hovered. */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee-scroll 48s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
