@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ScrollDecode } from "@/components/journey/ScrollDecode";
+import { SectionKicker } from "@/components/motion/ui";
 import { type P, usePct, useRange, useSeg } from "@/components/journey/motion";
 import { Stage } from "./Stage";
 
@@ -120,6 +121,7 @@ function TruthScene({ p }: { p: P }) {
   return (
     <>
       <div className="absolute left-[6%] right-[6%] top-[8%] short:top-[10.5%] md:right-auto md:top-[12%] md:w-[36%] md:max-w-lg">
+        <SectionKicker text="the rules" className="mb-3" />
         <h2 className="title-heavy font-display text-[clamp(1.9rem,3.8vw,3.4rem)] leading-[1.04] short:text-[1.65rem]">Built so you never send something false.</h2>
         <ol className="mt-8 hidden md:block">
           {RULES.map((_, i) => (
