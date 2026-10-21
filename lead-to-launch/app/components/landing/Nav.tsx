@@ -27,7 +27,7 @@ export function Nav() {
               href="/app"
               className="group flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Open the tool
+              Start free
               <ArrowFlip className="h-3.5 w-3.5" />
             </Link>
           </Magnetic>
