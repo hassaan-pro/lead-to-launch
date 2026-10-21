@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <ClerkProvider appearance={clerkAppearance} signInFallbackRedirectUrl="/app" signUpFallbackRedirectUrl="/app">
       <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} dark h-full antialiased`}>
         <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-          {children}
+          <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster position="bottom-right" />
           <Analytics />
         </body>

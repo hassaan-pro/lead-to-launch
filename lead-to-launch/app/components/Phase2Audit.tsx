@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
+import { SaveLeadButton } from "./SaveLeadButton";
 import { Loader2, AlertTriangle, Gauge, Star, Phone, MessageCircle, Globe } from "lucide-react";
 import type { Lead, AuditResult } from "@/lib/types";
 import { toast } from "sonner";
@@ -267,6 +268,7 @@ export function Phase2Audit({
                           <span className="text-muted-foreground italic leading-relaxed">{a.biggestGap}</span>
                         </div>
                       </div>
+                      <SaveLeadButton lead={lead} audit={a} />
                     </>
                   ) : (
                     <div className="flex items-center gap-2 text-xs text-muted-foreground py-3 justify-center border-t border-border/60 pt-3">
