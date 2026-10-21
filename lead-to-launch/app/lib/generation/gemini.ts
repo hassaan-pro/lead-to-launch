@@ -24,15 +24,18 @@ function key(): string {
   return k;
 }
 
-function requestBody(userText: string, maxTokens: number, opts: { json?: boolean; thinking?: number; prior?: string }) {
+function requestBody(userText: string, maxTokens: number, opts: { json?: boolean; thinking?: number; prior?: string; omitThinking?: boolean }) {
   const generationConfig: Record<string, unknown> = { maxOutputTokens: maxTokens, temperature: 1 };
   if (opts.json) generationConfig.responseMimeType = "application/json";
   // Gemini 2.5 models accept a thinking budget. Newer families take a thinking level instead,
   // and an unset control lets default thinking drain the token budget before the page is
-  // written, so the explicit no-thinking case (0) maps to minimal there.
-  if (typeof opts.thinking === "number") {
+  // written, so the explicit no-thinking case (0) maps to the lowest level there. Support for
+  // specific levels varies by model (gemini-3.8-flash rejects "minimal"), so the lowest broadly
+  // supported level is used, and geminiStream retries with no thinking control at all when a
+  // model rejects even that. An unsupported level must never be able to block a build.
+  if (typeof opts.thinking === "number" && !opts.omitThinking) {
     if (/^gemini-2\.5/.test(model())) generationConfig.thinkingConfig = { thinkingBudget: opts.thinking };
-    else if (opts.thinking === 0) generationConfig.thinkingConfig = { thinkingLevel: "minimal" };
+    else if (opts.thinking === 0) generationConfig.thinkingConfig = { thinkingLevel: "low" };
   }
   const contents = opts.prior
     ? [
@@ -91,14 +94,35 @@ export async function geminiStream(userText: string, maxTokens: number, signal?:
   const dec = new TextDecoder();
   let full = "";
 
+  // Set once a model rejects the thinking control, so later rounds go straight to
+  // the control-free request instead of paying for a failed attempt every round.
+  let thinkingUnsupported = false;
+
   async function startRound(prior: string | null): Promise<Round> {
-    const res = await fetch(`${BASE}/v1beta/models/${model()}:streamGenerateContent?alt=sse`, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": key() },
-      // The creative brief already carries the thinking, so spend the budget on writing the page.
-      body: requestBody(userText, maxTokens, { thinking: 0, prior: prior ?? undefined }),
-      signal,
-    });
+    const attempt = (omitThinking: boolean) =>
+      fetch(`${BASE}/v1beta/models/${model()}:streamGenerateContent?alt=sse`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": key() },
+        // The creative brief already carries the thinking, so spend the budget on writing the page.
+        body: requestBody(userText, maxTokens, { thinking: 0, prior: prior ?? undefined, omitThinking }),
+        signal,
+      });
+    let res = await attempt(thinkingUnsupported);
+    if (!res.ok && res.status === 400 && !thinkingUnsupported) {
+      // A model that refuses the thinking level fails the whole build before a single
+      // character streams. Retry once with no thinking control at all: an unset control
+      // is always accepted, it just lets default thinking share the token budget, and
+      // the continuation rounds absorb that.
+      const detail = await res
+        .clone()
+        .json()
+        .then((j) => (j as GeminiChunk)?.error?.message ?? "")
+        .catch(() => "");
+      if (/thinking/i.test(detail)) {
+        thinkingUnsupported = true;
+        res = await attempt(true);
+      }
+    }
     if (!res.ok || !res.body) throw new Error(await apiError(res));
     return { reader: res.body.getReader(), buf: "", reason: null, errored: false };
   }
