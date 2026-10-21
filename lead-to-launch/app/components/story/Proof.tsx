@@ -8,6 +8,7 @@ import { ScrollDecode } from "@/components/journey/ScrollDecode";
 import { type P, interp, useRange, useSeg, useWindow } from "@/components/journey/motion";
 import { useNarrow } from "@/components/journey/narrow";
 import { Stage, easeInOut } from "./Stage";
+import { SectionKicker } from "@/components/motion/ui";
 
 type State = "fail" | "pass" | "unknown";
 type Row = { id: string; state: State; neutral: string; label: string; ev: string };
@@ -123,6 +124,7 @@ function ProofScene({ p }: { p: P }) {
   return (
     <>
       <motion.div style={{ opacity: headOn }} className="absolute left-[6%] right-[6%] top-[10%] md:right-auto md:top-[27%] md:w-[28%] md:max-w-md">
+        <SectionKicker text="the audit" className="mb-3" />
         <h2 className="title-heavy font-display text-[clamp(1.9rem,3.8vw,3.4rem)] leading-[1.04]">Every gap comes with proof.</h2>
         <p className="mt-3 text-[14.5px] leading-snug text-muted-foreground short:hidden md:mt-6 md:text-lg md:leading-relaxed">
           Telling a business its website is outdated gets ignored. Telling it there is no booking button on the homepage gets checked, and believed.
