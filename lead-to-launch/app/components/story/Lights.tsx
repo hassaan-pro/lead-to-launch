@@ -57,8 +57,8 @@ function LightsScene({ p }: { p: P }) {
   const ctaEvents = useRange(cta, [0, 0.5, 0.51, 1], [0, 0, 1, 1]);
 
   return (
-    <>
-      <div className="absolute inset-x-[6%] top-[11%] max-w-4xl md:top-[13%]">
+    <div className="absolute inset-0 flex flex-col px-[6%] pb-[5svh] pt-[9svh] md:pt-[8svh]">
+      <div className="max-w-4xl shrink-0">
         <motion.h2 style={{ opacity: head, y: headY }} className="title-heavy font-display text-[clamp(2rem,5vw,4.6rem)] leading-[1.04]">
           Pick a niche and a city. Start turning the lights on.
         </motion.h2>
@@ -76,19 +76,21 @@ function LightsScene({ p }: { p: P }) {
         </motion.div>
       </div>
 
-      <div aria-hidden="true" className="absolute inset-x-[4%] bottom-[9%] top-[54%] md:inset-x-[5%] md:bottom-[7%] md:top-[46%]">
+      {/* In flow under the headline, pushed to the bottom by mt-auto: the street
+          takes whatever height is left, so the two can never overlap. */}
+      <div aria-hidden="true" className="mt-auto min-h-0">
         <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
           <span>one street, twelve businesses</span>
           <span className={cn("tabular-nums transition-colors", lit === SHOPS.length ? "text-lamp" : "")}>{lit} of {SHOPS.length} lit</span>
         </div>
-        <div className="grid h-[calc(100%-3.5rem)] grid-cols-12 items-end gap-1 border-b border-border/80 sm:gap-3 md:h-[calc(100%-1.75rem)] md:gap-3">
+        <div className="grid h-[30svh] grid-cols-12 items-end gap-1 border-b border-border/80 sm:gap-3 md:h-[36svh] md:gap-3">
           {SHOPS.map((s, i) => (
             <Shop key={s} p={p} i={i} />
           ))}
         </div>
         <div className="mt-3 h-4 text-center font-mono text-xs text-lamp md:hidden">{lit > 0 ? SHOPS[lit - 1] : ""}</div>
       </div>
-    </>
+    </div>
   );
 }
 

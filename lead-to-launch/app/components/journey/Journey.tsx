@@ -100,9 +100,9 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   // The frame starts as the hero demo on the right, then grows to fill the screen.
   const grow = [0, 0.08];
   const left = usePct(p, grow, narrow ? [6, 3] : [53, 3.5]);
-  const top = usePct(p, grow, narrow ? [64, 8] : [17, 7]);
+  const top = usePct(p, grow, narrow ? [64, 8] : [14, 7]);
   const width = usePct(p, grow, narrow ? [88, 94] : [44, 93]);
-  const height = usePct(p, grow, narrow ? [26, 76] : [66, 80]);
+  const height = usePct(p, grow, narrow ? [26, 76] : [59, 80]);
   const copyOpacity = useRange(p, [0, 0.025], [1, 0]);
   const copyY = useRange(p, [0, 0.06], [0, -28]);
   const copyEvents = useTransform(p, (v) => (v < 0.015 ? "auto" : "none"));
@@ -113,7 +113,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
       <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
-        <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-1/2 md:w-[42%] md:max-w-xl md:-translate-y-1/2">
+        <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-[12%] md:w-[42%] md:max-w-xl">
           <Reveal delay={0.05}>
             <h1 className="font-display text-[clamp(1.9rem,4.6vw,4.1rem)] leading-[1.04] short:text-[1.7rem]">
               <span className="title-heavy block text-foreground">Win your niche,</span>
@@ -144,10 +144,12 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
           </Reveal>
         </motion.div>
 
-        {/* The street lights up under the headline, then leaves with the copy
-            as the demo frame takes the screen. Desktop only: on phones the
-            demo frame itself is the visual. */}
-        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute bottom-[3%] left-[6%] hidden h-[15%] w-[43%] md:block">
+        {/* The street is the hero visual: full width under the copy, lighting
+            up shop by shop, then it leaves with the copy as the demo frame
+            takes the screen. The frame's opening position ends at 73% and the
+            band starts at 78%, so the two never touch. On phones the band is
+            a slim strip under the frame, which stays the main visual. */}
+        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[7.5%] md:bottom-[2.5%] md:h-[19.5%]">
           <HeroStreet className="h-full" />
         </motion.div>
 
