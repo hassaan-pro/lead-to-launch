@@ -24,7 +24,7 @@ function Stage() {
       <div className="flex flex-col justify-between">
         <div>
           <div className="font-display text-[17px] leading-none">Meridian</div>
-          <div className="mt-1.5 text-[9px] opacity-60">Egerton Road, Lahore</div>
+          <div className="mt-1.5 text-[9px] opacity-60">Congress Ave, Austin</div>
         </div>
         <div className="rounded-full bg-[#C9A55B] px-2.5 py-1.5 text-center text-[9px] font-medium text-[#14100A]">Check availability</div>
       </div>
