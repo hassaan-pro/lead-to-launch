@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LogoMark } from "@/components/brand/Logo";
+import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 import { cn } from "@/lib/utils";
 
 const visibleOf = (ids: string[]) => ids.map((id) => document.getElementById(id)).find((el) => el && el.offsetParent !== null) ?? null;
@@ -48,13 +49,16 @@ export function FloatingCta() {
     >
       <div className="glass flex items-center gap-3 rounded-full py-1.5 pl-4 pr-1.5">
         <LogoMark className="h-6 w-6" />
-        <Link
-          href="/app"
-          tabIndex={show ? 0 : -1}
-          className="whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          Open Outrive
-        </Link>
+        <Magnetic>
+          <Link
+            href="/app"
+            tabIndex={show ? 0 : -1}
+            className="group flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Open Outrive
+            <ArrowFlip className="h-3.5 w-3.5" />
+          </Link>
+        </Magnetic>
       </div>
     </div>
   );
