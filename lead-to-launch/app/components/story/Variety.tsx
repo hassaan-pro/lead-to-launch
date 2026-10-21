@@ -149,9 +149,11 @@ function VarietyScene({ p }: { p: P }) {
   const edgeC = usePct(p, [0.64, 0.74], [0, 100]);
   const edgeBOn = useWindow(p, 0.315, 0.335, 0.405, 0.425);
   const edgeCOn = useWindow(p, 0.635, 0.655, 0.725, 0.745);
-  const a = useWindow(p, 0, 0.02, 0.3, 0.36);
-  const b = useWindow(p, 0.34, 0.4, 0.62, 0.68);
-  const c = useWindow(p, 0.66, 0.72, 0.99, 1);
+  // Near-sequential on purpose: the outgoing brief is almost gone before the next fades in,
+  // so the two text blocks never sit on top of each other at half opacity.
+  const a = useWindow(p, 0, 0.02, 0.3, 0.335);
+  const b = useWindow(p, 0.345, 0.4, 0.62, 0.655);
+  const c = useWindow(p, 0.665, 0.72, 0.99, 1);
   const lift = useRange(p, [0, 0.03], [18, 0]);
   const appear = useRange(p, [0, 0.025], [0, 1]);
   const foot = useRange(p, [0.84, 0.92], [0, 1]);
@@ -175,7 +177,7 @@ function VarietyScene({ p }: { p: P }) {
         </div>
       </div>
 
-      <motion.div style={{ opacity: appear, y: lift }} className="absolute inset-x-[4%] top-[27%] short:top-[22%] md:inset-x-auto md:right-[5%] md:top-1/2 md:w-[56%] md:-translate-y-[54%]">
+      <motion.div style={{ opacity: appear, y: lift }} className="absolute inset-x-[4%] top-[24%] short:top-[22%] md:inset-x-auto md:right-[5%] md:top-1/2 md:w-[56%] md:-translate-y-[54%]">
         <Viewfinder>
           <div aria-hidden="true" className="glass overflow-hidden rounded-xl">
             <div className="flex items-center gap-2 border-b border-border px-3 py-2">
@@ -223,7 +225,9 @@ function VarietyScene({ p }: { p: P }) {
               );
             })}
           </div>
-          <div aria-hidden="true" className="font-mono text-xs text-muted-foreground">
+          {/* On phones the brief block below opens with this same architecture name, so the
+              label hides there: stacked, the two lines collided. */}
+          <div aria-hidden="true" className="hidden font-mono text-xs text-muted-foreground md:block">
             <span className="text-foreground">{DIRECTIONS[phase].arch}</span> of 12 page architectures
           </div>
         </div>
@@ -232,7 +236,7 @@ function VarietyScene({ p }: { p: P }) {
         </motion.p>
       </motion.div>
 
-      <div aria-hidden="true" className="absolute inset-x-[6%] top-[70%] h-[150px] border-t border-border/80 pt-4 short:top-[72%] short:h-[100px] md:hidden">
+      <div aria-hidden="true" className="absolute inset-x-[6%] top-[73.5%] h-[150px] border-t border-border/80 pt-4 short:top-[74%] short:h-[100px] md:hidden">
         <div className="absolute right-0 top-2 font-mono text-[11px] tabular-nums text-muted-foreground">direction {phase + 1} of 3</div>
         <div className="relative h-full">
           <BriefBlock d={DIRECTIONS[0]} opacity={a} />
