@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { HowLink } from "./HowLink";
+import { JumpLink } from "./JumpLink";
 
 export function Nav() {
   return (
@@ -11,8 +12,8 @@ export function Nav() {
         </Link>
         <nav aria-label="Sections" className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <HowLink className="transition-colors hover:text-foreground" />
-          <a href="#directions" className="transition-colors hover:text-foreground">The sites</a>
-          <a href="#rules" className="transition-colors hover:text-foreground">Honest by default</a>
+          <JumpLink ids={["directions-story", "directions"]} className="transition-colors hover:text-foreground">The sites</JumpLink>
+          <JumpLink ids={["rules-story", "rules"]} className="transition-colors hover:text-foreground">Honest by default</JumpLink>
         </nav>
         <div className="flex items-center gap-1">
           <Link href="/sign-in" className="hidden rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
