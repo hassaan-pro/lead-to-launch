@@ -48,7 +48,7 @@ export function HeroDemo() {
           </svg>
 
           <div className="absolute left-5 right-5 top-4 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
-            <span>salons in lahore</span>
+            <span>salons in austin</span>
             <span>13 found</span>
           </div>
 
@@ -103,7 +103,7 @@ export function HeroDemo() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.5, ease: EASE, delay: t(5.2) }}
           >
-            Assalam o alaikum. I rebuilt your homepage as a sample. Two minutes to look?
+            Hi, I rebuilt your homepage as a sample. Two minutes to look?
             <div className="mt-1 text-right font-mono text-[10px] text-[#7FA597]">sent</div>
           </motion.div>
 
