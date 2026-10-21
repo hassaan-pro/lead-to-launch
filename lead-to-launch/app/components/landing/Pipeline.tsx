@@ -17,7 +17,7 @@ const STEPS = [
 ];
 
 const SCRAPED = [
-  { n: "Noor Atelier", r: "4.7", c: "2,310", w: "no website" },
+  { n: "Marlowe Salon", r: "4.9", c: "1,864", w: "dated website" },
   { n: "Studio Nine", r: "4.5", c: "812", w: "Facebook page" },
   { n: "Gul Beauty Lounge", r: "4.3", c: "640", w: "own website" },
   { n: "The Hair Room", r: "4.8", c: "1,126", w: "own website" },
@@ -25,7 +25,7 @@ const SCRAPED = [
 ];
 
 const RANKED = [
-  { n: "Noor Atelier", s: 84, why: "No website, 2,310 reviews, reachable on WhatsApp" },
+  { n: "Marlowe Salon", s: 84, why: "Dated site, no booking path, 1,864 reviews, reachable on WhatsApp" },
   { n: "Zara Bridal Studio", s: 77, why: "Instagram only, 395 reviews, phone listed" },
   { n: "Studio Nine", s: 71, why: "Facebook only, 812 reviews" },
   { n: "The Hair Room", s: 52, why: "Site loads, no booking path, 1,126 reviews" },
@@ -95,7 +95,7 @@ function Specimen({ i }: { i: number }) {
   return (
     <div className="space-y-3">
       <div className="ml-auto max-w-[88%] rounded-2xl rounded-tr-md bg-[#14211C] px-4 py-3 text-sm leading-relaxed text-[#D7E6DF]">
-        Hi, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?
+        Hi, I was looking at Marlowe Salon online. 1,864 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?
       </div>
       <p className="text-xs text-muted-foreground">Written for WhatsApp. It also drafts the email and the follow-up, matched to the lead's language.</p>
     </div>
