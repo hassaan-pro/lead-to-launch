@@ -15,13 +15,15 @@ const STEP = 0.14;
 function HeroShop({ i, lit }: { i: number; lit: boolean }) {
   return (
     <div className="group relative flex h-full flex-col justify-end">
+      {/* The trade names itself as its shop lights, so the strip reads as
+          businesses arriving, not as a skyline decoration. */}
+      <div
+        aria-hidden="true"
+        className={cn("mb-1.5 hidden text-center font-mono text-[11px] text-lamp transition-opacity duration-500 md:block", lit ? "opacity-100" : "opacity-0")}
+      >
+        {SHOPS[i]}
+      </div>
       <div className="relative transition-transform duration-300 ease-out group-hover:-translate-y-1" style={{ height: `${HEIGHT[i]}%` }}>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-6 hidden text-center font-mono text-[11px] text-lamp opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:block"
-        >
-          {SHOPS[i]}
-        </span>
         <div className="relative h-full overflow-hidden rounded-t-[3px] border border-border bg-[#0E141B]">
           <div className="h-2 w-full bg-[repeating-linear-gradient(90deg,#1B2530_0_8px,#131B24_8px_16px)]" />
           <div className="absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] border border-border/70 bg-[#0A1016]" />
