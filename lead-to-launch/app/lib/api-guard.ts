@@ -13,7 +13,7 @@ export function clean(value: unknown, max: number): string {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "";
 }
 
-export const MAX_SCRAPE_COUNT = 30;
+export const MAX_SCRAPE_COUNT = 25;
 
 export function parseScrapeInput(body: unknown): ScrapeInput | null {
   const b = (body ?? {}) as Record<string, unknown>;

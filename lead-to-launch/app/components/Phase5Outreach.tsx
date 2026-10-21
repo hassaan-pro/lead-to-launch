@@ -56,6 +56,9 @@ export function Phase5Outreach({
       const subject = lang === "roman-urdu" ? "Aap ke business ke liye ek website demo bana di hai" : "Built a website demo for your business";
       window.open(`mailto:${selected.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`, "_blank");
     } else if (channel === "instagram") {
+      // Instagram DMs cannot be automated. Copy the draft and open
+      // Instagram so the user pastes it into the DM themselves.
+      copy(message);
       window.open(`https://instagram.com/`, "_blank");
     } else {
       toast.error("No contact for this channel");
@@ -116,13 +119,17 @@ export function Phase5Outreach({
         ))}
       </div>
 
+      {channel === "instagram" && (
+        <p className="text-xs text-muted-foreground mb-4">Instagram DMs cannot be automated. The button copies the message and opens Instagram so you can paste it.</p>
+      )}
+
       <div className="grid lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>First message</CardTitle>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => copy(message)}><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy</Button>
-              <Button size="sm" onClick={openChannel}><ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Send</Button>
+              <Button size="sm" onClick={openChannel}>{channel === "instagram" ? <><Copy className="h-3.5 w-3.5 mr-1.5" /> Copy + open Instagram</> : <><ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Send</>}</Button>
             </div>
           </CardHeader>
           <CardContent>

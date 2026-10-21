@@ -118,7 +118,7 @@ export function Phase2Audit({
       nextDisabled={auditedCount === 0}
       nextLabel="Rank prospects"
     >
-      <div className="grid md:grid-cols-4 gap-3 mb-6">
+      <div className={`grid gap-3 mb-6 ${measuredSpeeds.length ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
         <Card>
           <CardContent className="pt-6">
             <div className="text-[11px] text-muted-foreground">Audited</div>
@@ -133,14 +133,16 @@ export function Phase2Audit({
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-[11px] text-muted-foreground">Avg PageSpeed (measured)</div>
-            <div className="font-display text-3xl tabular-nums mt-2">
-              {measuredSpeeds.length ? Math.round(measuredSpeeds.reduce((s, a) => s + a.pageSpeedScore, 0) / measuredSpeeds.length) : "n/a"}
-            </div>
-          </CardContent>
-        </Card>
+        {measuredSpeeds.length > 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-[11px] text-muted-foreground">Avg PageSpeed (measured)</div>
+              <div className="font-display text-3xl tabular-nums mt-2">
+                {Math.round(measuredSpeeds.reduce((s, a) => s + a.pageSpeedScore, 0) / measuredSpeeds.length)}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardContent className="pt-6">
             <div className="text-[11px] text-muted-foreground">Gaps found</div>

@@ -16,15 +16,15 @@ export default function LeadMap({ leads }: { leads: Lead[] }) {
     <div className="h-[320px] rounded-lg overflow-hidden border border-border">
       <MapContainer center={center} zoom={14} className="h-full w-full" scrollWheelZoom={false}>
         <TileLayer
-          attribution='&copy; OpenStreetMap &copy; CARTO'
-          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {leads.map((l) => (
           <CircleMarker
             key={l.id}
             center={[l.lat, l.lng]}
             radius={7}
-            pathOptions={{ color: "#7a5c3e", fillColor: "#a8866a", fillOpacity: 0.85, weight: 1.5 }}
+            pathOptions={{ color: "#0A0E13", fillColor: "#F0B34A", fillOpacity: 0.9, weight: 1.5 }}
           >
             <Tooltip>{l.name}</Tooltip>
           </CircleMarker>
