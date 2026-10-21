@@ -5,7 +5,18 @@ import { motion, useMotionValueEvent, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Viewfinder } from "@/components/brand/Viewfinder";
 import { type P, usePct, useRange, useSeg, useWindow } from "@/components/journey/motion";
+import { SectionKicker } from "@/components/motion/ui";
 import { Stage } from "./Stage";
+
+// Where each direction sits on the runway, used by the dot jumps below.
+const PHASE_TARGET = [0.15, 0.51, 0.86];
+
+function jumpToPhase(dirIndex: number) {
+  const el = document.getElementById("directions-story");
+  if (!el) return;
+  const top = window.scrollY + el.getBoundingClientRect().top;
+  window.scrollTo({ top: top + PHASE_TARGET[dirIndex] * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
+}
 
 // The twelve page architectures the generator chooses from.
 const LIBRARY = [
@@ -148,6 +159,7 @@ function VarietyScene({ p }: { p: P }) {
   return (
     <>
       <div className="absolute left-[6%] right-[6%] top-[8%] short:top-[10.5%] md:right-auto md:top-[14%] md:w-[31%] md:max-w-md">
+        <SectionKicker text="the sites" className="mb-3" />
         <h2 className="title-heavy font-display text-[clamp(1.9rem,3.8vw,3.4rem)] leading-[1.04] short:text-[1.6rem]">Never the same site twice.</h2>
         <p className="mt-3 text-[14px] leading-snug text-muted-foreground short:hidden md:mt-5 md:text-[17px] md:leading-relaxed">
           Before any code, each business gets a creative direction. Here is one business in three of them. &ldquo;New direction&rdquo; rolls another.
@@ -180,24 +192,38 @@ function VarietyScene({ p }: { p: P }) {
           </div>
         </Viewfinder>
 
-        <div aria-hidden="true" className="mt-6 flex flex-col items-start gap-3 md:mt-7 md:flex-row md:items-center md:justify-between md:gap-6">
+        <div className="mt-6 flex flex-col items-start gap-3 md:mt-7 md:flex-row md:items-center md:justify-between md:gap-6">
           <div className="flex items-center gap-2">
             {LIBRARY.map((name, i) => {
               const chosen = DIRECTIONS.findIndex((d) => d.at === i);
               const state = chosen === phase ? "active" : chosen !== -1 && chosen < phase ? "seen" : "idle";
-              return (
+              const dot = (
                 <span
-                  key={name}
-                  title={name}
                   className={cn(
                     "h-2 w-2 rounded-full transition-[background-color,box-shadow,transform] duration-300",
                     state === "active" ? "scale-150 bg-lamp shadow-[0_0_10px_2px_rgba(240,179,74,0.55)]" : state === "seen" ? "bg-lamp/40" : "bg-muted-foreground/30",
                   )}
                 />
               );
+              // The three architectures this demo actually shows are buttons: clicking one
+              // scrolls the runway to that direction. The other nine are library, not slides.
+              return chosen === -1 ? (
+                <span key={name} title={name} className="grid h-6 w-6 place-items-center">{dot}</span>
+              ) : (
+                <button
+                  key={name}
+                  type="button"
+                  title={name}
+                  aria-label={`Show direction ${chosen + 1}: ${DIRECTIONS[chosen].arch}`}
+                  onClick={() => jumpToPhase(chosen)}
+                  className="grid h-6 w-6 place-items-center rounded-full transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {dot}
+                </button>
+              );
             })}
           </div>
-          <div className="font-mono text-xs text-muted-foreground">
+          <div aria-hidden="true" className="font-mono text-xs text-muted-foreground">
             <span className="text-foreground">{DIRECTIONS[phase].arch}</span> of 12 page architectures
           </div>
         </div>
