@@ -25,7 +25,7 @@ export function Hero() {
               See how it works
             </a>
           </div>
-          <p className="mt-10 text-sm text-muted-foreground/80">Made in Lahore, first tested on salons there.</p>
+          <p className="mt-10 text-sm text-muted-foreground/80">Built for local businesses. First tested on real salons.</p>
         </div>
         <HeroDemo />
       </div>
