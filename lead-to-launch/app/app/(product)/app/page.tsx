@@ -15,6 +15,7 @@ import type { Lead, AuditResult } from "@/lib/types";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/brand/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Page() {
   const [view, setView] = useState<"pipeline" | "saved">("pipeline");
@@ -52,10 +53,11 @@ export default function Page() {
       </a>
       <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-          <Link href="/" aria-label="Lead to Launch home"><Logo /></Link>
+          <Link href="/" aria-label="Outrive home"><Logo /></Link>
           <div className="flex items-center gap-2">
             <Button variant={view === "pipeline" ? "default" : "outline"} size="sm" onClick={() => setView("pipeline")}>Pipeline</Button>
             <Button variant={view === "saved" ? "default" : "outline"} size="sm" onClick={() => setView("saved")}>Saved leads</Button>
+            <ThemeToggle />
             <UserButton />
           </div>
         </div>

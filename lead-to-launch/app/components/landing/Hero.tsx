@@ -12,14 +12,14 @@ export function Hero() {
             <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
           </h1>
           <p className="mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Lead to Launch pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
+            Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link
               href="/app"
               className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              Open Lead to Launch
+              Open Outrive
             </Link>
             <a href="#how" className="rounded-full px-5 py-3.5 text-[15px] text-muted-foreground transition-colors hover:text-foreground">
               See how it works

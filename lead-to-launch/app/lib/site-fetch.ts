@@ -122,7 +122,7 @@ function requestOnce(u: URL, deadline: number): Promise<{ status: number; header
         lookup: safeLookup as unknown as net.LookupFunction,
         timeout: remaining,
         headers: {
-          "user-agent": "Mozilla/5.0 (compatible; LeadToLaunchAudit/1.0)",
+          "user-agent": "Mozilla/5.0 (compatible; OutriveAudit/1.0)",
           accept: "text/html,application/xhtml+xml",
           "accept-encoding": "identity",
         },

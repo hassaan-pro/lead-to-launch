@@ -11,7 +11,7 @@ export function Evidence() {
             Telling a business its website is outdated gets ignored. Telling it there is no booking button on the homepage gets checked, and believed.
           </p>
           <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
-            Lead to Launch opens each site and writes down what it actually saw, so every line in your pitch is something the owner can verify in ten seconds.
+            Outrive opens each site and writes down what it actually saw, so every line in your pitch is something the owner can verify in ten seconds.
           </p>
         </div>
 
