@@ -103,8 +103,8 @@ export function SceneMap({ p }: { p: P }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: EASE, delay: 1.4 }}
             >
-              <div className="font-display text-[15px] leading-tight">Noor Atelier</div>
-              <div className="mt-1 whitespace-nowrap font-mono text-[11px] text-muted-foreground">4.7 stars, 2,310 reviews</div>
+              <div className="font-display text-[15px] leading-tight">Marlowe Salon</div>
+              <div className="mt-1 whitespace-nowrap font-mono text-[11px] text-muted-foreground">4.9 stars, 1,864 reviews</div>
               <div className="mt-1.5 text-[11px] text-lamp">example business</div>
             </motion.div>
           </motion.div>
