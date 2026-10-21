@@ -3,6 +3,7 @@ import { Logo } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HowLink } from "./HowLink";
 import { JumpLink } from "./JumpLink";
+import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 
 export function Nav() {
   return (
@@ -12,21 +13,24 @@ export function Nav() {
           <Logo />
         </Link>
         <nav aria-label="Sections" className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <HowLink className="transition-colors hover:text-foreground" />
-          <JumpLink ids={["directions-story", "directions"]} className="transition-colors hover:text-foreground">The sites</JumpLink>
-          <JumpLink ids={["rules-story", "rules"]} className="transition-colors hover:text-foreground">Honest by default</JumpLink>
+          <HowLink className="u-sweep transition-colors hover:text-foreground" />
+          <JumpLink ids={["directions-story", "directions"]} className="u-sweep transition-colors hover:text-foreground">The sites</JumpLink>
+          <JumpLink ids={["rules-story", "rules"]} className="u-sweep transition-colors hover:text-foreground">Honest by default</JumpLink>
         </nav>
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <Link href="/sign-in" className="hidden rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
+          <Link href="/sign-in" className="u-sweep hidden px-1 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
             Sign in
           </Link>
-          <Link
-            href="/app"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Open the tool
-          </Link>
+          <Magnetic>
+            <Link
+              href="/app"
+              className="group flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Open the tool
+              <ArrowFlip className="h-3.5 w-3.5" />
+            </Link>
+          </Magnetic>
         </div>
       </div>
     </header>

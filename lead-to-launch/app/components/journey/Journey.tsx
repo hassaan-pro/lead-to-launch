@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useNarrow, useHydrated } from "./narrow";
-import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from "framer-motion";
 import { Viewfinder } from "@/components/brand/Viewfinder";
 import { cn } from "@/lib/utils";
-import { type P, usePct, useRange, useSeg } from "./motion";
+import { EASE, type P, usePct, useRange, useSeg } from "./motion";
+import { ArrowFlip, Magnetic, Reveal, usePointerParallax } from "@/components/motion/ui";
 import { SceneMap } from "./SceneMap";
 import { SiteScene } from "./SiteScene";
 import { SceneSend } from "./SceneSend";
@@ -56,12 +57,15 @@ function EndCard({ p, sectionRef }: { p: P; sectionRef: React.RefObject<HTMLElem
       <motion.div style={{ y }} className="max-w-2xl text-center">
         <h2 className="title-heavy font-display text-4xl leading-[1.04] sm:text-6xl">That was one business. Try your own.</h2>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/app"
-            className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Open Outrive
-          </Link>
+          <Magnetic>
+            <Link
+              href="/app"
+              className="group flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Open Outrive
+              <ArrowFlip />
+            </Link>
+          </Magnetic>
           <button
             type="button"
             onClick={() => {
@@ -87,7 +91,10 @@ export function Journey() {
 function JourneyStage({ narrow }: { narrow: boolean }) {
   const hydrated = useHydrated();
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const { scrollYProgress: rawP } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // Same overdamped spring as the story stages: the whole opening scrubs with weight.
+  const p = useSpring(rawP, { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
+  const par = usePointerParallax();
 
   // The frame starts as the hero demo on the right, then grows to fill the screen.
   const grow = [0, 0.08];
@@ -102,38 +109,57 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
 
   return (
     <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[520vh] md:h-[620vh]">
-      <div className={`sticky top-0 h-svh overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
-        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
+      <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-0 h-svh overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
+        <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
         <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-1/2 md:w-[42%] md:max-w-xl md:-translate-y-1/2">
-          <h1 className="font-display text-[clamp(1.9rem,4.6vw,4.1rem)] leading-[1.04] short:text-[1.7rem]">
-            <span className="title-heavy block text-foreground">Find the businesses that need a website.</span>
-            <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
-          </h1>
-          <p className="mt-4 max-w-md text-[15px] leading-snug text-muted-foreground short:mt-3 short:text-[14px] md:mt-7 md:text-lg md:leading-relaxed">
-            Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-9">
-            <Link
-              href="/app"
-              className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              Open Outrive
-            </Link>
-            <span className="px-3 font-mono text-sm text-muted-foreground">or scroll</span>
-          </div>
-          <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">Built for local businesses. First tested on real salons.</p>
+          <Reveal delay={0.05}>
+            <h1 className="font-display text-[clamp(1.9rem,4.6vw,4.1rem)] leading-[1.04] short:text-[1.7rem]">
+              <span className="title-heavy block text-foreground">Find the businesses that need a website.</span>
+              <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
+            </h1>
+          </Reveal>
+          <Reveal delay={0.18}>
+            <p className="mt-4 max-w-md text-[15px] leading-snug text-muted-foreground short:mt-3 short:text-[14px] md:mt-7 md:text-lg md:leading-relaxed">
+              Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
+            </p>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-9">
+              <Magnetic>
+                <Link
+                  href="/app"
+                  className="group flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Open Outrive
+                  <ArrowFlip />
+                </Link>
+              </Magnetic>
+              <span className="px-3 font-mono text-sm text-muted-foreground">or scroll</span>
+            </div>
+          </Reveal>
+          <Reveal delay={0.45}>
+            <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">Built for local businesses. First tested on real salons.</p>
+          </Reveal>
         </motion.div>
 
-        <motion.div style={{ left, top, width, height, opacity: frameOut }} className="absolute">
-          <Viewfinder className="h-full w-full">
-            <div className="glass relative h-full w-full overflow-hidden rounded-xl">
-              <SceneMap p={p} />
-              <SiteScene p={p} />
-              <SceneSend p={p} />
-              <ChapterTitles p={p} />
-            </div>
-          </Viewfinder>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
+          style={{ x: par.panelX, y: par.panelY, rotate: par.panelR }}
+          className="pointer-events-none absolute inset-0"
+        >
+          <motion.div style={{ left, top, width, height, opacity: frameOut }} className="pointer-events-auto absolute">
+            <Viewfinder className="h-full w-full">
+              <div className="glass relative h-full w-full overflow-hidden rounded-xl">
+                <SceneMap p={p} />
+                <SiteScene p={p} />
+                <SceneSend p={p} />
+                <ChapterTitles p={p} />
+              </div>
+            </Viewfinder>
+          </motion.div>
         </motion.div>
 
         <Rail p={p} sectionRef={ref} />

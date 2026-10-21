@@ -10,8 +10,8 @@ export function Footer() {
           <span>Built for local businesses everywhere.</span>
         </div>
         <nav aria-label="Footer" className="flex items-center gap-6 text-sm text-muted-foreground">
-          <Link href="/sign-in" className="transition-colors hover:text-foreground">Sign in</Link>
-          <Link href="/app" className="transition-colors hover:text-foreground">Open the tool</Link>
+          <Link href="/sign-in" className="u-sweep transition-colors hover:text-foreground">Sign in</Link>
+          <Link href="/app" className="u-sweep transition-colors hover:text-foreground">Open the tool</Link>
         </nav>
       </div>
     </footer>

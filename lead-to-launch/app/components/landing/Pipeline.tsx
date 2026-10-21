@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AuditReceipt, EXAMPLE_ROWS } from "./AuditReceipt";
+import { Reveal, SectionKicker } from "@/components/motion/ui";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -108,7 +109,11 @@ export function Pipeline() {
   return (
     <section id="how" className="scroll-mt-24 border-y border-border/60 bg-card/30 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Five steps, one pipeline.</h2>
+        <Reveal>
+          <SectionKicker text="the pipeline" />
+          <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Five steps, one pipeline.</h2>
+        </Reveal>
+        <Reveal delay={0.1}>
         <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
           <div role="tablist" aria-label="Pipeline steps" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:gap-1 lg:overflow-visible">
             {STEPS.map((s, n) => (
@@ -121,7 +126,7 @@ export function Pipeline() {
                 onClick={() => setI(n)}
                 className={cn(
                   "shrink-0 rounded-xl border px-4 py-3 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:w-full",
-                  i === n ? "border-border bg-card" : "border-transparent text-muted-foreground hover:text-foreground",
+                  i === n ? "border-border bg-card" : "border-transparent text-muted-foreground hover:border-border/60 hover:text-foreground",
                 )}
               >
                 <div className="flex items-baseline gap-3">
@@ -149,6 +154,7 @@ export function Pipeline() {
             <p className="mt-6 text-xs text-muted-foreground/80">Example output with invented businesses.</p>
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   );

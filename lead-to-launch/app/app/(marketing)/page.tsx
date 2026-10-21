@@ -9,6 +9,7 @@ import { Closing } from "@/components/landing/Closing";
 import { Footer } from "@/components/landing/Footer";
 import { FloatingCta } from "@/components/landing/FloatingCta";
 import { MotionOptIn } from "@/components/landing/MotionOptIn";
+import { Marquee } from "@/components/landing/Marquee";
 import { Proof } from "@/components/story/Proof";
 import { Variety } from "@/components/story/Variety";
 import { Truth } from "@/components/story/Truth";
@@ -23,6 +24,8 @@ export default function Landing() {
       <main>
         <div className="journey-only"><Journey /></div>
         <div className="static-only"><Hero /></div>
+
+        <Marquee />
 
         <div className="journey-only"><Proof /></div>
         <div className="static-only"><Evidence /></div>
