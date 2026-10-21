@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { type P, usePct } from "@/components/journey/motion";
 
 /**
@@ -10,7 +10,11 @@ import { type P, usePct } from "@/components/journey/motion";
  */
 export function Stage({ id, label, vh, children }: { id: string; label: string; vh: number; children: (p: P) => React.ReactNode }) {
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const { scrollYProgress: raw } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // A light spring over the raw progress. Scenes keep their 1:1 mapping to the runway but gain
+  // weight, gliding into place instead of tracking the scrollbar mechanically. Overdamped on
+  // purpose, so nothing overshoots at a scene boundary.
+  const p = useSpring(raw, { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
   const width = usePct(p, [0, 1], [0, 100]);
   return (
     <section ref={ref} id={id} aria-label={label} className="relative" style={{ height: `${vh}vh` }}>
