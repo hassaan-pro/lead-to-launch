@@ -7,7 +7,7 @@ import { type P, useRange, useSeg } from "./motion";
 import { useNarrow } from "./narrow";
 
 const MESSAGE =
-  "Assalam o alaikum, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?";
+  "Hi, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?";
 
 export function SceneSend({ p }: { p: P }) {
   const narrow = useNarrow();
