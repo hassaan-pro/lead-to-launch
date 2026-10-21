@@ -60,7 +60,7 @@ function EndCard({ p, sectionRef }: { p: P; sectionRef: React.RefObject<HTMLElem
             href="/app"
             className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Open Lead to Launch
+            Open Outrive
           </Link>
           <button
             type="button"
@@ -101,7 +101,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const frameOut = useRange(p, [0.92, 0.96], [1, 0.12]);
 
   return (
-    <section ref={ref} id="journey" aria-label="How Lead to Launch works, one business at a time" className="relative h-[520vh] md:h-[620vh]">
+    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[520vh] md:h-[620vh]">
       <div className={`sticky top-0 h-svh overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
@@ -111,14 +111,14 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
             <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
           </h1>
           <p className="mt-4 max-w-md text-[15px] leading-snug text-muted-foreground short:mt-3 short:text-[14px] md:mt-7 md:text-lg md:leading-relaxed">
-            Lead to Launch pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
+            Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-9">
             <Link
               href="/app"
               className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              Open Lead to Launch
+              Open Outrive
             </Link>
             <span className="px-3 font-mono text-sm text-muted-foreground">or scroll</span>
           </div>
