@@ -152,8 +152,8 @@ function VarietyScene({ p }: { p: P }) {
   const a = useWindow(p, 0, 0.02, 0.3, 0.36);
   const b = useWindow(p, 0.34, 0.4, 0.62, 0.68);
   const c = useWindow(p, 0.66, 0.72, 0.99, 1);
-  const lift = useRange(p, [0, 0.06], [18, 0]);
-  const appear = useRange(p, [0, 0.05], [0, 1]);
+  const lift = useRange(p, [0, 0.03], [18, 0]);
+  const appear = useRange(p, [0, 0.025], [0, 1]);
   const foot = useRange(p, [0.84, 0.92], [0, 1]);
 
   return (
