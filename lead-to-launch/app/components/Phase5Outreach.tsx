@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,8 @@ import { PhaseShell } from "./PhaseShell";
 import { IncompleteState } from "./IncompleteState";
 import { MessageCircle, Mail, Camera, Copy, ExternalLink, Sparkles } from "lucide-react";
 import type { RankedLead, OutreachChannel, OutreachLanguage } from "@/lib/types";
-import { detectLocale } from "@/lib/locale";
+import { OUTREACH_LANGUAGES, detectOutreachLanguage, languageDir } from "@/lib/outreach-languages";
+import { EMAIL_SUBJECTS, buildOutreach } from "@/lib/outreach-templates";
 import { toast } from "sonner";
 
 export function Phase5Outreach({
@@ -26,12 +27,11 @@ export function Phase5Outreach({
   const [message, setMessage] = useState("");
   const [followUp, setFollowUp] = useState("");
 
-  // Default the language to match where this specific lead is actually
-  // based, instead of assuming Pakistan for every lead.
+  // Default the language to the lead's own market. The picker can
+  // override it; detection only sets the starting language.
   useEffect(() => {
     if (!selected) return;
-    const locale = detectLocale(selected);
-    setLang(locale.id === "pakistan" ? "roman-urdu" : "english");
+    setLang(detectOutreachLanguage(selected));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.id]);
 
@@ -53,7 +53,7 @@ export function Phase5Outreach({
       const num = selected.whatsapp.replace(/\D/g, "");
       window.open(`https://wa.me/${num}?text=${encodeURIComponent(message)}`, "_blank");
     } else if (channel === "email" && selected.email) {
-      const subject = lang === "roman-urdu" ? "Aap ke business ke liye ek website demo bana di hai" : "Built a website demo for your business";
+      const subject = EMAIL_SUBJECTS[lang];
       window.open(`mailto:${selected.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`, "_blank");
     } else if (channel === "instagram") {
       // Instagram DMs cannot be automated. Copy the draft and open
@@ -82,11 +82,6 @@ export function Phase5Outreach({
     );
   }
 
-  // A second language is only offered where one is actually supported for the
-  // lead's market. Everywhere else the message is English, matched by locale.
-  const leadLocale = detectLocale(selected);
-  const hasLocalLanguage = leadLocale.id === "pakistan";
-
   const channels: { id: OutreachChannel; label: string; icon: typeof MessageCircle; enabled: boolean }[] = [
     { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, enabled: !!selected.whatsapp },
     { id: "email", label: "Email", icon: Mail, enabled: !!selected.email },
@@ -102,15 +97,17 @@ export function Phase5Outreach({
           <div className="text-xs text-muted-foreground mt-0.5">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</div>
         </div>
         <div className="flex items-center gap-3">
-          {hasLocalLanguage ? (
-            <div className="flex items-center gap-2">
-              <Label htmlFor="lang" className="text-sm">English</Label>
-              <Switch id="lang" checked={lang === "roman-urdu"} onCheckedChange={(c) => setLang(c ? "roman-urdu" : "english")} />
-              <Label htmlFor="lang" className="text-sm">Roman Urdu</Label>
-            </div>
-          ) : (
-            <div className="text-xs text-muted-foreground">English, matched to this lead's market</div>
-          )}
+          <Label htmlFor="lang" className="text-sm">Language</Label>
+          <Select value={lang} onValueChange={(v) => setLang(v as OutreachLanguage)}>
+            <SelectTrigger id="lang" className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {OUTREACH_LANGUAGES.map((o) => (
+                <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -143,6 +140,7 @@ export function Phase5Outreach({
           </CardHeader>
           <CardContent>
             <Textarea
+              dir={languageDir(lang)}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="font-mono text-sm min-h-[300px]"
@@ -160,6 +158,7 @@ export function Phase5Outreach({
           </CardHeader>
           <CardContent>
             <Textarea
+              dir={languageDir(lang)}
               value={followUp}
               onChange={(e) => setFollowUp(e.target.value)}
               className="font-mono text-sm min-h-[300px]"
@@ -186,141 +185,3 @@ export function Phase5Outreach({
   );
 }
 
-function buildOutreach(l: RankedLead, channel: OutreachChannel, lang: OutreachLanguage): { first: string; followUp: string } {
-  const ownerName = l.name.includes("Dr.") ? l.name.split(",")[0].replace(/['s].*/, "").trim() : "there";
-  const niche = l.category.toLowerCase();
-  const reviews = l.reviewsCount ?? 0;
-  const rating = l.rating ?? 4.5;
-  const demoUrl = `[your-demo-link]`;
-
-  if (lang === "roman-urdu") {
-    if (channel === "whatsapp") {
-      return {
-        first: `Hi ${ownerName} 👋
-
-${l.city} mein ${niche} options dekh raha tha, aur ${l.name} top ratings mein nazar aayi — ${rating}★ aur ${reviews}+ reviews 🔥
-
-Ek cheez notice ki: ${l.audit.biggestGap}
-
-Iska solution bana diya hai — aap ke business ke liye ek FREE website demo taiyar ki hai. WhatsApp booking, Google reviews, services — sab ready hai.
-
-Live demo dekh lein (30 second mein):
-${demoUrl}
-
-Pasand aaye to launch kar dete hain. Warna koi masla nahi — demo aap ke paas free hi rahega.
-
-"YES" reply kar dein agar interested hain?`,
-        followUp: `Hi ${ownerName}, pichle din jo demo bheja tha — dekha aap ne?
-
-Quick recap: ${l.audit.biggestGap.split(".")[0]}.
-
-Demo mein yeh pehle se fix hai.
-
-Demo abhi bhi live hai:
-${demoUrl}
-
-5 minute ki call ho sakti hai walk-through ke liye? Bas bata dein kab free hain.`,
-      };
-    }
-    if (channel === "email") {
-      return {
-        first: `Subject: Aap ki ${l.name} ke liye ek website demo (free, 30 second mein dekh lein)
-
-Hi ${ownerName},
-
-${l.city} mein ${niche} services research kar raha tha. ${l.name} top results mein nazar aayi — ${rating}★, ${reviews}+ reviews.
-
-Magar ek gap notice ki: ${l.audit.biggestGap}
-
-Aap ke business ke liye ek live website demo bana di hai. Tamam information already fill ki gayi hai — services, location, WhatsApp booking, Google reviews integration.
-
-Demo: ${demoUrl}
-
-30 second lagenge dekhne mein. Pasand aaye to launch kar dete hain — full price [your price] (one-time), koi monthly fee nahi.
-
-"YES" reply karein agar interested hain, ya "NO" agar relevant nahi — dono theek hai.
-
-Best,
-[Your Name]`,
-        followUp: `Subject: Re: ${l.name} website demo
-
-Hi ${ownerName},
-
-Pichli email pe quick check-in. Demo abhi bhi live hai: ${demoUrl}
-
-Jo gap maine bataya tha (${l.audit.biggestGap.split(".")[0]}), woh demo mein pehle se fix hai.
-
-5-min call ho sakti hai?
-
-Best,
-[Your Name]`,
-      };
-    }
-    return {
-      first: `Hi! 🙏 ${l.name} ke liye ek website demo bana di hai — ${l.audit.biggestGap} solve karne ke liye. ${demoUrl} pe live preview. Pasand aaye to DM karein!`,
-      followUp: `Hey, pichle din jo website demo bheja tha — koi feedback? Demo: ${demoUrl} | 5 min call set kar sakte hain?`,
-    };
-  }
-
-  // English
-  if (channel === "whatsapp") {
-    return {
-      first: `Hi ${ownerName} 👋
-
-Was researching ${niche} businesses in ${l.city} and ${l.name} stood out — ${rating}★ with ${reviews}+ Google reviews.
-
-Spotted one gap though: ${l.audit.biggestGap}
-
-So I built you a free website demo with WhatsApp booking, Google reviews integration, and services. All pre-filled with your info.
-
-30-second preview: ${demoUrl}
-
-If you like it, we launch it. If not, the demo is yours to keep — free.
-
-Reply "YES" if interested?`,
-      followUp: `Hi ${ownerName}, following up on the demo from a couple of days ago: ${demoUrl}
-
-The gap I flagged (${l.audit.biggestGap.split(".")[0]}) is already fixed in the demo.
-
-Worth a quick 5-min call to walk through?`,
-    };
-  }
-  if (channel === "email") {
-    return {
-      first: `Subject: Built ${l.name} a website demo — 30 sec preview
-
-Hi ${ownerName},
-
-I was researching ${niche} businesses in ${l.city}. ${l.name} stood out (${rating}★, ${reviews}+ reviews).
-
-But I noticed: ${l.audit.biggestGap}
-
-So I built a free demo website for your business, pre-filled with services, location, WhatsApp booking, and Google reviews.
-
-Demo: ${demoUrl}
-
-If you like it, launch is [your price] one-time, zero monthly. If not, demo is yours.
-
-Reply "YES" or "NO" — both work.
-
-Best,
-[Your Name]`,
-      followUp: `Subject: Re: ${l.name} website demo
-
-Hi ${ownerName},
-
-Quick check-in. Demo still live: ${demoUrl}
-
-The gap I flagged is already fixed in the demo.
-
-5-min call?
-
-Best,
-[Your Name]`,
-    };
-  }
-  return {
-    first: `Hey! Built a website demo for ${l.name} to fix one gap (${l.audit.biggestGap.split(".")[0]}). Preview: ${demoUrl}. DM if interested!`,
-    followUp: `Hi! Following up on the demo: ${demoUrl}. 5-min call?`,
-  };
-}
