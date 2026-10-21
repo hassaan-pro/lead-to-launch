@@ -54,7 +54,7 @@ function SlipInvented({ p }: { p: P }) {
         <motion.span style={{ opacity: chip, y: chipY }}><Chip>[REPLACE: years in business]</Chip></motion.span>
       </div>
       <div className="flex flex-wrap items-center gap-x-4">
-        <span>Loved by 2,310 clients, rated 4.7 on Google.</span>
+        <span>Loved by 1,864 clients, rated 4.9 on Google.</span>
         <motion.span style={{ opacity: real }} className="font-mono text-[12px] text-[#2F7A57]">✓ from Google</motion.span>
       </div>
     </div>
@@ -122,7 +122,7 @@ function TruthScene({ p }: { p: P }) {
     <>
       <div className="absolute left-[6%] right-[6%] top-[8%] short:top-[10.5%] md:right-auto md:top-[12%] md:w-[36%] md:max-w-lg">
         <SectionKicker text="the rules" className="mb-3" />
-        <h2 className="title-heavy font-display text-[clamp(1.9rem,3.8vw,3.4rem)] leading-[1.04] short:text-[1.65rem]">Built so you never send something false.</h2>
+        <h2 className="title-heavy font-display text-[clamp(1.9rem,3.8vw,3.4rem)] leading-[1.04] short:text-[1.65rem]">Never pitch a lie.</h2>
         <ol className="mt-8 hidden md:block">
           {RULES.map((_, i) => (
             <RuleRow key={i} p={p} index={i} />
