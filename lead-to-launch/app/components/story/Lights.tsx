@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { type P, useRange, useSeg } from "@/components/journey/motion";
+import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 import { Stage } from "./Stage";
 
 const SHOPS = ["Salon", "Dental", "Cafe", "Gym", "Bakery", "Optician", "Florist", "Tailor", "Barber", "Clinic", "Tutor", "Spa"];
@@ -21,16 +22,21 @@ function Shop({ p, i }: { p: P; i: number }) {
   return (
     <div className="group relative flex flex-col justify-end" style={{ height: "100%" }}>
       <motion.div style={{ opacity: sign }} className="mb-2 hidden text-center font-mono text-[11px] text-lamp md:block">{SHOPS[i]}</motion.div>
-      <div className="relative overflow-hidden rounded-t-[3px] border border-border bg-[#0E141B]" style={{ height: `${HEIGHT[i]}%` }}>
-        <div className="h-2 w-full bg-[repeating-linear-gradient(90deg,#1B2530_0_8px,#131B24_8px_16px)]" />
-        <div className="absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] border border-border/70 bg-[#0A1016]" />
-        <div className="absolute bottom-0 left-[38%] h-[12%] w-[24%] border-x border-t border-border/70 bg-[#0A1016]" />
-        <motion.div
-          aria-hidden="true"
-          style={{ opacity: lit }}
-          className="pointer-events-none absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] bg-[linear-gradient(180deg,#F6C968,#C98A28)] shadow-[0_0_34px_6px_rgba(240,179,74,0.32)]"
-        />
-        <span aria-hidden="true" className="pointer-events-none absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] bg-lamp/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+      <div className="relative transition-transform duration-300 ease-out group-hover:-translate-y-1" style={{ height: `${HEIGHT[i]}%` }}>
+        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-6 hidden text-center font-mono text-[11px] text-lamp opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:block">{SHOPS[i]}</span>
+        <div className="relative h-full overflow-hidden rounded-t-[3px] border border-border bg-[#0E141B]">
+          <div className="h-2 w-full bg-[repeating-linear-gradient(90deg,#1B2530_0_8px,#131B24_8px_16px)]" />
+          <div className="absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] border border-border/70 bg-[#0A1016]" />
+          <div className="absolute bottom-0 left-[38%] h-[12%] w-[24%] border-x border-t border-border/70 bg-[#0A1016]" />
+          <motion.div
+            aria-hidden="true"
+            style={{ opacity: lit }}
+            className="pointer-events-none absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] bg-[linear-gradient(180deg,#F6C968,#C98A28)] shadow-[0_0_34px_6px_rgba(240,179,74,0.32)]"
+          />
+          {/* Hover lights the shop early: fast on, slow off, so sweeping the cursor down the
+              street leaves a trail of lit windows behind it. */}
+          <span aria-hidden="true" className="pointer-events-none absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] bg-[linear-gradient(180deg,#F6C968,#C98A28)] opacity-0 shadow-[0_0_34px_6px_rgba(240,179,74,0.32)] transition-opacity duration-700 group-hover:opacity-90 group-hover:duration-150" />
+        </div>
       </div>
     </div>
   );
@@ -55,12 +61,15 @@ function LightsScene({ p }: { p: P }) {
           Pick a niche and a city. Start turning the lights on.
         </motion.h2>
         <motion.div style={{ opacity: cta, y: ctaY, pointerEvents: ctaEvents as unknown as "auto" }} className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-          <Link
-            href="/app"
-            className="rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            Open Outrive
-          </Link>
+          <Magnetic>
+            <Link
+              href="/app"
+              className="group flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Open Outrive
+              <ArrowFlip />
+            </Link>
+          </Magnetic>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">Site generation runs on a free Gemini key, or in the chat app you already use.</p>
         </motion.div>
       </div>
