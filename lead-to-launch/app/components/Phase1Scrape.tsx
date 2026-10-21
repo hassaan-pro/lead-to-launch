@@ -79,7 +79,7 @@ export function Phase1Scrape({
             </div>
             <div className="space-y-2">
               <Label htmlFor="city" className="text-xs text-muted-foreground">Location</Label>
-              <Input id="city" autoComplete="off" value={input.city} onChange={(e) => setInput({ ...input, city: e.target.value })} placeholder="e.g. Bandra, Mumbai" className="h-10 text-base" />
+              <Input id="city" autoComplete="off" value={input.city} onChange={(e) => setInput({ ...input, city: e.target.value })} placeholder="e.g. Gulberg, Lahore" className="h-10 text-base" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="count" className="text-xs text-muted-foreground">Count</Label>
