@@ -13,20 +13,22 @@ import { SectionKicker } from "@/components/motion/ui";
 type State = "fail" | "pass" | "unknown";
 type Row = { id: string; state: State; neutral: string; label: string; ev: string };
 
-// The order the audit runs its checks in, so the verdicts arrive mixed.
+// A real audit: Bob's Barber Shop, Austin, checked 22 Oct 2026 from public
+// pages only (the same rows as BOBS_ROWS in the static twin). The business
+// was not contacted. The order the checks ran in, so verdicts arrive mixed.
 const ROWS: Row[] = [
-  { id: "https", state: "pass", neutral: "Secure connection", label: "Secure", ev: "Served over HTTPS" },
-  { id: "viewport", state: "fail", neutral: "Mobile viewport", label: "Not built for phones", ev: "No viewport tag, so phones show a shrunken desktop page" },
-  { id: "booking", state: "fail", neutral: "Booking path", label: "No online booking path", ev: "No booking button, link or form found on the homepage" },
-  { id: "whatsapp", state: "fail", neutral: "WhatsApp link", label: "No WhatsApp tap-to-chat", ev: "No wa.me link anywhere on the page" },
-  { id: "prices", state: "unknown", neutral: "Prices", label: "Prices", ev: "Pricing may load with JavaScript, so a basic fetch cannot see it" },
-  { id: "images", state: "fail", neutral: "Photos", label: "Almost no photos", ev: "2 images on the homepage" },
-  { id: "fresh", state: "fail", neutral: "Freshness", label: "Looks abandoned", ev: "Footer still says © 2017" },
-  { id: "schema", state: "fail", neutral: "Search markup", label: "No local business markup", ev: "Google gets no hours, address or services" },
+  { id: "website", state: "fail", neutral: "Website", label: "No website at all", ev: "The Google listing has no website link. Google itself shows an Add website prompt" },
+  { id: "reviews", state: "pass", neutral: "Reviews", label: "A reputation worth finding", ev: "4.7 stars across 173 Google reviews" },
+  { id: "booking", state: "fail", neutral: "Booking path", label: "No online booking path", ev: "No Book online button and no booking page found. The phone is the only way in" },
+  { id: "prices", state: "unknown", neutral: "Prices", label: "Prices", ev: "The business publishes no prices anywhere we could find" },
+  { id: "claimed", state: "fail", neutral: "Listing owner", label: "Listing is unclaimed", ev: "Google still shows Claim this business on the listing" },
+  { id: "years", state: "unknown", neutral: "Years in business", label: "Years in business", ev: "Only a customer's review mentions it. The business never has" },
+  { id: "photos", state: "fail", neutral: "Photos", label: "Photos live only on Google", ev: "21 photos on the listing, and not one on a page the shop owns" },
+  { id: "socials", state: "fail", neutral: "Social links", label: "No social links on the listing", ev: "No Instagram or Facebook linked from Google" },
 ];
 
-// Wide screens: where each row lands, in row units. Headers sit at 0, 7 and 9.
-const SLOT: Record<string, number> = { booking: 1, viewport: 2, whatsapp: 3, images: 4, fresh: 5, schema: 6, https: 8, prices: 10 };
+// Wide screens: where each row lands, in row units. Headers sit at 0, 6 and 8.
+const SLOT: Record<string, number> = { website: 1, booking: 2, claimed: 3, photos: 4, socials: 5, reviews: 7, prices: 9, years: 10 };
 
 const TONE = {
   fail: { glyph: "✕", text: "text-destructive", tint: "bg-destructive/[0.07]" },
@@ -98,7 +100,7 @@ function GroupHeader({ unit, label, count, appear, p, className }: { unit: numbe
 
 export function Proof() {
   return (
-    <Stage id="proof-story" label="How every gap is checked and sorted" vh={400}>
+    <Stage id="proof-story" label="A real audit: Bob's Barber Shop, Austin" vh={400}>
       {(p) => <ProofScene p={p} />}
     </Stage>
   );
@@ -129,8 +131,11 @@ function ProofScene({ p }: { p: P }) {
         <p className="mt-3 text-[14.5px] leading-snug text-muted-foreground short:hidden md:mt-6 md:text-lg md:leading-relaxed">
           Telling a business its website is outdated gets ignored. Telling it there is no booking button on the homepage gets checked, and believed.
         </p>
+        <p className="mt-4 font-mono text-[11px] leading-snug text-muted-foreground short:hidden md:mt-6 md:text-xs md:leading-relaxed">
+          This run is real: Bob&apos;s Barber Shop, Austin. Checked 22 Oct 2026 from public pages. The shop was not contacted.
+        </p>
         <motion.p style={{ opacity: foot }} className="mt-5 hidden text-[15px] leading-relaxed text-foreground/80 md:block">
-          And when a check cannot be made, it says so. A site that only loads with JavaScript is marked couldn&apos;t check, never failed.
+          And when a fact cannot be checked, it says so. Bob&apos;s has never published prices or a founding year, so both stay couldn&apos;t check, never guessed.
         </motion.p>
       </motion.div>
 
@@ -149,13 +154,13 @@ function ProofScene({ p }: { p: P }) {
         </div>
       ) : (
         <div aria-hidden="true" className="absolute right-[5%] top-[13%] h-[70%] w-[57%] min-w-[460px]">
-          <div className="absolute -top-6 left-3 font-mono text-[11px] text-muted-foreground">checks, in the order they run</div>
+          <div className="absolute -top-6 left-3 font-mono text-[11px] text-muted-foreground">bob&apos;s barber shop, austin · the order the checks ran</div>
           {ROWS.map((r, i) => (
             <ProofRow key={r.id} row={r} index={i} p={p} compact={false} />
           ))}
           <GroupHeader unit={0} label="Gaps" count={counts.fail} appear={arrive("fail")} p={p} className="text-destructive" />
-          <GroupHeader unit={7} label="Passed" count={counts.pass} appear={arrive("pass")} p={p} className="text-ok" />
-          <GroupHeader unit={9} label="Couldn't check" count={counts.unknown} appear={arrive("unknown")} p={p} className="text-muted-foreground" />
+          <GroupHeader unit={6} label="Passed" count={counts.pass} appear={arrive("pass")} p={p} className="text-ok" />
+          <GroupHeader unit={8} label="Couldn't check" count={counts.unknown} appear={arrive("unknown")} p={p} className="text-muted-foreground" />
         </div>
       )}
 
