@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeroDemo } from "./HeroDemo";
+import { HeroStreet } from "./HeroStreet";
 import { ArrowFlip, Magnetic, Reveal } from "@/components/motion/ui";
 
 export function Hero() {
@@ -10,13 +11,13 @@ export function Hero() {
         <div>
           <Reveal delay={0.05}>
             <h1 className="font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.1rem]">
-              <span className="title-heavy block text-foreground">Find the businesses that need a website.</span>
-              <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
+              <span className="title-heavy block text-foreground">Win your niche,</span>
+              <span className="title-light mt-3 block text-foreground/70">street by street.</span>
             </h1>
           </Reveal>
           <Reveal delay={0.18}>
             <p className="mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
-              Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
+              Barbers, bakers, dentists, gyms: pick your trade. Outrive finds, audits, builds and pitches, street by street, until the niche knows your name.
             </p>
           </Reveal>
           <Reveal delay={0.3}>
@@ -26,7 +27,7 @@ export function Hero() {
                   href="/app"
                   className="group flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  Open Outrive
+                  Start free
                   <ArrowFlip />
                 </Link>
               </Magnetic>
@@ -36,12 +37,15 @@ export function Hero() {
             </div>
           </Reveal>
           <Reveal delay={0.45}>
-            <p className="mt-10 text-sm text-muted-foreground/80">Built for local businesses. First tested on real salons.</p>
+            <p className="mt-10 text-sm text-muted-foreground/80">No invented numbers. No borrowed logos. The work is the proof.</p>
           </Reveal>
         </div>
         <Reveal delay={0.2} y={34}>
           <HeroDemo />
         </Reveal>
+        <div className="lg:col-span-2">
+          <HeroStreet className="h-36 sm:h-44" />
+        </div>
       </div>
     </section>
   );
