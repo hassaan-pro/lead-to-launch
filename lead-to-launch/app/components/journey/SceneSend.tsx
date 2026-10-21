@@ -7,7 +7,7 @@ import { type P, useRange, useSeg } from "./motion";
 import { useNarrow } from "./narrow";
 
 const MESSAGE =
-  "Hi, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?";
+  "Hi, I was looking at Marlowe Salon online. 1,864 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?";
 
 export function SceneSend({ p }: { p: P }) {
   const narrow = useNarrow();
@@ -31,7 +31,7 @@ export function SceneSend({ p }: { p: P }) {
       </motion.div>
 
       <motion.div style={{ opacity: to }} className={narrow ? "hidden" : "absolute left-[4%] top-[28%] w-[22%] font-mono text-[12px] leading-snug text-muted-foreground"}>
-        to Noor Atelier, on WhatsApp
+        to Marlowe Salon, on WhatsApp
       </motion.div>
 
       <div className={narrow ? "absolute left-[5%] top-[50%] w-[90%] short:top-[45%]" : "absolute left-[66%] top-[24%] w-[28%] min-w-[220px]"}>
