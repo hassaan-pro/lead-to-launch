@@ -135,13 +135,13 @@ function ProofScene({ p }: { p: P }) {
       </motion.div>
 
       {compact ? (
-        <div aria-hidden="true" className="absolute inset-x-[5%] top-[28%] short:top-[19%]">
+        <div aria-hidden="true" className="absolute inset-x-[5%] top-[38%] short:top-[30%]">
           <div className="mb-2 flex items-center justify-between border-b border-border px-3 pb-2 font-mono text-[11px] tabular-nums">
             <span className="text-destructive">gaps {counts.fail}</span>
             <span className="text-ok">passed {counts.pass}</span>
             <span className="text-muted-foreground">couldn&apos;t check {counts.unknown}</span>
           </div>
-          <div className="relative h-[50svh] short:h-[64svh]">
+          <div className="relative h-[42svh] short:h-[50svh]">
             {ROWS.map((r, i) => (
               <ProofRow key={r.id} row={r} index={i} p={p} compact />
             ))}

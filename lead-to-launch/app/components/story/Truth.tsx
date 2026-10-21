@@ -130,7 +130,7 @@ function TruthScene({ p }: { p: P }) {
         </ol>
       </div>
 
-      <div aria-hidden="true" className="absolute inset-x-[5%] top-[21%] h-[66%] short:top-[21%] short:h-[68%] md:inset-x-auto md:right-[5%] md:top-[12%] md:h-[72%] md:w-[48%] md:min-w-[400px]">
+      <div aria-hidden="true" className="absolute inset-x-[5%] top-[33%] h-[60%] short:top-[30%] short:h-[62%] md:inset-x-auto md:right-[5%] md:top-[12%] md:h-[72%] md:w-[48%] md:min-w-[400px]">
         <Paper p={p} beat={BEATS[0]} title={RULES[0].t} label="draft copy for the sample site" pos="top-0 h-[31%] short:h-[35%] md:h-[30%]"><SlipInvented p={p} /></Paper>
         <Paper p={p} beat={BEATS[1]} title={RULES[1].t} label="audit result, prices" pos="top-[34.5%] h-[31%] short:top-[37%] short:h-[26%] md:h-[30%]"><SlipUnknown p={p} /></Paper>
         <Paper p={p} beat={BEATS[2]} title={RULES[2].t} label="audit result, website" pos="top-[69%] h-[31%] short:top-[65%] short:h-[33%] md:h-[30%]"><SlipSocial p={p} /></Paper>

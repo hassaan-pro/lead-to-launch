@@ -17,8 +17,11 @@ export function Stage({ id, label, vh, children }: { id: string; label: string; 
   const p = useSpring(raw, { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
   const width = usePct(p, [0, 1], [0, 100]);
   return (
-    <section ref={ref} id={id} aria-label={label} className="relative" style={{ height: `${vh}vh` }}>
-      <div className="sticky top-0 h-svh overflow-hidden">
+    <section ref={ref} id={id} aria-label={label} className="relative pt-[84px]" style={{ height: `${vh}vh` }}>
+      {/* The stage starts 84px down the screen and is 84px shorter than the viewport: the fixed
+          nav pill (about 72px with its top padding) floats in that reserved band, so scene
+          content composed in percentages of the stage can never slide underneath it. */}
+      <div className="sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden">
         {children(p)}
         <motion.div aria-hidden="true" style={{ width }} className="absolute bottom-0 left-0 h-px bg-lamp/60" />
       </div>
