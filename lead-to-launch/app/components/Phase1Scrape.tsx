@@ -32,7 +32,7 @@ export function Phase1Scrape({
 
   async function runScrape() {
     if (!Number.isFinite(input.count) || input.count < 1 || input.count > 25) {
-      toast.error("Count must be between 1 and 25. The free Apify tier caps a search at 25.");
+      toast.error("Count must be between 1 and 25.");
       return;
     }
     setLoading(true);
@@ -85,9 +85,9 @@ export function Phase1Scrape({
               <Label htmlFor="count" className="text-xs text-muted-foreground">Count</Label>
               <Input id="count" type="number" inputMode="numeric" min={1} max={25} value={input.count} onChange={(e) => setInput({ ...input, count: Number(e.target.value) })} className="h-10 text-base font-mono tabular-nums" />
               {input.count > 25 || input.count < 1 ? (
-                <p className="text-[11px] text-[color:var(--destructive)]">Enter 1 to 25. The free Apify tier caps a search at 25.</p>
+                <p className="text-[11px] text-[color:var(--destructive)]">Enter 1 to 25.</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">Max 25 for free Apify tier.</p>
+                <p className="text-[11px] text-muted-foreground">Max 25 per search.</p>
               )}
             </div>
             <Button onClick={runScrape} disabled={loading} className="w-full h-11 transition-transform duration-150 active:scale-[0.98]">
