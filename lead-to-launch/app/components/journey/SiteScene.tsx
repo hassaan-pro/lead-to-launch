@@ -5,6 +5,7 @@ import { Bracket } from "./Bracket";
 import { ScrollDecode } from "./ScrollDecode";
 import { NewSite, OldSite } from "./sites";
 import { type P, useRange, useSeg, useWindow } from "./motion";
+import { useNarrow } from "./narrow";
 
 type Region = { l: number; t: number; w: number; h: number };
 
@@ -15,7 +16,7 @@ const CALLOUTS: Array<{ a: number; region: Region; label: string }> = [
   { a: 0.5, region: { l: 2, t: 90, w: 96, h: 9 }, label: "Footer still says © 2017" },
 ];
 
-function Callout({ p, a, region, label }: { p: P; a: number; region: Region; label: string }) {
+function Callout({ p, a, region, label, index, narrow }: { p: P; a: number; region: Region; label: string; index: number; narrow: boolean }) {
   const t = useSeg(p, a, a + 0.04);
   const out = useRange(p, [0.53, 0.56], [1, 0]);
   const opacity = useTransform([t, out], ([x, y]) => (x as number) * (y as number));
@@ -29,7 +30,10 @@ function Callout({ p, a, region, label }: { p: P; a: number; region: Region; lab
         <Bracket />
         <span className="absolute inset-0 bg-lamp/[0.11]" />
       </motion.div>
-      <div className="absolute flex w-[230px] gap-2 font-mono text-[12px] leading-snug" style={{ left: "103%", top: `${Math.min(region.t, 78)}%` }}>
+      <div
+        className={narrow ? "absolute flex gap-2 font-mono text-[11.5px] leading-snug" : "absolute flex w-[230px] gap-2 font-mono text-[12px] leading-snug"}
+        style={narrow ? { left: 0, right: 0, top: `calc(100% + ${16 + index * 30}px)` } : { left: "103%", top: `${Math.min(region.t, 78)}%` }}
+      >
         <span className="text-destructive">✕</span>
         <ScrollDecode text={label} progress={t} className="text-foreground" />
       </div>
@@ -49,6 +53,7 @@ function DirectionNote({ p, a, k, children }: { p: P; a: number; k: string; chil
 }
 
 export function SiteScene({ p }: { p: P }) {
+  const narrow = useNarrow();
   const enter = useSeg(p, 0.28, 0.35);
   const leave = useSeg(p, 0.74, 0.8);
   const scaleIn = useRange(enter, [0, 1], [0.06, 1]);
@@ -69,7 +74,7 @@ export function SiteScene({ p }: { p: P }) {
 
   return (
     <div className="absolute inset-0" aria-hidden="true">
-      <motion.div style={{ opacity, scale }} className="absolute left-[23%] top-[10%] h-[70%] w-[54%]">
+      <motion.div style={{ opacity, scale }} className={narrow ? "absolute left-[5%] top-[6%] h-[39%] w-[90%]" : "absolute left-[23%] top-[10%] h-[70%] w-[54%]"}>
         <motion.div style={{ boxShadow: glow, containerType: "inline-size" }} className="absolute inset-0 overflow-hidden rounded-lg border border-border bg-[#0E1319]">
           <div className="flex h-[7%] items-center gap-1.5 bg-[#10161E] px-3">
             {[0, 1, 2].map((i) => <span key={i} className="h-1.5 w-1.5 rounded-full bg-[#2B3744]" />)}
@@ -82,14 +87,14 @@ export function SiteScene({ p }: { p: P }) {
             </motion.div>
           </div>
         </motion.div>
-        {CALLOUTS.map((c) => <Callout key={c.label} p={p} {...c} />)}
+        {CALLOUTS.map((c, i) => <Callout key={c.label} p={p} {...c} index={i} narrow={narrow} />)}
       </motion.div>
 
       <motion.div style={{ opacity: counterOpacity }} className="absolute right-5 top-4 font-mono text-[11px] text-muted-foreground">
         gaps found <motion.span className="text-foreground">{gapsRound}</motion.span>
       </motion.div>
 
-      <motion.div style={{ opacity: noteOut }} className="absolute left-[2.5%] top-[22%] w-[19%]">
+      <motion.div style={{ opacity: noteOut }} className={narrow ? "absolute left-[5%] top-[52%] grid w-[90%] grid-cols-2 gap-x-5" : "absolute left-[2.5%] top-[22%] w-[19%]"}>
         <DirectionNote p={p} a={0.6} k="Architecture">Ritual steps: arrive, consult, treat, leave</DirectionNote>
         <DirectionNote p={p} a={0.63} k="Palette">
           <span className="flex items-center gap-1.5">
