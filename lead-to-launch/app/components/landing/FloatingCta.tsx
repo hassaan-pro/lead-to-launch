@@ -53,7 +53,7 @@ export function FloatingCta() {
           tabIndex={show ? 0 : -1}
           className="whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          Open Lead to Launch
+          Open Outrive
         </Link>
       </div>
     </div>
