@@ -69,11 +69,11 @@ function ProofRow({ row, index, p, compact }: { row: Row; index: number; p: P; c
           <motion.span style={{ opacity: verdictOn }} className={cn("absolute inset-0", tone.text)}>{tone.glyph}</motion.span>
         </span>
         <div className="relative min-w-0 flex-1">
-          <div className="relative h-5 text-[14px] leading-5 md:text-[15px]">
+          <div className={cn("relative", compact ? "h-[18px] text-[13px] leading-[18px]" : "h-5 text-[14px] leading-5 md:text-[15px]")}>
             <motion.span style={{ opacity: neutralOn }} className="absolute left-0 top-0 whitespace-nowrap text-muted-foreground">{row.neutral}</motion.span>
             <motion.span style={{ opacity: labelOn }} className="absolute left-0 top-0 whitespace-nowrap">{row.label}</motion.span>
           </div>
-          <motion.div style={{ opacity: evidenceOn }} className="mt-0.5 font-mono text-[10.5px] leading-[14px] text-muted-foreground md:text-[11px] md:leading-4">
+          <motion.div style={{ opacity: evidenceOn }} className={cn(compact ? "mt-0 line-clamp-2 font-mono text-[10px] leading-[12px] text-muted-foreground" : "mt-0.5 font-mono text-[10.5px] leading-[14px] text-muted-foreground md:text-[11px] md:leading-4")}>
             <ScrollDecode text={row.ev} progress={arrive} />
           </motion.div>
         </div>
@@ -135,13 +135,13 @@ function ProofScene({ p }: { p: P }) {
       </motion.div>
 
       {compact ? (
-        <div aria-hidden="true" className="absolute inset-x-[5%] top-[38%] short:top-[30%]">
+        <div aria-hidden="true" className="absolute inset-x-[5%] top-[36%] short:top-[27%]">
           <div className="mb-2 flex items-center justify-between border-b border-border px-3 pb-2 font-mono text-[11px] tabular-nums">
             <span className="text-destructive">gaps {counts.fail}</span>
             <span className="text-ok">passed {counts.pass}</span>
             <span className="text-muted-foreground">couldn&apos;t check {counts.unknown}</span>
           </div>
-          <div className="relative h-[42svh] short:h-[50svh]">
+          <div className="relative h-[48svh] short:h-[52svh]">
             {ROWS.map((r, i) => (
               <ProofRow key={r.id} row={r} index={i} p={p} compact />
             ))}
