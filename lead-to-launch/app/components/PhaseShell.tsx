@@ -47,14 +47,18 @@ export function PhaseShell({
           >
             <ChevronLeft className="h-4 w-4 mr-1.5" strokeWidth={1.75} /> Back
           </Button>
-          <Button
-            onClick={onNext}
-            disabled={nextDisabled || !onNext}
-            aria-label={nextLabel}
-            className="h-10 px-5 transition-transform duration-150 active:scale-[0.98]"
-          >
-            {nextLabel} <ChevronRight className="h-4 w-4 ml-1.5" strokeWidth={1.75} />
-          </Button>
+          {onNext ? (
+            <Button
+              onClick={onNext}
+              disabled={nextDisabled}
+              aria-label={nextLabel}
+              className="h-10 px-5 transition-transform duration-150 active:scale-[0.98]"
+            >
+              {nextLabel} <ChevronRight className="h-4 w-4 ml-1.5" strokeWidth={1.75} />
+            </Button>
+          ) : (
+            <span />
+          )}
         </div>
       </div>
     </motion.div>

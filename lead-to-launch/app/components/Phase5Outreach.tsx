@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhaseShell } from "./PhaseShell";
+import { SaveLeadButton } from "./SaveLeadButton";
 import { IncompleteState } from "./IncompleteState";
 import { MessageCircle, Mail, Camera, Copy, ExternalLink, Sparkles } from "lucide-react";
 import type { RankedLead, OutreachChannel, OutreachLanguage } from "@/lib/types";
@@ -100,7 +101,7 @@ export function Phase5Outreach({
           <Label htmlFor="lang" className="text-sm">Language</Label>
           <Select value={lang} onValueChange={(v) => setLang(v as OutreachLanguage)}>
             <SelectTrigger id="lang" className="w-[180px]">
-              <SelectValue />
+              <SelectValue>{OUTREACH_LANGUAGES.find((o) => o.id === lang)?.label ?? lang}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {OUTREACH_LANGUAGES.map((o) => (
@@ -178,6 +179,9 @@ export function Phase5Outreach({
               <div className="font-medium tracking-tight">Pipeline complete</div>
               <div className="text-sm text-muted-foreground">Lead → audit → ranked → site → outreach. Repeat for next prospect in Phase 3.</div>
             </div>
+          </div>
+          <div className="mt-4 sm:max-w-[260px]">
+            <SaveLeadButton lead={selected} audit={selected.audit} />
           </div>
         </CardContent>
       </Card>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PhaseShell } from "./PhaseShell";
+import { SaveLeadButton } from "./SaveLeadButton";
 import { IncompleteState } from "./IncompleteState";
 import { Crown, AlertTriangle, MessageCircle, Phone, Mail } from "lucide-react";
 import type { Lead, AuditResult, RankedLead } from "@/lib/types";
@@ -135,7 +136,7 @@ export function Phase3Rank({
                   <TableHead className="w-[260px]">Score</TableHead>
                   <TableHead>Gaps</TableHead>
                   <TableHead>Site</TableHead>
-                  <TableHead className="text-right">Select</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -180,16 +181,21 @@ export function Phase3Rank({
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant={selectedId === lead.id ? "default" : "outline"}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedId(lead.id);
-                        }}
-                      >
-                        {selectedId === lead.id ? "Selected" : "Select"}
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <span onClick={(e) => e.stopPropagation()}>
+                          <SaveLeadButton lead={lead} audit={lead.audit} compact />
+                        </span>
+                        <Button
+                          size="sm"
+                          variant={selectedId === lead.id ? "default" : "outline"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedId(lead.id);
+                          }}
+                        >
+                          {selectedId === lead.id ? "Selected" : "Select"}
+                        </Button>
+                      </div>
                     </TableCell>
                   </motion.tr>
                 ))}
