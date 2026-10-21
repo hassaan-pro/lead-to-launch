@@ -4,12 +4,12 @@ export function OldSite() {
   return (
     <div className="relative h-full w-full" style={{ background: "#E4E7EC", color: "#5E6877", fontFamily: "Georgia, 'Times New Roman', serif" }}>
       <div className="flex items-center justify-between" style={{ background: "#B9C2CF", padding: "1.3cqw 2.4cqw", fontSize: "1.5cqw" }}>
-        <b style={{ color: "#3F4856" }}>NOOR ATELIER</b>
+        <b style={{ color: "#3F4856" }}>MARLOWE SALON</b>
         <span>Home | About | Services | Gallery | Contact</span>
       </div>
       <div className="grid" style={{ gridTemplateColumns: "1.6fr 1fr", gap: "2.4cqw", padding: "3.4cqw 2.4cqw" }}>
         <div>
-          <div style={{ fontSize: "3.7cqw", fontWeight: 700, color: "#3F4856", lineHeight: 1.1 }}>Welcome to Noor Atelier</div>
+          <div style={{ fontSize: "3.7cqw", fontWeight: 700, color: "#3F4856", lineHeight: 1.1 }}>Welcome to Marlowe Salon</div>
           <p style={{ fontSize: "1.55cqw", marginTop: "1.6cqw", lineHeight: 1.55 }}>
             We offer hair, skin and bridal services. Call us today for more information about our packages and special offers. Walk-ins welcome. Our experienced team looks forward to meeting you.
           </p>
@@ -20,7 +20,7 @@ export function OldSite() {
         </div>
       </div>
       <div className="absolute inset-x-0 bottom-0" style={{ background: "#B9C2CF", padding: "1.2cqw 2.4cqw", fontSize: "1.35cqw" }}>
-        © 2017 Noor Atelier. All rights reserved.
+        © 2017 Marlowe Salon. All rights reserved.
       </div>
     </div>
   );
@@ -32,7 +32,7 @@ export function NewSite() {
   return (
     <div className="relative h-full w-full overflow-hidden" style={{ background: "#211713", color: "#F3E4DA" }}>
       <div className="flex items-center justify-between" style={{ padding: "1.8cqw 3cqw" }}>
-        <span className="font-display" style={{ fontSize: "1.9cqw" }}>Noor Atelier</span>
+        <span className="font-display" style={{ fontSize: "1.9cqw" }}>Marlowe Salon</span>
         <span style={{ background: "#D98C7A", color: "#2A1713", fontSize: "1.25cqw", padding: "0.7cqw 1.7cqw", borderRadius: 999, fontWeight: 600 }}>Book on WhatsApp</span>
       </div>
       <div className="grid" style={{ gridTemplateColumns: "1.3fr 1fr", gap: "3cqw", padding: "3.2cqw 3cqw 0" }}>
@@ -61,7 +61,7 @@ export function NewSite() {
 export function NewSitePhone() {
   return (
     <div className="flex h-full w-full flex-col" style={{ background: "#211713", color: "#F3E4DA", padding: "9cqw" }}>
-      <div style={{ fontSize: "6cqw", opacity: 0.6 }}>Noor Atelier</div>
+      <div style={{ fontSize: "6cqw", opacity: 0.6 }}>Marlowe Salon</div>
       <div className="font-display" style={{ fontSize: "17cqw", lineHeight: 0.95, fontWeight: 700, letterSpacing: "-0.035em", marginTop: "14cqw" }}>Your wedding morning, unhurried.</div>
       <div style={{ fontSize: "6.2cqw", opacity: 0.65, marginTop: "7cqw", lineHeight: 1.35 }}>Four steps, one chair, no surprises.</div>
       <div className="mt-auto">

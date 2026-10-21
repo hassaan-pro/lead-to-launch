@@ -21,7 +21,8 @@ export function Rules() {
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <SectionKicker text="the rules" />
-          <h2 className="title-heavy font-display max-w-xl text-4xl leading-[1.05] sm:text-5xl">Built so you never send something false.</h2>
+          <h2 className="title-heavy font-display max-w-xl text-4xl leading-[1.05] sm:text-5xl">Never pitch a lie.</h2>
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">Built so you never send something false. The tool enforces three rules on every audit, every sample and every pitch, before anything leaves your hands.</p>
         </Reveal>
         <div className="mt-14 divide-y divide-border/80 border-y border-border/80">
           {RULES.map((r, i) => (

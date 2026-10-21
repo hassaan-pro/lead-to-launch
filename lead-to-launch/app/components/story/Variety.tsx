@@ -48,7 +48,7 @@ function PageRitual() {
   return (
     <div className="absolute inset-0 bg-[#F3E9E2] p-[3cqw] text-[#2A1F1C]" style={{ fontFamily: SERIF }}>
       <div className="flex items-center justify-between">
-        <span className="text-[2.3cqw] font-semibold tracking-tight">Noor Atelier</span>
+        <span className="text-[2.3cqw] font-semibold tracking-tight">Marlowe Salon</span>
         <span className="flex items-center gap-[2.4cqw] font-sans text-[1.6cqw]">
           <span>Rituals</span><span>Prices</span><span>Visit</span>
           <span className="rounded-full bg-[#B5533C] px-[1.8cqw] py-[0.8cqw] text-white">Book a trial</span>
@@ -57,7 +57,7 @@ function PageRitual() {
       <div className="mt-[4.2cqw] grid grid-cols-[1.15fr_1fr] gap-[4cqw]">
         <div>
           <div className="text-[5.6cqw] leading-[1.02] tracking-tight">Four steps to your wedding morning.</div>
-          <div className="mt-[1.8cqw] font-sans text-[1.7cqw] opacity-70">4.7 stars from 2,310 clients. One chair, no rush.</div>
+          <div className="mt-[1.8cqw] font-sans text-[1.7cqw] opacity-70">4.9 stars from 1,864 clients. One chair, no rush.</div>
           <div className="mt-[2.4cqw] inline-block rounded-full bg-[#B5533C] px-[2.6cqw] py-[1.3cqw] font-sans text-[1.7cqw] text-white">Book a trial</div>
         </div>
         <ol className="divide-y divide-[#2A1F1C]/15 font-sans text-[1.8cqw]">
@@ -76,11 +76,11 @@ function PageStage() {
     <div className="absolute inset-0 grid grid-cols-[38%_1fr] bg-[#0E1114] text-[#EDE3CF]">
       <div className="flex flex-col justify-between p-[3cqw]">
         <div>
-          <div className="font-display text-[4.8cqw] leading-none">Noor Atelier</div>
+          <div className="font-display text-[4.8cqw] leading-none">Marlowe Salon</div>
           <div className="mt-[1cqw] font-sans text-[1.6cqw] opacity-60">South Congress, Austin</div>
         </div>
         <div>
-          <div className="font-sans text-[1.7cqw] opacity-80">4.7 stars, 2,310 reviews</div>
+          <div className="font-sans text-[1.7cqw] opacity-80">4.9 stars, 1,864 reviews</div>
           <div className="mt-[1.6cqw] rounded-full bg-[#C9A55B] px-[2.2cqw] py-[1.3cqw] text-center font-sans text-[1.7cqw] font-medium text-[#14100A]">Check availability</div>
           <div className="mt-[1.6cqw] font-mono text-[1.3cqw] text-[#C9A55B]">[REPLACE: opening hours]</div>
         </div>
@@ -103,10 +103,10 @@ function PageBento() {
     <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-[1.2cqw] bg-[#E9EEF2] p-[2.4cqw] font-sans text-[#102A3A]">
       <div className={cn(tile, "col-span-2 row-span-2")}>
         <div className="text-[3.9cqw] font-semibold leading-[1.06] tracking-tight">A salon you can trust with the day.</div>
-        <div className="mt-[1.6cqw] text-[1.6cqw] text-[#5B7385]">Noor Atelier, South Congress, Austin</div>
+        <div className="mt-[1.6cqw] text-[1.6cqw] text-[#5B7385]">Marlowe Salon, South Congress, Austin</div>
       </div>
       <div className="rounded-[1.2cqw] bg-[#2F6F8F] p-[1.8cqw] text-[1.9cqw] font-medium text-white">Book today</div>
-      <div className={cn(tile, "text-[1.6cqw]")}><div className="text-[4.2cqw] font-semibold leading-none">4.7</div><div className="mt-[0.6cqw] text-[#5B7385]">2,310 reviews</div></div>
+      <div className={cn(tile, "text-[1.6cqw]")}><div className="text-[4.2cqw] font-semibold leading-none">4.9</div><div className="mt-[0.6cqw] text-[#5B7385]">1,864 reviews</div></div>
       <div className={cn(tile, "text-[1.6cqw]")}>Bridal trials</div>
       <div className={cn(tile, "border border-dashed border-[#2F6F8F]/50 font-mono text-[1.3cqw] text-[#2F6F8F]")}>[REPLACE: opening hours]</div>
       <div className={cn(tile, "col-span-2 text-[1.6cqw]")}>Hair, skin, bridal, colour</div>

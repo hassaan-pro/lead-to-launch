@@ -90,8 +90,8 @@ export function HeroDemo() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.45, ease: EASE, delay: t(1.5) }}
             >
-              <div className="font-display text-[15px] leading-tight">Noor Atelier</div>
-              <div className="mt-1 whitespace-nowrap font-mono text-[11px] text-muted-foreground">4.7 stars, 2,310 reviews</div>
+              <div className="font-display text-[15px] leading-tight">Marlowe Salon</div>
+              <div className="mt-1 whitespace-nowrap font-mono text-[11px] text-muted-foreground">4.9 stars, 1,864 reviews</div>
               <div className="mt-1.5 text-[11px] text-lamp">example business</div>
             </motion.div>
           </div>
@@ -138,7 +138,7 @@ export function HeroDemo() {
             transition={{ duration: reduce ? 0 : 0.7, ease: EASE, delay: t(4.2) }}
           >
             <div className="flex h-full flex-col p-3.5 text-[#F3E4DA]">
-              <div className="text-[8px] opacity-60">Noor Atelier</div>
+              <div className="text-[8px] opacity-60">Marlowe Salon</div>
               <div className="mt-5 font-display text-[22px] leading-[0.95] tracking-tight sm:mt-7 sm:text-[27px]">Your wedding morning, unhurried.</div>
               <div className="mt-3 text-[8px] leading-snug opacity-65">Four steps, one chair, no surprises.</div>
               <div className="mt-auto space-y-2">
