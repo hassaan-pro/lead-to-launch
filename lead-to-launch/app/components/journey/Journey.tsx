@@ -8,6 +8,7 @@ import { Viewfinder } from "@/components/brand/Viewfinder";
 import { cn } from "@/lib/utils";
 import { EASE, type P, usePct, useRange, useSeg } from "./motion";
 import { ArrowFlip, Magnetic, Reveal, usePointerParallax } from "@/components/motion/ui";
+import { HeroStreet } from "@/components/landing/HeroStreet";
 import { SceneMap } from "./SceneMap";
 import { SiteScene } from "./SiteScene";
 import { SceneSend } from "./SceneSend";
@@ -115,13 +116,13 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
         <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-1/2 md:w-[42%] md:max-w-xl md:-translate-y-1/2">
           <Reveal delay={0.05}>
             <h1 className="font-display text-[clamp(1.9rem,4.6vw,4.1rem)] leading-[1.04] short:text-[1.7rem]">
-              <span className="title-heavy block text-foreground">Find the businesses that need a website.</span>
-              <span className="title-light mt-3 block text-foreground/70">Show up with it already built.</span>
+              <span className="title-heavy block text-foreground">Win your niche,</span>
+              <span className="title-light mt-3 block text-foreground/70">street by street.</span>
             </h1>
           </Reveal>
           <Reveal delay={0.18}>
             <p className="mt-4 max-w-md text-[15px] leading-snug text-muted-foreground short:mt-3 short:text-[14px] md:mt-7 md:text-lg md:leading-relaxed">
-              Outrive pulls local businesses from Google Maps, checks their real websites, designs a sample site for the best prospects, and writes the pitch.
+              Barbers, bakers, dentists, gyms: pick your trade. Outrive finds, audits, builds and pitches, street by street, until the niche knows your name.
             </p>
           </Reveal>
           <Reveal delay={0.3}>
@@ -131,7 +132,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
                   href="/app"
                   className="group flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  Open Outrive
+                  Start free
                   <ArrowFlip />
                 </Link>
               </Magnetic>
@@ -139,8 +140,15 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
             </div>
           </Reveal>
           <Reveal delay={0.45}>
-            <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">Built for local businesses. First tested on real salons.</p>
+            <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">No invented numbers. No borrowed logos. The work is the proof.</p>
           </Reveal>
+        </motion.div>
+
+        {/* The street lights up under the headline, then leaves with the copy
+            as the demo frame takes the screen. Desktop only: on phones the
+            demo frame itself is the visual. */}
+        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute bottom-[3%] left-[6%] hidden h-[15%] w-[43%] md:block">
+          <HeroStreet className="h-full" />
         </motion.div>
 
         <motion.div
