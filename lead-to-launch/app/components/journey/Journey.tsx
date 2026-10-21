@@ -53,7 +53,7 @@ function EndCard({ p, sectionRef }: { p: P; sectionRef: React.RefObject<HTMLElem
   const y = useRange(o, [0, 1], [16, 0]);
   const events = useTransform(o, (v) => (v > 0.6 ? "auto" : "none"));
   return (
-    <motion.div style={{ opacity: o, pointerEvents: events }} className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 px-6 backdrop-blur-sm">
+    <motion.div style={{ opacity: o, pointerEvents: events }} className="absolute inset-0 z-20 flex items-center justify-center bg-background/95 px-6 backdrop-blur-sm">
       <motion.div style={{ y }} className="max-w-2xl text-center">
         <h2 className="title-heavy font-display text-4xl leading-[1.04] sm:text-6xl">That was one business. Try your own.</h2>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
@@ -108,8 +108,8 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const frameOut = useRange(p, [0.92, 0.96], [1, 0.12]);
 
   return (
-    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[520vh] md:h-[620vh]">
-      <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-0 h-svh overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
+    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[520vh] pt-[84px] md:h-[620vh]">
+      <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
         <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-1/2 md:w-[42%] md:max-w-xl md:-translate-y-1/2">
