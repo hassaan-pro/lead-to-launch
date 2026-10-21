@@ -12,7 +12,7 @@ const STEPS = [
   { name: "Audit", line: "It opens each website and checks booking, WhatsApp, mobile setup, search markup, freshness and speed. A Facebook page is called a Facebook page." },
   { name: "Rank", line: "Every lead gets a score for how much a better web presence would matter: gaps found, review volume, rating, and whether you can reach them." },
   { name: "Build", line: "It decides a creative direction for that business first, then builds a sample site and shows it live. Nothing to unzip or deploy." },
-  { name: "Outreach", line: "It writes the first message and the follow-up, in English or Roman Urdu, for WhatsApp or email, built on the gap it found." },
+  { name: "Outreach", line: "It writes the first message and the follow-up, in English or the local language, for WhatsApp or email, built on the gap it found." },
 ];
 
 const SCRAPED = [
@@ -36,7 +36,7 @@ function Specimen({ i }: { i: number }) {
     return (
       <div>
         <div className="grid grid-cols-3 gap-2 text-sm">
-          {[["Niche", "Salon"], ["Location", "Lahore, Pakistan"], ["Count", "30"]].map(([k, v]) => (
+          {[["Niche", "Salon"], ["Location", "Austin, Texas"], ["Count", "25"]].map(([k, v]) => (
             <div key={k} className="rounded-lg border border-border bg-background/60 px-3 py-2">
               <div className="text-[11px] text-muted-foreground">{k}</div>
               <div className="mt-0.5 truncate">{v}</div>
@@ -94,9 +94,9 @@ function Specimen({ i }: { i: number }) {
   return (
     <div className="space-y-3">
       <div className="ml-auto max-w-[88%] rounded-2xl rounded-tr-md bg-[#14211C] px-4 py-3 text-sm leading-relaxed text-[#D7E6DF]">
-        Assalam o alaikum, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?
+        Hi, I was looking at Noor Atelier online. 2,310 reviews, but the homepage has no way to book. I rebuilt it as a sample so you can see the difference. Two minutes to look?
       </div>
-      <p className="text-xs text-muted-foreground">Written for WhatsApp. It also drafts the email and the follow-up, in English or Roman Urdu.</p>
+      <p className="text-xs text-muted-foreground">Written for WhatsApp. It also drafts the email and the follow-up, matched to the lead's language.</p>
     </div>
   );
 }
