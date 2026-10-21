@@ -15,12 +15,12 @@ import { Button } from "./ui/button";
  * Renders nothing until Convex is configured, so the audit phase is
  * unchanged for anyone who has not set it up yet.
  */
-export function SaveLeadButton({ lead, audit }: { lead: Lead; audit: AuditResult }) {
+export function SaveLeadButton({ lead, audit, compact = false }: { lead: Lead; audit: AuditResult; compact?: boolean }) {
   if (!isConvexConfigured()) return null;
-  return <SaveLeadButtonInner lead={lead} audit={audit} />;
+  return <SaveLeadButtonInner lead={lead} audit={audit} compact={compact} />;
 }
 
-function SaveLeadButtonInner({ lead, audit }: { lead: Lead; audit: AuditResult }) {
+function SaveLeadButtonInner({ lead, audit, compact }: { lead: Lead; audit: AuditResult; compact: boolean }) {
   const saved = useQuery(api.savedLeads.listMine);
   const save = useMutation(api.savedLeads.save);
   const [saving, setSaving] = useState(false);
@@ -61,7 +61,7 @@ function SaveLeadButtonInner({ lead, audit }: { lead: Lead; audit: AuditResult }
   }
 
   return (
-    <Button size="sm" variant={alreadySaved ? "secondary" : "outline"} onClick={onSave} disabled={saving} className="w-full">
+    <Button size="sm" variant={alreadySaved ? "secondary" : "outline"} onClick={onSave} disabled={saving} className={compact ? "" : "w-full"}>
       {saving ? (
         <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
       ) : alreadySaved ? (
@@ -69,7 +69,7 @@ function SaveLeadButtonInner({ lead, audit }: { lead: Lead; audit: AuditResult }
       ) : (
         <Bookmark className="h-3.5 w-3.5 mr-1.5" />
       )}
-      {alreadySaved ? "Saved · update audit" : "Save lead"}
+      {compact ? (alreadySaved ? "Saved" : "Save") : alreadySaved ? "Saved · update audit" : "Save lead"}
     </Button>
   );
 }
