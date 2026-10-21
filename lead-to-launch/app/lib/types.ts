@@ -1,5 +1,7 @@
 export type Lead = {
   id: string;
+  /** Google's permanent place ID. Stable across scrapes, unlike id. Absent on demo seed leads. */
+  placeId?: string;
   name: string;
   category: string;
   address: string;

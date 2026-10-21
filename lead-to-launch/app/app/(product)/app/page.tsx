@@ -8,6 +8,8 @@ import { Phase2Audit } from "@/components/Phase2Audit";
 import { Phase3Rank } from "@/components/Phase3Rank";
 import { Phase4Build } from "@/components/Phase4Build";
 import { Phase5Outreach } from "@/components/Phase5Outreach";
+import { SavedLeads } from "@/components/SavedLeads";
+import { Button } from "@/components/ui/button";
 import { scoreLead } from "@/lib/scoring";
 import type { Lead, AuditResult } from "@/lib/types";
 import Link from "next/link";
@@ -15,6 +17,7 @@ import { UserButton } from "@clerk/nextjs";
 import { Logo } from "@/components/brand/Logo";
 
 export default function Page() {
+  const [view, setView] = useState<"pipeline" | "saved">("pipeline");
   const [phase, setPhase] = useState(1);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [audits, setAudits] = useState<Record<string, AuditResult>>({});
@@ -50,11 +53,18 @@ export default function Page() {
       <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <Link href="/" aria-label="Lead to Launch home"><Logo /></Link>
-          <UserButton />
+          <div className="flex items-center gap-2">
+            <Button variant={view === "pipeline" ? "default" : "outline"} size="sm" onClick={() => setView("pipeline")}>Pipeline</Button>
+            <Button variant={view === "saved" ? "default" : "outline"} size="sm" onClick={() => setView("saved")}>Saved leads</Button>
+            <UserButton />
+          </div>
         </div>
-        <Stepper current={phase} completed={completed} onJump={(n) => setPhase(n)} />
+        {view === "pipeline" && <Stepper current={phase} completed={completed} onJump={(n) => setPhase(n)} />}
       </header>
       <main id="main" className="pt-6" tabIndex={-1}>
+        {view === "saved" ? (
+          <SavedLeads />
+        ) : (
         <AnimatePresence mode="wait">
           {phase === 1 && (
             <Phase1Scrape
@@ -101,6 +111,7 @@ export default function Page() {
             />
           )}
         </AnimatePresence>
+        )}
       </main>
     </>
   );

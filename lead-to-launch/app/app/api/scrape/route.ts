@@ -84,6 +84,7 @@ export async function POST(req: Request) {
         lat: loc.lat,
         lng: loc.lng,
         photosCount: typeof it.imagesCount === "number" ? it.imagesCount : undefined,
+        placeId: it.placeId ? String(it.placeId) : undefined,
       });
     }
 
