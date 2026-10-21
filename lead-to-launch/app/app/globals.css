@@ -52,26 +52,29 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Lights on: night street ink, warm bone text, and one lamp colour used only where something is lit. */
+/* Two lights, one system. Dark is charcoal built on the #181819 base; light is warm
+   paper built on the #F0EBE3 base. The bases anchor each theme, surfaces are derived
+   lifts and shades of them rather than the raw base repeated, and one lamp accent is
+   shared by both. Dark is the default (:root); .light on <html> selects the paper set. */
 :root,
 .dark {
-  --background: #0A0E13;
+  --background: #181819;
   --foreground: #ECE8DF;
-  --card: #10161E;
+  --card: #1F1F21;
   --card-foreground: #ECE8DF;
-  --popover: #121922;
+  --popover: #1D1D1F;
   --popover-foreground: #ECE8DF;
   --primary: #ECE8DF;
-  --primary-foreground: #0A0E13;
-  --secondary: #17202A;
+  --primary-foreground: #181819;
+  --secondary: #232326;
   --secondary-foreground: #D9D5CB;
-  --muted: #131A23;
-  --muted-foreground: #8D96A1;
-  --accent: #1A2430;
+  --muted: #1D1D1F;
+  --muted-foreground: #A3A099;
+  --accent: #26262A;
   --accent-foreground: #ECE8DF;
   --destructive: #E0795F;
-  --border: #1F2A35;
-  --input: #232F3B;
+  --border: #2B2B2E;
+  --input: #2E2E31;
   --ring: #F0B34A;
   --lamp: #F0B34A;
   --ok: #7FB69E;
@@ -81,15 +84,54 @@
   --chart-4: #B58BB0;
   --chart-5: #E0795F;
   --radius: 0.625rem;
-  --sidebar: #0D1218;
+  --sidebar: #131314;
   --sidebar-foreground: #ECE8DF;
   --sidebar-primary: #ECE8DF;
-  --sidebar-primary-foreground: #0A0E13;
-  --sidebar-accent: #1A2430;
+  --sidebar-primary-foreground: #181819;
+  --sidebar-accent: #26262A;
   --sidebar-accent-foreground: #ECE8DF;
-  --sidebar-border: #1F2A35;
+  --sidebar-border: #2B2B2E;
   --sidebar-ring: #F0B34A;
+  --dot-color: rgba(236, 232, 223, 0.035);
   color-scheme: dark;
+}
+
+.light {
+  --background: #F0EBE3;
+  --foreground: #1C1C1E;
+  --card: #FAF7F0;
+  --card-foreground: #1C1C1E;
+  --popover: #FBF9F4;
+  --popover-foreground: #1C1C1E;
+  --primary: #1C1C1E;
+  --primary-foreground: #F5F1E8;
+  --secondary: #E5DDCE;
+  --secondary-foreground: #2A2A2C;
+  --muted: #E9E2D3;
+  --muted-foreground: #6E675B;
+  --accent: #E1D7C3;
+  --accent-foreground: #1C1C1E;
+  --destructive: #BC4B32;
+  --border: #D9CFBD;
+  --input: #CFC3AB;
+  --ring: #B97A1C;
+  --lamp: #CE8A24;
+  --ok: #3E7D63;
+  --chart-1: #CE8A24;
+  --chart-2: #3E7D63;
+  --chart-3: #54708C;
+  --chart-4: #8C6390;
+  --chart-5: #BC4B32;
+  --sidebar: #EAE2D2;
+  --sidebar-foreground: #1C1C1E;
+  --sidebar-primary: #1C1C1E;
+  --sidebar-primary-foreground: #F5F1E8;
+  --sidebar-accent: #E1D7C3;
+  --sidebar-accent-foreground: #1C1C1E;
+  --sidebar-border: #D9CFBD;
+  --sidebar-ring: #B97A1C;
+  --dot-color: rgba(28, 28, 30, 0.055);
+  color-scheme: light;
 }
 
 @layer base {
@@ -98,7 +140,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(circle at 1px 1px, rgba(236, 232, 223, 0.035) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 0);
     background-size: 24px 24px;
   }
   html {
@@ -188,4 +230,17 @@ html.force-motion .static-only { display: none; }
 /* Blurring a large moving surface is expensive on phones, so they get a solid glass instead. */
 @media (max-width: 767px) {
   .glass { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(12, 17, 23, 0.94); }
+  .light .glass { background: rgba(250, 247, 240, 0.96); }
+}
+
+/* Paper glass and a softer lamp glow for the light theme. */
+.light .glass {
+  background: rgba(250, 247, 240, 0.8);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.55), 0 10px 34px rgba(28, 28, 30, 0.07);
+}
+.light .glass::before {
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.22), rgba(28, 28, 30, 0.05) 30%, rgba(28, 28, 30, 0) 60%, rgba(28, 28, 30, 0.08));
+}
+.light .lit {
+  box-shadow: 0 0 0 1px rgba(206, 138, 36, 0.5), 0 0 24px 2px rgba(206, 138, 36, 0.22);
 }
