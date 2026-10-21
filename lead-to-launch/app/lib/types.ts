@@ -77,7 +77,7 @@ export type ScrapeInput = {
 };
 
 export type OutreachChannel = "whatsapp" | "email" | "instagram";
-export type OutreachLanguage = "english" | "roman-urdu";
+export type OutreachLanguage = "english" | "roman-urdu" | "spanish" | "arabic" | "french" | "portuguese" | "german";
 
 export type MarketResearchResult = {
   title: string;
