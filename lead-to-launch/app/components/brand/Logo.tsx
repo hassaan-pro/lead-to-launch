@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
-/** A lead (dot) travelling to a launched site (a window with its light on). */
+/** A lead (dot) travelling to a launched site (a window with its light on).
+ *  Kept for compact spots (the floating CTA) where the wordmark cannot go. */
 export function LogoMark({ className, lit = true }: { className?: string; lit?: boolean }) {
   return (
     <svg viewBox="0 0 32 32" fill="none" aria-hidden="true" className={cn("h-7 w-7", className)}>
@@ -12,11 +13,29 @@ export function LogoMark({ className, lit = true }: { className?: string; lit?: 
   );
 }
 
-export function Logo({ className, markClassName }: { className?: string; markClassName?: string }) {
+/**
+ * The Placeholder wordmark: out[ ]rive.
+ * The amber brackets are the honesty engine as a logo: the visible gap
+ * where an unverified fact would go, never filled with a guess.
+ * Decided 22 Oct 2026 (Brand Foundation). At favicon size it reduces
+ * to the brackets alone (see app/icon.svg).
+ */
+export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <LogoMark className={markClassName} />
-      <span className="font-display text-[1.15rem] leading-none tracking-[-0.03em]">Outrive</span>
+    <span
+      role="img"
+      aria-label="Outrive"
+      className={cn("font-display lowercase leading-none tracking-[-0.03em]", className)}
+    >
+      out
+      <span className="text-lamp">
+        [<span className="inline-block w-[0.3em]" />]
+      </span>
+      rive
     </span>
   );
+}
+
+export function Logo({ className }: { className?: string; markClassName?: string }) {
+  return <Wordmark className={cn("text-[1.5rem]", className)} />;
 }
