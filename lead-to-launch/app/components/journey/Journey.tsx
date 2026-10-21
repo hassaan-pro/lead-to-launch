@@ -122,7 +122,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
             </Link>
             <span className="px-3 font-mono text-sm text-muted-foreground">or scroll</span>
           </div>
-          <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">Made in Lahore, first tested on salons there.</p>
+          <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">Built for local businesses. First tested on real salons.</p>
         </motion.div>
 
         <motion.div style={{ left, top, width, height, opacity: frameOut }} className="absolute">

@@ -47,7 +47,7 @@ function SlipInvented({ p }: { p: P }) {
     <div className="space-y-2 text-[15px] short:text-[14px] md:space-y-2.5 md:text-[17px]" style={{ fontFamily: SERIF }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
         <span className="relative inline-block">
-          <motion.span style={{ opacity: dim }} className="inline-block">Serving Lahore&apos;s brides since 1998.</motion.span>
+          <motion.span style={{ opacity: dim }} className="inline-block">Serving Austin&apos;s brides since 1998.</motion.span>
           <motion.span aria-hidden="true" style={{ width: strike }} className="absolute left-0 top-1/2 h-[2px] bg-[#C2402A]" />
         </span>
         <motion.span style={{ opacity: chip, y: chipY }}><Chip>[REPLACE: years in business]</Chip></motion.span>

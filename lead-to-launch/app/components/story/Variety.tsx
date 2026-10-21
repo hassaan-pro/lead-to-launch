@@ -66,7 +66,7 @@ function PageStage() {
       <div className="flex flex-col justify-between p-[3cqw]">
         <div>
           <div className="font-display text-[4.8cqw] leading-none">Noor Atelier</div>
-          <div className="mt-[1cqw] font-sans text-[1.6cqw] opacity-60">Gulberg III, Lahore</div>
+          <div className="mt-[1cqw] font-sans text-[1.6cqw] opacity-60">South Congress, Austin</div>
         </div>
         <div>
           <div className="font-sans text-[1.7cqw] opacity-80">4.7 stars, 2,310 reviews</div>
@@ -92,7 +92,7 @@ function PageBento() {
     <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-[1.2cqw] bg-[#E9EEF2] p-[2.4cqw] font-sans text-[#102A3A]">
       <div className={cn(tile, "col-span-2 row-span-2")}>
         <div className="text-[3.9cqw] font-semibold leading-[1.06] tracking-tight">A salon you can trust with the day.</div>
-        <div className="mt-[1.6cqw] text-[1.6cqw] text-[#5B7385]">Noor Atelier, Gulberg III, Lahore</div>
+        <div className="mt-[1.6cqw] text-[1.6cqw] text-[#5B7385]">Noor Atelier, South Congress, Austin</div>
       </div>
       <div className="rounded-[1.2cqw] bg-[#2F6F8F] p-[1.8cqw] text-[1.9cqw] font-medium text-white">Book today</div>
       <div className={cn(tile, "text-[1.6cqw]")}><div className="text-[4.2cqw] font-semibold leading-none">4.7</div><div className="mt-[0.6cqw] text-[#5B7385]">2,310 reviews</div></div>

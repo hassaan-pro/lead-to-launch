@@ -112,7 +112,7 @@ export function SceneMap({ p }: { p: P }) {
       </motion.div>
 
       <motion.div style={{ opacity: headerFade }} className="absolute left-5 right-5 top-4 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
-        <span>salons in lahore</span>
+        <span>salons in austin</span>
         <span>13 found</span>
       </motion.div>
       <motion.div style={{ opacity: hint }} className="absolute bottom-4 left-0 right-0 text-center font-mono text-[11px] text-muted-foreground">

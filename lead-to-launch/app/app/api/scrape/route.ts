@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }
 
   if (!APIFY_TOKEN) {
-    return NextResponse.json({ error: "Scraper is not configured. Set APIFY_TOKEN, or DEMO_MODE=true for demo data." }, { status: 503 });
+    return NextResponse.json({ error: "Scraping is not configured on this deployment yet." }, { status: 503 });
   }
 
   try {
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         signal: AbortSignal.timeout(55000),
       },
     );
-    if (!runRes.ok) throw new Error(`Apify ${runRes.status}`);
+    if (!runRes.ok) throw new Error(`Scraper ${runRes.status}`);
     const items = (await runRes.json()) as Array<Record<string, unknown>>;
 
     const leads: Lead[] = [];
@@ -94,6 +94,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ source: "apify", leads });
   } catch (e) {
     console.error("scrape failed", e);
-    return NextResponse.json({ error: "Scrape failed. Check the Apify token and credits, then retry." }, { status: 502 });
+    return NextResponse.json({ error: "Scrape failed. Please retry in a moment." }, { status: 502 });
   }
 }

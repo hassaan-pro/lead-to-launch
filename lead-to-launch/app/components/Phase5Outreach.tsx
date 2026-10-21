@@ -69,7 +69,7 @@ export function Phase5Outreach({
     return (
       <PhaseShell
         title="Write the outreach"
-        subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up."
+        subtitle="Matches the message language to where this lead is based. Built-in day-3 follow-up."
         onPrev={onPrev}
       >
         <IncompleteState
@@ -82,6 +82,11 @@ export function Phase5Outreach({
     );
   }
 
+  // A second language is only offered where one is actually supported for the
+  // lead's market. Everywhere else the message is English, matched by locale.
+  const leadLocale = detectLocale(selected);
+  const hasLocalLanguage = leadLocale.id === "pakistan";
+
   const channels: { id: OutreachChannel; label: string; icon: typeof MessageCircle; enabled: boolean }[] = [
     { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, enabled: !!selected.whatsapp },
     { id: "email", label: "Email", icon: Mail, enabled: !!selected.email },
@@ -89,7 +94,7 @@ export function Phase5Outreach({
   ];
 
   return (
-    <PhaseShell title="Write the outreach" subtitle="Auto-matches Roman Urdu or English to where this lead is based. Built-in day-3 follow-up." onPrev={onPrev}>
+    <PhaseShell title="Write the outreach" subtitle="Matches the message language to where this lead is based. Built-in day-3 follow-up." onPrev={onPrev}>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div className="text-[10px] text-muted-foreground">Sending to</div>
@@ -97,11 +102,15 @@ export function Phase5Outreach({
           <div className="text-xs text-muted-foreground mt-0.5">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="lang" className="text-sm">English</Label>
-            <Switch id="lang" checked={lang === "roman-urdu"} onCheckedChange={(c) => setLang(c ? "roman-urdu" : "english")} />
-            <Label htmlFor="lang" className="text-sm">Roman Urdu</Label>
-          </div>
+          {hasLocalLanguage ? (
+            <div className="flex items-center gap-2">
+              <Label htmlFor="lang" className="text-sm">English</Label>
+              <Switch id="lang" checked={lang === "roman-urdu"} onCheckedChange={(c) => setLang(c ? "roman-urdu" : "english")} />
+              <Label htmlFor="lang" className="text-sm">Roman Urdu</Label>
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground">English, matched to this lead's market</div>
+          )}
         </div>
       </div>
 
