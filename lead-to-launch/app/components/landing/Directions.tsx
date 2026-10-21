@@ -1,3 +1,5 @@
+import { Reveal, SectionKicker } from "@/components/motion/ui";
+
 const CAPTIONS = [
   { a: "Ritual steps", b: "Rose clay and ink, for a bridal salon" },
   { a: "Split stage", b: "Night ink and brass, for a city hotel" },
@@ -57,21 +59,24 @@ export function Directions() {
   return (
     <section id="directions" className="scroll-mt-24 px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
+          <SectionKicker text="the sites" />
           <h2 className="title-heavy font-display text-4xl leading-[1.05] sm:text-5xl">Never the same site twice.</h2>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
             Before any code, each business gets a creative direction: a concept, one of twelve page architectures, a palette, type, and only the sections that earn their place. It remembers what you made last, so the next one does not repeat it.
           </p>
-        </div>
+        </Reveal>
         <div className="mt-14 grid gap-6 sm:grid-cols-3">
           {pieces.map((p, i) => (
-            <figure key={CAPTIONS[i].a} className={i === 1 ? "sm:mt-10" : i === 2 ? "sm:mt-4" : ""}>
-              <div aria-hidden="true" className="h-[290px] rounded-2xl border border-border bg-card p-2.5">{p}</div>
-              <figcaption className="mt-3">
-                <div className="font-display text-base">{CAPTIONS[i].a}</div>
-                <div className="text-sm text-muted-foreground">{CAPTIONS[i].b}</div>
-              </figcaption>
-            </figure>
+            <Reveal key={CAPTIONS[i].a} delay={i * 0.1} className={i === 1 ? "sm:mt-10" : i === 2 ? "sm:mt-4" : ""}>
+              <figure>
+                <div aria-hidden="true" className="h-[290px] rounded-2xl border border-border bg-card p-2.5 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-1 hover:border-lamp/50">{p}</div>
+                <figcaption className="mt-3">
+                  <div className="font-display text-base">{CAPTIONS[i].a}</div>
+                  <div className="text-sm text-muted-foreground">{CAPTIONS[i].b}</div>
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
         <p className="mt-8 text-sm text-muted-foreground/80">Illustrations of three directions. The real sites are generated per business.</p>
