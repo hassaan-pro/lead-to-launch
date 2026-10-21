@@ -48,9 +48,11 @@ function LightsScene({ p }: { p: P }) {
     const n = SHOPS.reduce((acc, _, i) => acc + (v >= lamp(i)[1] - 0.01 ? 1 : 0), 0);
     setLit((prev) => (prev === n ? prev : n));
   });
-  const head = useSeg(p, 0.5, 0.62);
+  // The headline used to arrive halfway through the runway, leaving the top of the screen
+  // empty for the first half of the scene. It now lands while the shops are still lighting.
+  const head = useSeg(p, 0.3, 0.42);
   const headY = useRange(head, [0, 1], [26, 0]);
-  const cta = useSeg(p, 0.64, 0.74);
+  const cta = useSeg(p, 0.46, 0.56);
   const ctaY = useRange(cta, [0, 1], [18, 0]);
   const ctaEvents = useRange(cta, [0, 0.5, 0.51, 1], [0, 0, 1, 1]);
 
