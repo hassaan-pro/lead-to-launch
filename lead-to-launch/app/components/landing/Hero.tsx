@@ -5,7 +5,7 @@ import { ArrowFlip, Magnetic, Reveal } from "@/components/motion/ui";
 
 export function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-20 pt-32 sm:px-8">
+    <section id="hero" className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-32 sm:px-8">
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-10">
         <div>
@@ -44,7 +44,7 @@ export function Hero() {
           <HeroDemo />
         </Reveal>
         <div className="lg:col-span-2">
-          <HeroStreet className="h-36 sm:h-44" />
+          <HeroStreet className="h-52 sm:h-64" />
         </div>
       </div>
     </section>
