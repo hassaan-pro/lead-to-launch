@@ -149,11 +149,12 @@ export function SiteStudio({
           lastPaint = now;
         }
       }
+      const streamError = acc.match(/<!-- L2L_ERROR: ([^>]*) -->/);
+      if (streamError) throw new Error(`The build stopped early: ${streamError[1].trim()}`);
       const out = cleanHtml(acc);
-      if (!/<\/html>\s*$/i.test(out)) {
-        toast.warning("The page was cut off before it finished. Rebuild, or steer toward something simpler.");
+      if (!looksLikeFullPage(out)) {
+        throw new Error("The model could not finish this page, so nothing has been saved as a finished site. Rebuild, or steer toward a simpler page.");
       }
-      if (out.length < 500) throw new Error("The model returned no usable page. Try again.");
       setHtml(out);
       setChars(out.length);
       toast.success("Site built. Preview is live.");
