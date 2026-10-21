@@ -267,10 +267,6 @@ export function SiteStudio({
                   <Button onClick={() => makeBrief(false)} disabled={briefLoading} className="w-full">
                     {briefLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Thinking about {lead.name}…</> : <><Wand2 className="h-4 w-4 mr-2" /> Create creative direction</>}
                   </Button>
-                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                    <span>Engine: {engineLabel}</span>
-                    <button type="button" onClick={() => setManualOverride(true)} className="underline">Use free manual mode</button>
-                  </div>
                 </>
               ) : (
                 <div className="space-y-2 rounded-md border border-dashed border-border p-3">

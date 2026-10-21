@@ -2,7 +2,7 @@ import { DESIGN_KNOWLEDGE } from "./knowledge";
 import { GenerationConfigError } from "./anthropic";
 
 const BASE = process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com";
-export const GEMINI_DEFAULT_MODEL = "gemini-2.5-flash";
+export const GEMINI_DEFAULT_MODEL = "gemini-3.8-flash";
 const model = () => process.env.GEMINI_MODEL || GEMINI_DEFAULT_MODEL;
 
 type Part = { text?: string; thought?: boolean };
