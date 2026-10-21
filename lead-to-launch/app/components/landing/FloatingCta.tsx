@@ -55,7 +55,7 @@ export function FloatingCta() {
             tabIndex={show ? 0 : -1}
             className="group flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Open Outrive
+            Start free
             <ArrowFlip className="h-3.5 w-3.5" />
           </Link>
         </Magnetic>
