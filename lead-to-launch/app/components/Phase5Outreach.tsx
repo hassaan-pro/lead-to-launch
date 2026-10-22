@@ -15,6 +15,9 @@ import type { RankedLead, OutreachChannel, OutreachLanguage } from "@/lib/types"
 import { OUTREACH_LANGUAGES, detectOutreachLanguage, languageDir } from "@/lib/outreach-languages";
 import { EMAIL_SUBJECTS, buildOutreach } from "@/lib/outreach-templates";
 import { toast } from "sonner";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { placeKeyOf } from "@/lib/saved-leads";
 
 export function Phase5Outreach({
   selected,
@@ -27,6 +30,10 @@ export function Phase5Outreach({
   const [lang, setLang] = useState<OutreachLanguage>("english");
   const [message, setMessage] = useState("");
   const [followUp, setFollowUp] = useState("");
+  // The lead's published demo, if there is one: its live link replaces the
+  // templates' [your-demo-link] placeholder in the drafts below.
+  const demo = useQuery(api.demos.byLeadKey, selected ? { leadKey: placeKeyOf(selected) } : "skip");
+  const demoUrl = demo ? `${typeof window !== "undefined" ? window.location.origin : ""}/demo/${demo.slug}` : null;
 
   // Default the language to the lead's own market. The picker can
   // override it; detection only sets the starting language.
@@ -39,9 +46,10 @@ export function Phase5Outreach({
   useEffect(() => {
     if (!selected) return;
     const m = buildOutreach(selected, channel, lang);
-    setMessage(m.first);
-    setFollowUp(m.followUp);
-  }, [selected, channel, lang]);
+    const fill = (t: string) => (demoUrl ? t.split("[your-demo-link]").join(demoUrl) : t);
+    setMessage(fill(m.first));
+    setFollowUp(fill(m.followUp));
+  }, [selected, channel, lang, demoUrl]);
 
   function copy(text: string) {
     navigator.clipboard.writeText(text);
