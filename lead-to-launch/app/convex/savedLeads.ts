@@ -51,6 +51,27 @@ const snapshotArgs = {
   biggestGap: v.string(),
   hasWebsite: v.boolean(),
   siteKind: v.optional(v.string()),
+  lat: v.optional(v.number()),
+  lng: v.optional(v.number()),
+  pageSpeedScore: v.optional(v.number()),
+  pageSpeedMeasured: v.optional(v.boolean()),
+  mobileFriendly: v.optional(v.boolean()),
+  https: v.optional(v.boolean()),
+  hasSchema: v.optional(v.boolean()),
+  loadTimeMs: v.optional(v.number()),
+  builder: v.optional(v.string()),
+  opportunity: v.optional(v.string()),
+  checks: v.optional(
+    v.array(
+      v.object({
+        id: v.string(),
+        label: v.string(),
+        status: v.union(v.literal("pass"), v.literal("fail"), v.literal("unknown")),
+        severity: v.union(v.literal(1), v.literal(2), v.literal(3)),
+        evidence: v.string(),
+      }),
+    ),
+  ),
 };
 
 /**

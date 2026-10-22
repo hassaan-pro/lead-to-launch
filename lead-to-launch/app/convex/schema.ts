@@ -38,6 +38,31 @@ export default defineSchema({
     biggestGap: v.string(),
     hasWebsite: v.boolean(),
     siteKind: v.optional(v.string()),
+    // The full audit, stored from the same save onward so a reopened lead
+    // rebuilds its exact audit instead of a summary. Rows saved before
+    // these fields existed simply do not have them; the reopen path treats
+    // them as unmeasured rather than inventing values.
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
+    pageSpeedScore: v.optional(v.number()),
+    pageSpeedMeasured: v.optional(v.boolean()),
+    mobileFriendly: v.optional(v.boolean()),
+    https: v.optional(v.boolean()),
+    hasSchema: v.optional(v.boolean()),
+    loadTimeMs: v.optional(v.number()),
+    builder: v.optional(v.string()),
+    opportunity: v.optional(v.string()),
+    checks: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          label: v.string(),
+          status: v.union(v.literal("pass"), v.literal("fail"), v.literal("unknown")),
+          severity: v.union(v.literal(1), v.literal(2), v.literal(3)),
+          evidence: v.string(),
+        }),
+      ),
+    ),
     status: leadStatus,
     notes: v.string(),
     createdAt: v.number(),
