@@ -6,8 +6,8 @@ export function Hero() {
   return (
     <section id="hero" className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-32 sm:px-8">
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
-      <div className="relative mx-auto w-full max-w-6xl">
-        <div className="max-w-3xl">
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,47%)_minmax(0,1fr)]">
+        <div className="max-w-3xl lg:order-2">
           <Reveal delay={0.05}>
             <h1 className="font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.6rem]">
               <span className="title-heavy block text-foreground">Win your niche,</span>
@@ -39,8 +39,8 @@ export function Hero() {
             <p className="mt-10 text-sm text-muted-foreground/80">No invented numbers. No borrowed logos. The work is the proof.</p>
           </Reveal>
         </div>
-        <div className="mt-16">
-          <HeroStreet className="h-64 sm:h-80" />
+        <div className="mt-14 lg:order-1 lg:mt-0">
+          <HeroStreet />
         </div>
       </div>
     </section>
