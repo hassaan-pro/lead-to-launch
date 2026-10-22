@@ -1,3 +1,4 @@
+import type * as demos from "../demos.js";
 import type * as savedLeads from "../savedLeads.js";
 
 import type {
@@ -8,6 +9,7 @@ import type {
 import { anyApi } from "convex/server";
 
 const fullApi: ApiFromModules<{
+  demos: typeof demos;
   savedLeads: typeof savedLeads;
 }> = anyApi as any;
 
