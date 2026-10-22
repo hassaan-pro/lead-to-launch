@@ -3,6 +3,7 @@ import { Logo } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { JumpLink } from "./JumpLink";
 import { NavMenu } from "./NavMenu";
+import { MobileNav } from "./MobileNav";
 import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 
 const itemCls = "block rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary";
@@ -14,6 +15,8 @@ const itemDesc = "mt-0.5 block text-xs leading-relaxed text-muted-foreground";
  * grouped nav with a Product dropdown, then a plain sign in, a soft pill
  * and the black primary pill. No search box and no pricing link: Clay has
  * both, Outrive does not, and the header does not pretend otherwise.
+ * Below lg the grouped nav gives way to a Menu button in the same pill,
+ * opening the same links as a panel, the way Clay's mobile header does.
  */
 export function Nav() {
   return (
@@ -50,6 +53,34 @@ export function Nav() {
         </nav>
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
+          <MobileNav>
+            <JumpLink ids={["journey", "how"]} className={itemCls}>
+              <span className={itemTitle}>How it works</span>
+              <span className={itemDesc}>Find, audit, build and pitch, one business at a time</span>
+            </JumpLink>
+            <JumpLink ids={["proof-story", "proof"]} className={itemCls}>
+              <span className={itemTitle}>The audit</span>
+              <span className={itemDesc}>Every gap arrives with the evidence for it</span>
+            </JumpLink>
+            <JumpLink ids={["directions-story", "directions"]} className={itemCls}>
+              <span className={itemTitle}>The sites</span>
+              <span className={itemDesc}>A creative direction per business, never a template</span>
+            </JumpLink>
+            <JumpLink ids={["rules-story", "rules"]} className={itemCls}>
+              <span className={itemTitle}>The rules</span>
+              <span className={itemDesc}>Never pitch a lie: the honesty rules the tool enforces</span>
+            </JumpLink>
+            <div className="mx-3 my-1.5 border-t border-border/70" />
+            <JumpLink ids={["proof-story", "proof"]} className={itemCls}>
+              <span className={itemTitle}>The proof</span>
+            </JumpLink>
+            <JumpLink ids={["rules-story", "rules"]} className={itemCls}>
+              <span className={itemTitle}>Honest by default</span>
+            </JumpLink>
+            <Link href="/sign-in" className={itemCls}>
+              <span className={itemTitle}>Sign in</span>
+            </Link>
+          </MobileNav>
           <Link href="/sign-in" className="u-sweep hidden px-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
             Sign in
           </Link>
