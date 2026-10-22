@@ -6,13 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2 } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2, Globe, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
 import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
 import { cleanHtml, looksLikeFullPage } from "@/lib/generation/html";
 import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { placeKeyOf } from "@/lib/saved-leads";
+import type { Id } from "@/convex/_generated/dataModel";
 
 const RECENT_KEY = "l2l-recent-directions";
 type Recent = { concept: string; composition: string };
@@ -69,6 +73,13 @@ export function SiteStudio({
   const [manualOverride, setManualOverride] = useState(false);
   const [pasteBrief, setPasteBrief] = useState("");
   const [pasteHtml, setPasteHtml] = useState("");
+  const [publishing, setPublishing] = useState(false);
+  // The lead's live demo, if one has been published. The query keeps the
+  // link (and its open count) on screen across rebuilds and refreshes.
+  const demo = useQuery(api.demos.byLeadKey, { leadKey: placeKeyOf(lead) });
+  const generateUploadUrl = useMutation(api.demos.generateUploadUrl);
+  const publishDemoMutation = useMutation(api.demos.publish);
+  const demoUrl = demo ? `${typeof window !== "undefined" ? window.location.origin : ""}/demo/${demo.slug}` : null;
 
   // Which engine is connected decides whether we generate here or hand off to free manual mode.
   useEffect(() => {
@@ -215,6 +226,37 @@ export function SiteStudio({
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
 
+  async function publishDemo() {
+    if (!html || publishing) return;
+    setPublishing(true);
+    try {
+      const uploadUrl = await generateUploadUrl();
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/html" },
+        body: new Blob([html], { type: "text/html" }),
+      });
+      if (!res.ok) throw new Error("The upload failed");
+      const { storageId } = (await res.json()) as { storageId: string };
+      await publishDemoMutation({
+        storageId: storageId as Id<"_storage">,
+        businessName: lead.name,
+        leadKey: placeKeyOf(lead),
+      });
+      toast.success("Demo is live. The link sits above the preview, and Outreach now uses it.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Publishing failed");
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  function copyDemoLink() {
+    if (!demoUrl) return;
+    navigator.clipboard.writeText(demoUrl);
+    toast.success("Demo link copied");
+  }
+
   function copyHtml() {
     navigator.clipboard.writeText(html);
     toast.success("HTML copied");
@@ -346,6 +388,10 @@ export function SiteStudio({
                 <Button size="icon-xs" variant="ghost" onClick={() => setFull(true)} title="Full screen"><Maximize2 className="h-3.5 w-3.5" /></Button>
                 <Button size="icon-xs" variant="ghost" onClick={copyHtml} title="Copy HTML"><Copy className="h-3.5 w-3.5" /></Button>
                 <Button size="icon-xs" variant="ghost" onClick={download} title="Download .html"><Download className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="secondary" onClick={publishDemo} disabled={publishing}>
+                  {publishing ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <Globe className="h-3.5 w-3.5 mr-2" />}
+                  {demo ? "Republish" : "Publish live link"}
+                </Button>
               </>
             ) : null}
             {auto ? (
@@ -360,6 +406,23 @@ export function SiteStudio({
           </div>
         </CardHeader>
         <CardContent>
+          {demo && demoUrl ? (
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+              <span className="flex items-center gap-1.5 text-xs font-medium">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live demo link
+              </span>
+              <a href={demoUrl} target="_blank" rel="noreferrer" className="break-all font-mono text-xs text-primary underline-offset-2 hover:underline">
+                {demoUrl}
+              </a>
+              <Button size="icon-xs" variant="ghost" onClick={copyDemoLink} title="Copy demo link"><Copy className="h-3.5 w-3.5" /></Button>
+              <a href={demoUrl} target="_blank" rel="noreferrer" title="Open the live demo">
+                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+              </a>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {demo.views > 0 ? `Opened ${demo.views} ${demo.views === 1 ? "time" : "times"}` : "Not opened yet"}
+              </span>
+            </div>
+          ) : null}
           {!auto && !checking && brief ? (
             <div className="mb-3 space-y-2">
               <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML reply from the chat here" rows={3} className="text-xs font-mono" />
