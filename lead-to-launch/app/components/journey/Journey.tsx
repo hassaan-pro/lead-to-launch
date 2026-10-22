@@ -129,8 +129,11 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
         <motion.div style={{ opacity: copyOpacity, y: copyY }} className="pointer-events-none absolute inset-0 flex flex-col px-[6%] pb-[3%] pt-[6%] md:grid md:grid-cols-[minmax(0,47%)_minmax(0,1fr)] md:items-center md:gap-12 md:pt-[3%]">
           {/* The street scene: on the left beside the copy on wide screens,
               along the bottom under it on phones. In flow inside a grid, so
-              the copy and the scene can never overlap at any height. */}
-          <div className="order-2 mt-auto short:hidden md:order-1 md:mt-0">
+              the copy and the scene can never overlap at any height. It
+              stays at every phone height: the short-screen copy sizes keep
+              copy plus scene shorter than the stage, so hiding it (the old
+              short:hidden) only left phones with an empty hero. */}
+          <div className="order-2 mt-auto md:order-1 md:mt-0">
             <HeroStreet />
           </div>
           <motion.div style={{ pointerEvents: copyEvents }} className="order-1 md:order-2">

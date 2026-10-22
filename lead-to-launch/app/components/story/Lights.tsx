@@ -8,18 +8,20 @@ import { type P, useRange, useSeg } from "@/components/journey/motion";
 import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 import { Stage } from "./Stage";
 import { ShopGroup, StreetScene, STREET_SHOPS as SHOPS } from "@/components/brand/StreetScene";
+import { useNarrow } from "@/components/journey/narrow";
 
 const FIRST = 0.06;
 const STEP = 0.04;
 const lamp = (i: number) => [FIRST + i * STEP, FIRST + i * STEP + 0.05] as const;
 
-function Shop({ p, i }: { p: P; i: number }) {
+function Shop({ p, i, tall = false }: { p: P; i: number; tall?: boolean }) {
   const [a, b] = lamp(i);
   const lit = useSeg(p, a, b);
-  return <ShopGroup i={i} lit={lit} trail />;
+  return <ShopGroup i={i} lit={lit} trail tall={tall} />;
 }
 
 function LightsScene({ p }: { p: P }) {
+  const narrow = useNarrow();
   const [lit, setLit] = useState(0);
   useMotionValueEvent(p, "change", (v) => {
     const n = SHOPS.reduce((acc, _, i) => acc + (v >= lamp(i)[1] - 0.01 ? 1 : 0), 0);
@@ -34,12 +36,12 @@ function LightsScene({ p }: { p: P }) {
   const ctaEvents = useRange(cta, [0, 0.5, 0.51, 1], [0, 0, 1, 1]);
 
   return (
-    <div className="absolute inset-0 flex flex-col px-[6%] pb-[5svh] pt-[9svh] md:pt-[8svh]">
+    <div className="absolute inset-0 flex flex-col px-[6%] pb-[4svh] pt-[7svh] md:pt-[8svh]">
       <div className="max-w-4xl shrink-0">
         <motion.h2 style={{ opacity: head, y: headY }} className="title-heavy font-display text-[clamp(2rem,5vw,4.6rem)] leading-[1.04]">
           Pick a niche and a city. Start turning the lights on.
         </motion.h2>
-        <motion.div style={{ opacity: cta, y: ctaY, pointerEvents: ctaEvents as unknown as "auto" }} className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <motion.div style={{ opacity: cta, y: ctaY, pointerEvents: ctaEvents as unknown as "auto" }} className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-8">
           <Magnetic>
             <Link
               href="/app"
@@ -54,20 +56,33 @@ function LightsScene({ p }: { p: P }) {
       </div>
 
       {/* In flow under the headline, pushed to the bottom by mt-auto: the street
-          takes whatever height is left, so the two can never overlap. */}
+          takes whatever height is left, so the two can never overlap.
+          Phones get the tall composition at its natural aspect: the wide
+          band in a phone-width, 30svh-tall frame was slice-cropped to its
+          middle few shops, and the taller total pushed the shop-name label
+          past the stage edge, where the sticky frame clipped it. The tall
+          scene shows all twelve shops and leaves room under it. */}
       <div aria-hidden="true" className="mt-auto min-h-0">
         <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
           <span>one street, twelve businesses</span>
           <span className={cn("tabular-nums transition-colors", lit === SHOPS.length ? "text-lamp" : "")}>{lit} of {SHOPS.length} lit</span>
         </div>
         <div className="overflow-hidden rounded-[1.4rem] shadow-[0_30px_60px_-30px_rgba(20,16,8,0.45)] ring-1 ring-black/10">
-          <StreetScene className="block h-[30svh] w-full md:h-[36svh]">
-            {SHOPS.map((s, i) => (
-              <Shop key={s} p={p} i={i} />
-            ))}
-          </StreetScene>
+          {narrow ? (
+            <StreetScene tall className="block h-auto w-full">
+              {SHOPS.map((s, i) => (
+                <Shop key={s} p={p} i={i} tall />
+              ))}
+            </StreetScene>
+          ) : (
+            <StreetScene className="block h-[36svh] w-full">
+              {SHOPS.map((s, i) => (
+                <Shop key={s} p={p} i={i} />
+              ))}
+            </StreetScene>
+          )}
         </div>
-        <div className="mt-3 h-4 text-center font-mono text-xs text-lamp md:hidden">{lit > 0 ? SHOPS[lit - 1] : ""}</div>
+        <div className="mt-3 h-5 text-center font-mono text-xs leading-5 text-lamp md:hidden">{lit > 0 ? SHOPS[lit - 1] : ""}</div>
       </div>
     </div>
   );
