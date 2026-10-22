@@ -55,7 +55,7 @@ function DirectionNote({ p, a, k, children }: { p: P; a: number; k: string; chil
 export function SiteScene({ p }: { p: P }) {
   const narrow = useNarrow();
   const enter = useSeg(p, 0.28, 0.35);
-  const leave = useSeg(p, 0.74, 0.8);
+  const leave = useSeg(p, 0.75, 0.81);
   const scaleIn = useRange(enter, [0, 1], [0.06, 1]);
   const scaleOut = useRange(leave, [0, 1], [1, 0.55]);
   const scale = useTransform([scaleIn, scaleOut], ([a, b]) => (a as number) * (b as number));
@@ -76,11 +76,11 @@ export function SiteScene({ p }: { p: P }) {
     <div className="absolute inset-0" aria-hidden="true">
       <motion.div style={{ opacity, scale }} className={narrow ? "absolute left-[5%] top-[6%] h-[39%] w-[90%]" : "absolute left-[23%] top-[10%] h-[70%] w-[54%]"}>
         <motion.div style={{ boxShadow: glow, containerType: "inline-size" }} className="absolute inset-0 overflow-hidden rounded-lg border border-border bg-[#0E1319]">
-          <div className="flex h-[7%] items-center gap-1.5 bg-[#10161E] px-3">
+          <div className="flex h-[max(7%,28px)] items-center gap-1.5 bg-[#10161E] px-3">
             {[0, 1, 2].map((i) => <span key={i} className="h-1.5 w-1.5 rounded-full bg-[#2B3744]" />)}
             <span className="ml-3 rounded bg-[#0A0E13] px-3 py-[2px] font-mono text-[10px] text-muted-foreground">noor-atelier.example</span>
           </div>
-          <div className="absolute inset-x-0 bottom-0 top-[7%]">
+          <div className="absolute inset-x-0 bottom-0 top-[max(7%,28px)]">
             <OldSite />
             <motion.div className="absolute inset-0" style={{ clipPath: clip }}>
               <NewSite />

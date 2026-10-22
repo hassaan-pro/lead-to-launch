@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import { ScrollDecode } from "@/components/journey/ScrollDecode";
 import { SectionKicker } from "@/components/motion/ui";
 import { type P, usePct, useRange, useSeg } from "@/components/journey/motion";
+import { useNarrow } from "@/components/journey/narrow";
 import { Stage } from "./Stage";
 
 const SERIF = "Georgia, 'Times New Roman', serif";
@@ -21,11 +22,17 @@ const BEATS = [
   [0.61, 0.69, 0.71, 0.86],
 ] as const;
 
-function Paper({ p, beat, label, title, children, pos }: { p: P; beat: (typeof BEATS)[number]; label: string; title: string; children: React.ReactNode; pos: string }) {
+function Paper({ p, beat, label, title, children, pos, nextStart }: { p: P; beat: (typeof BEATS)[number]; label: string; title: string; children: React.ReactNode; pos: string; nextStart?: number }) {
+  const narrow = useNarrow();
   const arrive = useSeg(p, beat[0], beat[1]);
+  // On phones all three slips share one slot (see TruthScene), so a slip
+  // fades out as the next one arrives. On wide screens they stack in
+  // their own slots and stay, so the out seg is ignored there.
+  const out = useSeg(p, nextStart ?? 9, (nextStart ?? 9) + 0.08);
+  const opacity = useTransform([arrive, out], ([a, o]) => (narrow ? (a as number) * (1 - (o as number)) : (a as number)));
   const y = useRange(arrive, [0, 1], [34, 0]);
   return (
-    <motion.div style={{ opacity: arrive, y }} className={`absolute inset-x-0 overflow-hidden rounded-lg bg-[#EFE9DD] px-4 py-3 text-[#1E1A14] shadow-[0_18px_40px_-18px_rgba(0,0,0,0.7)] short:px-3 short:py-2 md:px-6 md:py-4 ${pos}`}>
+    <motion.div style={{ opacity, y }} className={`absolute inset-x-0 top-0 overflow-hidden rounded-lg bg-[#EFE9DD] px-4 py-3 text-[#1E1A14] shadow-[0_18px_40px_-18px_rgba(0,0,0,0.7)] short:px-3 short:py-2 md:px-6 md:py-4 ${pos}`}>
       <div className="mb-1 font-display text-[16px] leading-tight md:hidden">{title}</div>
       <div className="font-mono text-[10.5px] text-[#6B6459] short:hidden md:block md:text-[11px]">{label}</div>
       <div className="mt-2 md:mt-2.5">{children}</div>
@@ -95,7 +102,7 @@ function SlipSocial({ p }: { p: P }) {
         <span>facebook.com/noor.atelier</span>
         <motion.span style={{ opacity: tag }}><Chip>social page, not a website</Chip></motion.span>
       </div>
-      <div className="relative mt-3 h-[3.2rem] text-[16px] leading-snug" style={{ fontFamily: SERIF }}>
+      <div className="relative mt-3 h-[3.6rem] text-[16px] leading-snug" style={{ fontFamily: SERIF }}>
         <motion.span style={{ opacity: oldLine }} className="absolute left-0 top-0 inline-block">
           <span className="relative">Your website looks outdated.<motion.span aria-hidden="true" style={{ width: strike }} className="absolute left-0 top-1/2 h-[2px] bg-[#C2402A]" /></span>
         </motion.span>
@@ -131,9 +138,13 @@ function TruthScene({ p }: { p: P }) {
       </div>
 
       <div aria-hidden="true" className="absolute inset-x-[5%] top-[33%] h-[60%] short:top-[30%] short:h-[62%] md:inset-x-auto md:right-[5%] md:top-[12%] md:h-[72%] md:w-[48%] md:min-w-[400px]">
-        <Paper p={p} beat={BEATS[0]} title={RULES[0].t} label="draft copy for the sample site" pos="top-0 h-[31%] short:h-[35%] md:h-[30%]"><SlipInvented p={p} /></Paper>
-        <Paper p={p} beat={BEATS[1]} title={RULES[1].t} label="audit result, prices" pos="top-[34.5%] h-[31%] short:top-[37%] short:h-[26%] md:h-[30%]"><SlipUnknown p={p} /></Paper>
-        <Paper p={p} beat={BEATS[2]} title={RULES[2].t} label="audit result, website" pos="top-[69%] h-[31%] short:top-[65%] short:h-[33%] md:h-[30%]"><SlipSocial p={p} /></Paper>
+        {/* Phones: one slot at the top of this area, each slip sized by its
+            content. Fixed percentage heights clipped wrapped lines mid
+            letter, so the slips take turns instead of stacking. Wide
+            screens keep the three stacked slots. */}
+        <Paper p={p} beat={BEATS[0]} title={RULES[0].t} label="draft copy for the sample site" pos="md:top-0 md:h-[30%]" nextStart={BEATS[1][0]}><SlipInvented p={p} /></Paper>
+        <Paper p={p} beat={BEATS[1]} title={RULES[1].t} label="audit result, prices" pos="md:top-[34.5%] md:h-[30%]" nextStart={BEATS[2][0]}><SlipUnknown p={p} /></Paper>
+        <Paper p={p} beat={BEATS[2]} title={RULES[2].t} label="audit result, website" pos="md:top-[69%] md:h-[30%]"><SlipSocial p={p} /></Paper>
       </div>
     </>
   );
