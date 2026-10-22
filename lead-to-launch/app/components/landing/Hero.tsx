@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { HeroDemo } from "./HeroDemo";
 import { HeroStreet } from "./HeroStreet";
 import { ArrowFlip, Magnetic, Reveal } from "@/components/motion/ui";
 
@@ -7,16 +6,16 @@ export function Hero() {
   return (
     <section id="hero" className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-32 sm:px-8">
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-10">
-        <div>
+      <div className="relative mx-auto w-full max-w-6xl">
+        <div className="max-w-3xl">
           <Reveal delay={0.05}>
-            <h1 className="font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.1rem]">
+            <h1 className="font-display text-[2.6rem] leading-[1.03] sm:text-6xl lg:text-[4.6rem]">
               <span className="title-heavy block text-foreground">Win your niche,</span>
               <span className="title-light mt-3 block text-foreground/70">street by street.</span>
             </h1>
           </Reveal>
           <Reveal delay={0.18}>
-            <p className="mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Barbers, bakers, dentists, gyms: pick your trade. Outrive finds, audits, builds and pitches, street by street, until the niche knows your name.
             </p>
           </Reveal>
@@ -40,11 +39,8 @@ export function Hero() {
             <p className="mt-10 text-sm text-muted-foreground/80">No invented numbers. No borrowed logos. The work is the proof.</p>
           </Reveal>
         </div>
-        <Reveal delay={0.2} y={34}>
-          <HeroDemo />
-        </Reveal>
-        <div className="lg:col-span-2">
-          <HeroStreet className="h-52 sm:h-64" />
+        <div className="mt-16">
+          <HeroStreet className="h-64 sm:h-80" />
         </div>
       </div>
     </section>

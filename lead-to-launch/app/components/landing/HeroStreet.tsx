@@ -1,41 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { animate, useMotionValue, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Shopfront, StreetLamps, STREET_HEIGHTS, STREET_SHOPS } from "@/components/brand/Shopfront";
 
-// The same street as the finale (components/story/Lights), drawn the same way.
-// There the scroll lights it; here it lights on arrival, one shop at a time,
-// under the headline: the promise first, the payoff again at the end.
-const SHOPS = ["Salon", "Dental", "Cafe", "Gym", "Bakery", "Optician", "Florist", "Tailor", "Barber", "Clinic", "Tutor", "Spa"];
-const HEIGHT = [62, 80, 56, 88, 70, 60, 92, 66, 76, 58, 84, 68];
+// The same street as the finale (components/story/Lights), drawn by the
+// same Shopfront. There the scroll lights it; here it lights on arrival,
+// one shop at a time, under the headline: the promise first, the payoff
+// again at the end.
 const FIRST_DELAY = 0.55;
 const STEP = 0.14;
 
 function HeroShop({ i, lit }: { i: number; lit: boolean }) {
+  const glow = useMotionValue(0);
+  useEffect(() => {
+    const controls = animate(glow, lit ? 1 : 0, { duration: 0.55, ease: "easeOut" });
+    return controls.stop;
+  }, [lit, glow]);
   return (
     <div className="group relative flex h-full flex-col justify-end">
-      {/* The trade names itself as its shop lights, so the strip reads as
-          businesses arriving, not as a skyline decoration. */}
-      <div
-        aria-hidden="true"
-        className={cn("mb-1.5 hidden text-center font-mono text-[11px] text-lamp transition-opacity duration-500 md:block", lit ? "opacity-100" : "opacity-0")}
-      >
-        {SHOPS[i]}
-      </div>
-      <div className="relative transition-transform duration-300 ease-out group-hover:-translate-y-1" style={{ height: `${HEIGHT[i]}%` }}>
-        <div className="relative h-full overflow-hidden rounded-t-[3px] border border-border bg-[#0E141B]">
-          <div className="h-2 w-full bg-[repeating-linear-gradient(90deg,#1B2530_0_8px,#131B24_8px_16px)]" />
-          <div className="absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] border border-border/70 bg-[#0A1016]" />
-          <div className="absolute bottom-0 left-[38%] h-[12%] w-[24%] border-x border-t border-border/70 bg-[#0A1016]" />
-          <div
-            aria-hidden="true"
-            className={cn(
-              "pointer-events-none absolute inset-x-[14%] bottom-[16%] top-[22%] rounded-[2px] bg-[linear-gradient(180deg,#F6C968,#C98A28)] shadow-[0_0_34px_6px_rgba(240,179,74,0.32)] transition-opacity duration-500",
-              lit ? "opacity-100" : "opacity-0",
-            )}
-          />
-        </div>
+      <div className="relative w-full transition-transform duration-300 ease-out group-hover:-translate-y-1" style={{ height: `${STREET_HEIGHTS[i]}%` }}>
+        <Shopfront i={i} lit={glow} />
       </div>
     </div>
   );
@@ -47,10 +33,10 @@ export function HeroStreet({ className }: { className?: string }) {
 
   useEffect(() => {
     if (reduce) {
-      setLit(SHOPS.length);
+      setLit(STREET_SHOPS.length);
       return;
     }
-    const timers = SHOPS.map((_, i) => window.setTimeout(() => setLit(i + 1), (FIRST_DELAY + i * STEP) * 1000));
+    const timers = STREET_SHOPS.map((_, i) => window.setTimeout(() => setLit(i + 1), (FIRST_DELAY + i * STEP) * 1000));
     return () => timers.forEach((t) => window.clearTimeout(t));
   }, [reduce]);
 
@@ -58,14 +44,15 @@ export function HeroStreet({ className }: { className?: string }) {
     <div aria-hidden="true" className={cn("flex flex-col", className)}>
       <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
         <span>one street, twelve businesses</span>
-        <span className={cn("tabular-nums transition-colors", lit === SHOPS.length ? "text-lamp" : "")}>
-          {lit} of {SHOPS.length} lit
+        <span className={cn("tabular-nums transition-colors", lit === STREET_SHOPS.length ? "text-lamp" : "")}>
+          {lit} of {STREET_SHOPS.length} lit
         </span>
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-12 items-end gap-1 border-b border-border/80 sm:gap-3">
-        {SHOPS.map((s, i) => (
+      <div className="relative grid min-h-0 flex-1 grid-cols-12 items-end gap-1 border-b border-border/80 sm:gap-3">
+        {STREET_SHOPS.map((s, i) => (
           <HeroShop key={s} i={i} lit={lit > i} />
         ))}
+        <StreetLamps />
       </div>
     </div>
   );

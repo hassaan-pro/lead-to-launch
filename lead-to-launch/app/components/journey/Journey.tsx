@@ -14,7 +14,7 @@ import { SiteScene } from "./SiteScene";
 import { SceneSend } from "./SceneSend";
 import { CHAPTERS, ChapterTitles } from "./Chapters";
 
-function Rail({ p, sectionRef }: { p: P; sectionRef: React.RefObject<HTMLElement | null> }) {
+function Rail({ p, sectionRef, jumpMap }: { p: P; sectionRef: React.RefObject<HTMLElement | null>; jumpMap: (v: number) => number }) {
   const [active, setActive] = useState(-1);
   const show = useRange(p, [0.05, 0.09, 0.92, 0.95], [0, 1, 1, 0]);
   useMotionValueEvent(p, "change", (v) => {
@@ -26,7 +26,7 @@ function Rail({ p, sectionRef }: { p: P; sectionRef: React.RefObject<HTMLElement
     const el = sectionRef.current;
     if (!el) return;
     const top = window.scrollY + el.getBoundingClientRect().top;
-    window.scrollTo({ top: top + to * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
+    window.scrollTo({ top: top + jumpMap(to) * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
   }
 
   return (
@@ -97,25 +97,38 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const p = useSpring(rawP, { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
   const par = usePointerParallax();
 
+  // The first stretch of the runway is the hero: headline and street only,
+  // no process. The process (frame, chapters, scenes) runs on a remapped
+  // progress that starts where the hero ends, so every range the scenes
+  // were tuned with keeps its meaning in the space that remains.
+  const HERO_END = 0.15;
+  const pp = useTransform(p, [HERO_END, 1], [0, 1]);
+  const toRaw = (v: number) => HERO_END + (1 - HERO_END) * v;
+  const frameIn = useRange(p, [0.1, 0.15], [0, 1]);
+
   // The frame starts as the hero demo on the right, then grows to fill the screen.
   const grow = [0, 0.08];
-  const left = usePct(p, grow, narrow ? [6, 3] : [53, 3.5]);
-  const top = usePct(p, grow, narrow ? [63, 8] : [14, 7]);
-  const width = usePct(p, grow, narrow ? [88, 94] : [44, 93]);
-  const height = usePct(p, grow, narrow ? [21, 76] : [59, 80]);
-  const copyOpacity = useRange(p, [0, 0.025], [1, 0]);
-  const copyY = useRange(p, [0, 0.06], [0, -28]);
-  const copyEvents = useTransform(p, (v) => (v < 0.015 ? "auto" : "none"));
-  const frameOut = useRange(p, [0.92, 0.96], [1, 0.12]);
+  const left = usePct(pp, grow, narrow ? [6, 3] : [53, 3.5]);
+  const top = usePct(pp, grow, narrow ? [63, 8] : [14, 7]);
+  const width = usePct(pp, grow, narrow ? [88, 94] : [44, 93]);
+  const height = usePct(pp, grow, narrow ? [21, 76] : [59, 80]);
+  const copyOpacity = useRange(p, [0.09, 0.14], [1, 0]);
+  const copyY = useRange(p, [0, 0.14], [0, -28]);
+  const copyEvents = useTransform(p, (v) => (v < 0.11 ? "auto" : "none"));
+  const frameOut = useRange(pp, [0.92, 0.96], [1, 0.12]);
+  const frameOpacity = useTransform([frameIn, frameOut], ([a, b]) => (a as number) * (b as number));
+  const frameEvents = useTransform(frameIn, (v) => (v > 0.5 ? "auto" : "none") as "auto" | "none");
+  const skipO = useRange(pp, [0.02, 0.05, 0.9, 0.94], [0, 1, 1, 0]);
+  const skipEvents = useTransform(skipO, (v) => (v > 0.5 ? "auto" : "none") as "auto" | "none");
 
   return (
-    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[520vh] pt-[84px] md:h-[620vh]">
+    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[600vh] pt-[84px] md:h-[700vh]">
       <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
-        <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-[12%] md:w-[42%] md:max-w-xl">
+        <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-[12%] md:w-[46%] md:max-w-2xl">
           <Reveal delay={0.05}>
-            <h1 className="font-display text-[clamp(1.9rem,4.6vw,4.1rem)] leading-[1.04] short:text-[1.7rem]">
+            <h1 className="font-display text-[clamp(2rem,5vw,4.7rem)] leading-[1.04] short:text-[1.7rem]">
               <span className="title-heavy block text-foreground">Win your niche,</span>
               <span className="title-light mt-3 block text-foreground/70">street by street.</span>
             </h1>
@@ -145,13 +158,10 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
         </motion.div>
 
         {/* The street is the hero visual: full width under the copy, lighting
-            up shop by shop, then it leaves with the copy as the demo frame
-            takes the screen. On wide screens the frame's opening position
-            ends at 73% and the band starts at 78%, so the two never touch.
-            On phones the frame ends at 84% and the band starts at 86%, and
-            the band gets 12% of the height so its caption row and the
-            shopfronts both fit instead of the shops being clipped. */}
-        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[12%] md:bottom-[2.5%] md:h-[19.5%]">
+            up shop by shop. It leaves with the copy as the hero ends and the
+            process rises into view. On phones it gets 16% of the height so
+            the facades read instead of being clipped. */}
+        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[16%] md:bottom-[2.5%] md:h-[24%]">
           <HeroStreet className="h-full" />
         </motion.div>
 
@@ -162,28 +172,29 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
           style={{ x: par.panelX, y: par.panelY, rotate: par.panelR }}
           className="pointer-events-none absolute inset-0"
         >
-          <motion.div style={{ left, top, width, height, opacity: frameOut }} className="pointer-events-auto absolute">
+          <motion.div style={{ left, top, width, height, opacity: frameOpacity, pointerEvents: frameEvents }} className="absolute">
             <Viewfinder className="h-full w-full">
               <div className="glass relative h-full w-full overflow-hidden rounded-xl">
-                <SceneMap p={p} />
-                <SiteScene p={p} />
-                <SceneSend p={p} />
-                <ChapterTitles p={p} />
+                <SceneMap p={pp} />
+                <SiteScene p={pp} />
+                <SceneSend p={pp} />
+                <ChapterTitles p={pp} />
               </div>
             </Viewfinder>
           </motion.div>
         </motion.div>
 
-        <Rail p={p} sectionRef={ref} />
-        <EndCard p={p} sectionRef={ref} />
+        <Rail p={pp} sectionRef={ref} jumpMap={toRaw} />
+        <EndCard p={pp} sectionRef={ref} />
 
-        <button
+        <motion.button
           type="button"
+          style={{ opacity: skipO, pointerEvents: skipEvents }}
           onClick={() => ["proof-story", "proof"].map((id) => document.getElementById(id)).find((el) => el && el.offsetParent !== null)?.scrollIntoView({ behavior: "smooth" })}
           className="absolute bottom-2 left-1/2 z-30 hidden -translate-x-1/2 rounded-md px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:block md:bottom-5 md:left-auto md:right-6 md:translate-x-0"
         >
           skip demo
-        </button>
+        </motion.button>
       </div>
 
       <ol className="sr-only">
