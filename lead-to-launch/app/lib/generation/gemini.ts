@@ -19,10 +19,14 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 class TransientError extends Error {}
 
+export const GEMINI_LITE_DEFAULT = "gemini-3.5-flash-lite";
+const liteModel = () => process.env.GEMINI_LITE_MODEL || GEMINI_LITE_DEFAULT;
+
+// The chain, most capable first. The last link is a Flash-Lite model on
+// purpose: Lite capacity is a separate, roomier pool at Google, so it keeps
+// answering on nights when both Flash models are shedding free-tier calls.
 function modelChain(): string[] {
-  const primary = model();
-  const fb = fallbackModel();
-  return fb && fb !== primary ? [primary, fb] : [primary];
+  return [...new Set([model(), fallbackModel(), liteModel()].filter(Boolean))];
 }
 
 // A page is written in rounds. When a round ends at the token limit before the page is
