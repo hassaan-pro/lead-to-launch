@@ -14,6 +14,8 @@ import { Phase5Outreach } from "@/components/Phase5Outreach";
 import { SavedLeads } from "@/components/SavedLeads";
 import { Button } from "@/components/ui/button";
 import { scoreLead } from "@/lib/scoring";
+import { auditFromSaved, leadFromSaved } from "@/lib/saved-leads";
+import type { Doc } from "../../../convex/_generated/dataModel";
 import type { Lead, AuditResult } from "@/lib/types";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
@@ -59,6 +61,19 @@ export default function Page() {
     if (!lead || !audit) return null;
     return scoreLead(lead, audit);
   }, [selectedId, leads, audits]);
+
+  // Reopen a saved lead as the run's selected prospect: its snapshot becomes
+  // the lead and audit the phases work on, merged into whatever run is in
+  // progress, and the pipeline lands on Build, where the work resumes.
+  function openSavedLead(doc: Doc<"savedLeads">) {
+    const lead = leadFromSaved(doc);
+    const audit = auditFromSaved(doc);
+    setLeads((prev) => [lead, ...prev.filter((l) => l.id !== lead.id)]);
+    setAudits((prev) => ({ ...prev, [lead.id]: audit }));
+    setSelectedId(lead.id);
+    setPhase(4);
+    setView("pipeline");
+  }
 
   const firstName = user?.firstName ?? null;
 
@@ -122,7 +137,7 @@ export default function Page() {
           )}
 
           {view === "saved" ? (
-            <SavedLeads />
+            <SavedLeads onOpen={openSavedLead} />
           ) : (
           <AnimatePresence mode="wait">
             {phase === 1 && (
