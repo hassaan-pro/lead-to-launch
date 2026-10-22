@@ -130,7 +130,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
           {/* The street scene: on the left beside the copy on wide screens,
               along the bottom under it on phones. In flow inside a grid, so
               the copy and the scene can never overlap at any height. */}
-          <div className="order-2 mt-auto md:order-1 md:mt-0">
+          <div className="order-2 mt-auto short:hidden md:order-1 md:mt-0">
             <HeroStreet />
           </div>
           <motion.div style={{ pointerEvents: copyEvents }} className="order-1 md:order-2">
