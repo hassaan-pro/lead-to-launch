@@ -25,7 +25,7 @@ export function Wordmark({ className }: { className?: string }) {
     <span
       role="img"
       aria-label="Outrive"
-      className={cn("font-display lowercase leading-none tracking-[-0.03em]", className)}
+      className={cn("whitespace-nowrap font-display lowercase leading-none tracking-[-0.03em]", className)}
     >
       out
       <span className="text-lamp">
