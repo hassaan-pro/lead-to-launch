@@ -15,14 +15,15 @@ const itemDesc = "mt-0.5 block text-xs leading-relaxed text-muted-foreground";
  * grouped nav with a Product dropdown, then a plain sign in, a soft pill
  * and the black primary pill. No search box and no pricing link: Clay has
  * both, Outrive does not, and the header does not pretend otherwise.
- * Below lg the grouped nav gives way to a Menu button in the same pill,
- * opening the same links as a panel, the way Clay's mobile header does.
+ * Below lg it follows Clay's phone header instead: the wordmark, the
+ * soft pill and a hamburger, with the black pill, the sign in and the
+ * theme toggle moved into the menu panel.
  */
 export function Nav() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-      <div className="glass mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2.5 pl-6 pr-2.5 shadow-[0_18px_50px_-20px_rgba(20,16,8,0.35)]">
-        <Link href="/" aria-label="Outrive home" className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <div className="glass relative mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2.5 pl-6 pr-2.5 shadow-[0_18px_50px_-20px_rgba(20,16,8,0.35)]">
+        <Link href="/" aria-label="Outrive home" className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Logo />
         </Link>
         <nav aria-label="Sections" className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
@@ -52,8 +53,26 @@ export function Nav() {
           </JumpLink>
         </nav>
         <div className="flex items-center gap-1.5">
-          <ThemeToggle />
+          <span className="hidden lg:inline-flex">
+            <ThemeToggle />
+          </span>
+          <Link href="/sign-in" className="u-sweep hidden px-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
+            Sign in
+          </Link>
+          <JumpLink
+            ids={["proof-story", "proof"]}
+            className="inline-block whitespace-nowrap rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+          >
+            See the proof
+          </JumpLink>
           <MobileNav>
+            <Link
+              href="/app"
+              className="group mb-1 flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Start free
+              <ArrowFlip className="h-3.5 w-3.5" />
+            </Link>
             <JumpLink ids={["journey", "how"]} className={itemCls}>
               <span className={itemTitle}>How it works</span>
               <span className={itemDesc}>Find, audit, build and pitch, one business at a time</span>
@@ -80,25 +99,23 @@ export function Nav() {
             <Link href="/sign-in" className={itemCls}>
               <span className={itemTitle}>Sign in</span>
             </Link>
+            <div className="mx-3 my-1.5 border-t border-border/70" />
+            <div className="flex items-center justify-between px-3 py-1.5">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <ThemeToggle />
+            </div>
           </MobileNav>
-          <Link href="/sign-in" className="u-sweep hidden px-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-block">
-            Sign in
-          </Link>
-          <JumpLink
-            ids={["proof-story", "proof"]}
-            className="hidden rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary md:inline-block"
-          >
-            See the proof
-          </JumpLink>
-          <Magnetic>
-            <Link
-              href="/app"
-              className="group flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              Start free
-              <ArrowFlip className="h-3.5 w-3.5" />
-            </Link>
-          </Magnetic>
+          <span className="hidden lg:block">
+            <Magnetic>
+              <Link
+                href="/app"
+                className="group flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Start free
+                <ArrowFlip className="h-3.5 w-3.5" />
+              </Link>
+            </Magnetic>
+          </span>
         </div>
       </div>
     </header>

@@ -180,7 +180,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
         <button
           type="button"
           onClick={() => ["proof-story", "proof"].map((id) => document.getElementById(id)).find((el) => el && el.offsetParent !== null)?.scrollIntoView({ behavior: "smooth" })}
-          className="absolute bottom-2 left-1/2 z-30 -translate-x-1/2 md:bottom-5 md:left-auto md:right-6 md:translate-x-0 rounded-md px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute bottom-2 left-1/2 z-30 hidden -translate-x-1/2 rounded-md px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:block md:bottom-5 md:left-auto md:right-6 md:translate-x-0"
         >
           skip demo
         </button>
