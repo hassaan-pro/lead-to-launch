@@ -4,6 +4,26 @@ import { GenerationConfigError } from "./anthropic";
 const BASE = process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com";
 export const GEMINI_DEFAULT_MODEL = "gemini-3.8-flash";
 const model = () => process.env.GEMINI_MODEL || GEMINI_DEFAULT_MODEL;
+export const GEMINI_FALLBACK_DEFAULT = "gemini-3.5-flash";
+const fallbackModel = () => process.env.GEMINI_FALLBACK_MODEL || GEMINI_FALLBACK_DEFAULT;
+
+// Google sheds load per model: a 503 on one model says nothing about the key
+// or the quota, and a sibling model usually still has capacity. Transient
+// failures (429, 500, 503) are therefore retried with backoff on the same
+// model first, then the request moves down the chain before giving up.
+// Non-transient failures (a rejected key, a blocked prompt) never retry:
+// switching models cannot fix them.
+const TRANSIENT = new Set([429, 500, 503]);
+const BACKOFF_MS = [1000, 2500];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+class TransientError extends Error {}
+
+function modelChain(): string[] {
+  const primary = model();
+  const fb = fallbackModel();
+  return fb && fb !== primary ? [primary, fb] : [primary];
+}
 
 // A page is written in rounds. When a round ends at the token limit before the page is
 // complete, the next round continues from the exact character the last one stopped at.
@@ -24,7 +44,7 @@ function key(): string {
   return k;
 }
 
-function requestBody(userText: string, maxTokens: number, opts: { json?: boolean; thinking?: number; prior?: string; omitThinking?: boolean }) {
+function requestBody(modelName: string, userText: string, maxTokens: number, opts: { json?: boolean; thinking?: number; prior?: string; omitThinking?: boolean }) {
   const generationConfig: Record<string, unknown> = { maxOutputTokens: maxTokens, temperature: 1 };
   if (opts.json) generationConfig.responseMimeType = "application/json";
   // Gemini 2.5 models accept a thinking budget. Newer families take a thinking level instead,
@@ -34,7 +54,7 @@ function requestBody(userText: string, maxTokens: number, opts: { json?: boolean
   // supported level is used, and geminiStream retries with no thinking control at all when a
   // model rejects even that. An unsupported level must never be able to block a build.
   if (typeof opts.thinking === "number" && !opts.omitThinking) {
-    if (/^gemini-2\.5/.test(model())) generationConfig.thinkingConfig = { thinkingBudget: opts.thinking };
+    if (/^gemini-2\.5/.test(modelName)) generationConfig.thinkingConfig = { thinkingBudget: opts.thinking };
     else if (opts.thinking === 0) generationConfig.thinkingConfig = { thinkingLevel: "low" };
   }
   const contents = opts.prior
@@ -70,16 +90,27 @@ function textOf(c: GeminiChunk): string {
 }
 
 export async function geminiText(userText: string, maxTokens: number, signal?: AbortSignal, opts: { json?: boolean } = {}): Promise<string> {
-  const res = await fetch(`${BASE}/v1beta/models/${model()}:generateContent`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": key() },
-    body: requestBody(userText, maxTokens, { json: opts.json, thinking: 1024 }),
-    signal,
-  });
-  if (!res.ok) throw new Error(await apiError(res));
-  const j = (await res.json()) as GeminiChunk;
-  if (j.promptFeedback?.blockReason) throw new Error(`Gemini blocked the request (${j.promptFeedback.blockReason}). Try a different steer.`);
-  return textOf(j);
+  let lastError: Error | null = null;
+  for (const m of modelChain()) {
+    for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+      const res = await fetch(`${BASE}/v1beta/models/${m}:generateContent`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": key() },
+        body: requestBody(m, userText, maxTokens, { json: opts.json, thinking: 1024 }),
+        signal,
+      });
+      if (res.ok) {
+        const j = (await res.json()) as GeminiChunk;
+        if (j.promptFeedback?.blockReason) throw new Error(`Gemini blocked the request (${j.promptFeedback.blockReason}). Try a different steer.`);
+        return textOf(j);
+      }
+      const message = await apiError(res);
+      if (!TRANSIENT.has(res.status)) throw new Error(message);
+      lastError = new Error(message);
+      if (attempt < BACKOFF_MS.length) await sleep(BACKOFF_MS[attempt]);
+    }
+  }
+  throw lastError ?? new Error("Gemini is overloaded, retry in a moment");
 }
 
 type Round = {
@@ -98,13 +129,17 @@ export async function geminiStream(userText: string, maxTokens: number, signal?:
   // the control-free request instead of paying for a failed attempt every round.
   let thinkingUnsupported = false;
 
-  async function startRound(prior: string | null): Promise<Round> {
+  // The model that actually answered, so continuation rounds stay on it
+  // instead of walking back into the saturated primary every round.
+  let workingModel: string | null = null;
+
+  async function openOnModel(m: string, prior: string | null): Promise<Round> {
     const attempt = (omitThinking: boolean) =>
-      fetch(`${BASE}/v1beta/models/${model()}:streamGenerateContent?alt=sse`, {
+      fetch(`${BASE}/v1beta/models/${m}:streamGenerateContent?alt=sse`, {
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": key() },
         // The creative brief already carries the thinking, so spend the budget on writing the page.
-        body: requestBody(userText, maxTokens, { thinking: 0, prior: prior ?? undefined, omitThinking }),
+        body: requestBody(m, userText, maxTokens, { thinking: 0, prior: prior ?? undefined, omitThinking }),
         signal,
       });
     let res = await attempt(thinkingUnsupported);
@@ -123,8 +158,31 @@ export async function geminiStream(userText: string, maxTokens: number, signal?:
         res = await attempt(true);
       }
     }
-    if (!res.ok || !res.body) throw new Error(await apiError(res));
+    if (!res.ok || !res.body) {
+      const message = await apiError(res);
+      throw TRANSIENT.has(res.status) ? new TransientError(message) : new Error(message);
+    }
     return { reader: res.body.getReader(), buf: "", reason: null, errored: false };
+  }
+
+  async function startRound(prior: string | null): Promise<Round> {
+    const chain = modelChain();
+    const ordered = workingModel ? [workingModel, ...chain.filter((m) => m !== workingModel)] : chain;
+    let lastError: Error | null = null;
+    for (const m of ordered) {
+      for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+        try {
+          const round = await openOnModel(m, prior);
+          workingModel = m;
+          return round;
+        } catch (e) {
+          if (!(e instanceof TransientError)) throw e;
+          lastError = e;
+          if (attempt < BACKOFF_MS.length) await sleep(BACKOFF_MS[attempt]);
+        }
+      }
+    }
+    throw lastError ?? new Error("Gemini is overloaded, retry in a moment");
   }
 
   function handleEvent(r: Round, evt: string, controller: ReadableStreamDefaultController<Uint8Array>): void {
