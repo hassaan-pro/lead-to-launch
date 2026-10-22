@@ -2,7 +2,7 @@
 
 import { Component, useMemo, useState, type ReactNode } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { Download, Search, Star, Trash2 } from "lucide-react";
+import { ArrowUpRight, Download, Search, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -61,7 +61,7 @@ class LoadBoundary extends Component<{ children: ReactNode }, { failed: boolean 
   }
 }
 
-export function SavedLeads() {
+export function SavedLeads({ onOpen }: { onOpen?: (lead: Doc<"savedLeads">) => void }) {
   return (
     <div className="w-full pb-32">
       <header className="mb-10">
@@ -84,14 +84,14 @@ export function SavedLeads() {
         </Card>
       ) : (
         <LoadBoundary>
-          <SavedLeadsInner />
+          <SavedLeadsInner onOpen={onOpen} />
         </LoadBoundary>
       )}
     </div>
   );
 }
 
-function SavedLeadsInner() {
+function SavedLeadsInner({ onOpen }: { onOpen?: (lead: Doc<"savedLeads">) => void }) {
   const leads = useQuery(api.savedLeads.listMine);
   const [statusFilter, setStatusFilter] = useState<"all" | LeadStatus>("all");
   const [search, setSearch] = useState("");
@@ -147,7 +147,7 @@ function SavedLeadsInner() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {visible.map((lead) => (
-            <SavedLeadCard key={lead._id} lead={lead} />
+            <SavedLeadCard key={lead._id} lead={lead} onOpen={onOpen} />
           ))}
         </div>
       )}
@@ -155,7 +155,7 @@ function SavedLeadsInner() {
   );
 }
 
-function SavedLeadCard({ lead }: { lead: Doc<"savedLeads"> }) {
+function SavedLeadCard({ lead, onOpen }: { lead: Doc<"savedLeads">; onOpen?: (lead: Doc<"savedLeads">) => void }) {
   const setStatus = useMutation(api.savedLeads.setStatus);
   const remove = useMutation(api.savedLeads.remove);
 
@@ -208,6 +208,16 @@ function SavedLeadCard({ lead }: { lead: Doc<"savedLeads"> }) {
         </div>
 
         <p className="text-xs text-muted-foreground italic leading-relaxed">{lead.biggestGap}</p>
+
+        {onOpen && (
+          <div>
+            <Button size="sm" className="w-full" onClick={() => onOpen(lead)}>
+              <ArrowUpRight className="h-3.5 w-3.5 mr-1.5" />
+              Open in pipeline
+            </Button>
+            <p className="text-[11px] text-muted-foreground mt-1.5">Build the site, publish the demo, draft the outreach.</p>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 pt-1 border-t border-border/60">
           <label htmlFor={`status-${lead._id}`} className="text-[11px] text-muted-foreground">Status</label>
