@@ -17,13 +17,13 @@ type Row = { id: string; state: State; neutral: string; label: string; ev: strin
 // pages only (the same rows as BOBS_ROWS in the static twin). The business
 // was not contacted. The order the checks ran in, so verdicts arrive mixed.
 const ROWS: Row[] = [
-  { id: "website", state: "fail", neutral: "Website", label: "No website at all", ev: "The Google listing has no website link. Google itself shows an Add website prompt" },
+  { id: "website", state: "fail", neutral: "Website", label: "No website at all", ev: "No website link. Google itself shows an Add website prompt" },
   { id: "reviews", state: "pass", neutral: "Reviews", label: "A reputation worth finding", ev: "4.7 stars across 173 Google reviews" },
-  { id: "booking", state: "fail", neutral: "Booking path", label: "No online booking path", ev: "No Book online button and no booking page found. The phone is the only way in" },
+  { id: "booking", state: "fail", neutral: "Booking path", label: "No online booking path", ev: "No Book online button, no booking page. Phone is the only way in" },
   { id: "prices", state: "unknown", neutral: "Prices", label: "Prices", ev: "The business publishes no prices anywhere we could find" },
   { id: "claimed", state: "fail", neutral: "Listing owner", label: "Listing is unclaimed", ev: "Google still shows Claim this business on the listing" },
   { id: "years", state: "unknown", neutral: "Years in business", label: "Years in business", ev: "Only a customer's review mentions it. The business never has" },
-  { id: "photos", state: "fail", neutral: "Photos", label: "Photos live only on Google", ev: "21 photos on the listing, and not one on a page the shop owns" },
+  { id: "photos", state: "fail", neutral: "Photos", label: "Photos live only on Google", ev: "21 photos on the listing, none on a page the shop owns" },
   { id: "socials", state: "fail", neutral: "Social links", label: "No social links on the listing", ev: "No Instagram or Facebook linked from Google" },
 ];
 
@@ -153,7 +153,7 @@ function ProofScene({ p }: { p: P }) {
           </div>
         </div>
       ) : (
-        <div aria-hidden="true" className="absolute right-[5%] top-[13%] h-[70%] w-[57%] min-w-[460px]">
+        <div aria-hidden="true" className="absolute right-[5%] top-[12%] h-[74%] w-[57%] min-w-[460px]">
           <div className="absolute -top-6 left-3 font-mono text-[11px] text-muted-foreground">bob&apos;s barber shop, austin · the order the checks ran</div>
           {ROWS.map((r, i) => (
             <ProofRow key={r.id} row={r} index={i} p={p} compact={false} />

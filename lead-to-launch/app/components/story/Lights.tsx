@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { type P, useRange, useSeg } from "@/components/journey/motion";
 import { ArrowFlip, Magnetic } from "@/components/motion/ui";
 import { Stage } from "./Stage";
-import { Shopfront, StreetLamps, STREET_HEIGHTS, STREET_SHOPS as SHOPS } from "@/components/brand/Shopfront";
+import { ShopGroup, StreetScene, STREET_SHOPS as SHOPS } from "@/components/brand/StreetScene";
 
 const FIRST = 0.06;
 const STEP = 0.04;
@@ -16,13 +16,7 @@ const lamp = (i: number) => [FIRST + i * STEP, FIRST + i * STEP + 0.05] as const
 function Shop({ p, i }: { p: P; i: number }) {
   const [a, b] = lamp(i);
   const lit = useSeg(p, a, b);
-  return (
-    <div className="group relative flex flex-col justify-end" style={{ height: "100%" }}>
-      <div className="relative transition-transform duration-300 ease-out group-hover:-translate-y-1" style={{ height: `${STREET_HEIGHTS[i]}%` }}>
-        <Shopfront i={i} lit={lit} trail />
-      </div>
-    </div>
-  );
+  return <ShopGroup i={i} lit={lit} trail />;
 }
 
 function LightsScene({ p }: { p: P }) {
@@ -66,11 +60,12 @@ function LightsScene({ p }: { p: P }) {
           <span>one street, twelve businesses</span>
           <span className={cn("tabular-nums transition-colors", lit === SHOPS.length ? "text-lamp" : "")}>{lit} of {SHOPS.length} lit</span>
         </div>
-        <div className="relative grid h-[30svh] grid-cols-12 items-end gap-1 border-b border-border/80 sm:gap-3 md:h-[36svh] md:gap-3">
-          {SHOPS.map((s, i) => (
-            <Shop key={s} p={p} i={i} />
-          ))}
-          <StreetLamps />
+        <div className="overflow-hidden rounded-[1.4rem] shadow-[0_30px_60px_-30px_rgba(20,16,8,0.45)] ring-1 ring-black/10">
+          <StreetScene className="block h-[30svh] w-full md:h-[36svh]">
+            {SHOPS.map((s, i) => (
+              <Shop key={s} p={p} i={i} />
+            ))}
+          </StreetScene>
         </div>
         <div className="mt-3 h-4 text-center font-mono text-xs text-lamp md:hidden">{lit > 0 ? SHOPS[lit - 1] : ""}</div>
       </div>
