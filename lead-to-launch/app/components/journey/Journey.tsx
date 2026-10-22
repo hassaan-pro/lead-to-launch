@@ -126,7 +126,14 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
       <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
-        <motion.div style={{ opacity: copyOpacity, y: copyY, pointerEvents: copyEvents }} className="absolute left-[6%] top-[11%] w-[88%] md:top-[12%] md:w-[46%] md:max-w-2xl">
+        <motion.div style={{ opacity: copyOpacity, y: copyY }} className="pointer-events-none absolute inset-0 flex flex-col px-[6%] pb-[3%] pt-[6%] md:grid md:grid-cols-[minmax(0,47%)_minmax(0,1fr)] md:items-center md:gap-12 md:pt-[3%]">
+          {/* The street scene: on the left beside the copy on wide screens,
+              along the bottom under it on phones. In flow inside a grid, so
+              the copy and the scene can never overlap at any height. */}
+          <div className="order-2 mt-auto md:order-1 md:mt-0">
+            <HeroStreet />
+          </div>
+          <motion.div style={{ pointerEvents: copyEvents }} className="order-1 md:order-2">
           <Reveal delay={0.05}>
             <h1 className="font-display text-[clamp(2rem,5vw,4.7rem)] leading-[1.04] short:text-[1.7rem]">
               <span className="title-heavy block text-foreground">Win your niche,</span>
@@ -155,14 +162,7 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
           <Reveal delay={0.45}>
             <p className="mt-10 hidden text-sm text-muted-foreground/80 md:block">No invented numbers. No borrowed logos. The work is the proof.</p>
           </Reveal>
-        </motion.div>
-
-        {/* The street is the hero visual: full width under the copy, lighting
-            up shop by shop. It leaves with the copy as the hero ends and the
-            process rises into view. On phones it gets 16% of the height so
-            the facades read instead of being clipped. */}
-        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[16%] md:bottom-[2.5%] md:h-[24%]">
-          <HeroStreet className="h-full" />
+          </motion.div>
         </motion.div>
 
         <motion.div
