@@ -7,7 +7,7 @@ export const CHAPTERS = [
   { id: "find", name: "Find", title: "Find them.", caption: "Scrape a niche and a city from Google Maps, then rank every business by how much a better site would matter.", range: [0.08, 0.3] as const, jump: 0.2 },
   { id: "prove", name: "Prove", title: "Prove it.", caption: "Open each site and write down what it actually saw. Every gap comes with evidence.", range: [0.32, 0.55] as const, jump: 0.46 },
   { id: "design", name: "Design", title: "Design it.", caption: "Decide a creative direction for this business first, then build the sample site and show it live.", range: [0.57, 0.75] as const, jump: 0.66 },
-  { id: "send", name: "Send", title: "Send it.", caption: "Write the pitch around the gap it found, for WhatsApp or email, with a follow-up ready.", range: [0.77, 0.91] as const, jump: 0.85 },
+  { id: "send", name: "Send", title: "Send it.", caption: "Write the pitch around the gap it found, for WhatsApp or email, with a follow-up ready.", range: [0.76, 0.91] as const, jump: 0.85 },
 ];
 
 function Chapter({ p, c }: { p: P; c: (typeof CHAPTERS)[number] }) {

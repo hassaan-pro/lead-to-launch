@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useNarrow } from "@/components/journey/narrow";
 
 const GLYPHS = "_#?/\\<>[]{}=+*%$";
 
@@ -18,15 +19,17 @@ function scramble(text: string, progress: number): string {
 /**
  * Text that resolves from noise into the real characters, left to right, once it scrolls into view.
  * The real text is in the HTML from the start and is what assistive tech reads. Use with a monospace
- * font so the line never changes width while it decodes.
+ * font so the line never changes width while it decodes. On phones the real text shows at once:
+ * at small sizes a half decoded line reads as broken text, not as an effect.
  */
 export function DecodeText({ text, delay = 0, duration = 650, className }: { text: string; delay?: number; duration?: number; className?: string }) {
   const reduce = useReducedMotion();
+  const narrow = useNarrow();
   const ref = useRef<HTMLSpanElement>(null);
   const [frame, setFrame] = useState<string | null>(null);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || narrow) return;
     const el = ref.current;
     if (!el) return;
     let raf = 0;
@@ -54,7 +57,7 @@ export function DecodeText({ text, delay = 0, duration = 650, className }: { tex
       io.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, [text, delay, duration, reduce]);
+  }, [text, delay, duration, reduce, narrow]);
 
   return (
     <span ref={ref} className={className}>
