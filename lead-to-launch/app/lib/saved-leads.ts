@@ -1,4 +1,5 @@
 import type { AuditResult, Lead } from "./types";
+import type { Doc } from "../convex/_generated/dataModel";
 
 /**
  * Stable identity for a business across scrapes. The scrape route's lead id
@@ -26,4 +27,55 @@ export function tierOf(lead: Lead, audit: AuditResult): string {
   if (!audit.hasWebsite && reviews >= 100) return "No website, 100+ reviews";
   if (audit.hasWebsite && audit.gaps.length > 0) return "Own site, failing checks";
   return "Other";
+}
+
+/**
+ * Rebuild the pipeline's Lead and AuditResult from a saved snapshot, so a
+ * saved lead reopens as the selected prospect: the ranking re-derives from
+ * these via scoreLead, and Build and Outreach run on it unchanged.
+ * The lead's id is its placeKey: stable across scrapes and unique in the
+ * run's lead list, whose scrape ids look nothing like it.
+ * Fields an older snapshot never stored come back as unmeasured (a
+ * PageSpeed of 0 with pageSpeedMeasured false, no checks), never invented:
+ * the snapshot's own verdicts (gaps, strengths, biggest gap) are the facts
+ * the reopened audit states.
+ */
+export function leadFromSaved(doc: Doc<"savedLeads">): Lead {
+  return {
+    id: doc.placeKey,
+    placeId: doc.placeId,
+    name: doc.name,
+    category: doc.category,
+    address: doc.address,
+    city: doc.city,
+    phone: doc.phone,
+    whatsapp: doc.whatsapp,
+    email: doc.email,
+    website: doc.website,
+    rating: doc.rating,
+    reviewsCount: doc.reviewsCount,
+    photosCount: doc.photosCount,
+    lat: doc.lat ?? 0,
+    lng: doc.lng ?? 0,
+  };
+}
+
+export function auditFromSaved(doc: Doc<"savedLeads">): AuditResult {
+  return {
+    leadId: doc.placeKey,
+    pageSpeedScore: doc.pageSpeedScore ?? 0,
+    pageSpeedMeasured: doc.pageSpeedMeasured ?? false,
+    hasWebsite: doc.hasWebsite,
+    siteKind: (doc.siteKind as AuditResult["siteKind"]) ?? undefined,
+    builder: doc.builder,
+    mobileFriendly: doc.mobileFriendly ?? false,
+    https: doc.https ?? false,
+    hasSchema: doc.hasSchema ?? false,
+    loadTimeMs: doc.loadTimeMs ?? 0,
+    checks: doc.checks,
+    gaps: doc.gaps,
+    strengths: doc.strengths,
+    biggestGap: doc.biggestGap,
+    opportunity: doc.opportunity,
+  };
 }
