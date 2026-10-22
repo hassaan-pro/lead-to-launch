@@ -51,6 +51,17 @@ function SaveLeadButtonInner({ lead, audit, compact }: { lead: Lead; audit: Audi
         biggestGap: audit.biggestGap,
         hasWebsite: audit.hasWebsite,
         siteKind: audit.siteKind,
+        lat: lead.lat,
+        lng: lead.lng,
+        pageSpeedScore: audit.pageSpeedScore,
+        pageSpeedMeasured: audit.pageSpeedMeasured,
+        mobileFriendly: audit.mobileFriendly,
+        https: audit.https,
+        hasSchema: audit.hasSchema,
+        loadTimeMs: audit.loadTimeMs,
+        builder: audit.builder,
+        opportunity: audit.opportunity,
+        checks: audit.checks,
       });
       toast.success(alreadySaved ? "Saved lead updated with the latest audit" : "Lead saved. Find it under Saved leads.");
     } catch {
