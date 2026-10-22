@@ -45,4 +45,22 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_place", ["userId", "placeKey"]),
+
+  /**
+   * A published demo site for one lead: the generated HTML lives in file
+   * storage, this row is the permanent public link (/demo/<slug>) plus its
+   * open count, so the owner can see whether the prospect ever looked.
+   */
+  demos: defineTable({
+    userId: v.string(),
+    leadKey: v.string(),
+    slug: v.string(),
+    storageId: v.id("_storage"),
+    businessName: v.string(),
+    views: v.number(),
+    lastViewedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_user_lead", ["userId", "leadKey"]),
 });
