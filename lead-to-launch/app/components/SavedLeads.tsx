@@ -63,7 +63,7 @@ class LoadBoundary extends Component<{ children: ReactNode }, { failed: boolean 
 
 export function SavedLeads() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-32">
+    <div className="w-full pb-32">
       <header className="mb-10">
         <h1 className="font-display text-4xl sm:text-5xl text-foreground leading-[1.05]">Saved leads</h1>
         <p className="text-muted-foreground mt-4 text-base max-w-2xl leading-relaxed">
