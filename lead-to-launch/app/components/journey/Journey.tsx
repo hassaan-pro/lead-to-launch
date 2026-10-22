@@ -94,17 +94,19 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress: rawP } = useScroll({ target: ref, offset: ["start start", "end end"] });
   // Same overdamped spring as the story stages: the whole opening scrubs with weight.
-  const p = useSpring(rawP, { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
+  // Phones get a much stiffer spring: the soft one trailed the finger by a
+  // beat, which read as slow, unresponsive scrolling.
+  const p = useSpring(rawP, narrow ? { stiffness: 180, damping: 30, mass: 0.5, restDelta: 0.001 } : { stiffness: 90, damping: 24, mass: 0.6, restDelta: 0.001 });
   const par = usePointerParallax();
 
   // The first stretch of the runway is the hero: headline and street only,
   // no process. The process (frame, chapters, scenes) runs on a remapped
   // progress that starts where the hero ends, so every range the scenes
   // were tuned with keeps its meaning in the space that remains.
-  const HERO_END = 0.15;
+  const HERO_END = 0.13;
   const pp = useTransform(p, [HERO_END, 1], [0, 1]);
   const toRaw = (v: number) => HERO_END + (1 - HERO_END) * v;
-  const frameIn = useRange(p, [0.1, 0.15], [0, 1]);
+  const frameIn = useRange(p, [0.08, 0.13], [0, 1]);
 
   // The frame starts as the hero demo on the right, then grows to fill the screen.
   const grow = [0, 0.08];
@@ -112,9 +114,9 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const top = usePct(pp, grow, narrow ? [63, 8] : [14, 7]);
   const width = usePct(pp, grow, narrow ? [88, 94] : [44, 93]);
   const height = usePct(pp, grow, narrow ? [21, 76] : [59, 80]);
-  const copyOpacity = useRange(p, [0.09, 0.14], [1, 0]);
-  const copyY = useRange(p, [0, 0.14], [0, -28]);
-  const copyEvents = useTransform(p, (v) => (v < 0.11 ? "auto" : "none"));
+  const copyOpacity = useRange(p, [0.07, 0.12], [1, 0]);
+  const copyY = useRange(p, [0, 0.12], [0, -28]);
+  const copyEvents = useTransform(p, (v) => (v < 0.09 ? "auto" : "none"));
   const frameOut = useRange(pp, [0.92, 0.96], [1, 0.12]);
   const frameOpacity = useTransform([frameIn, frameOut], ([a, b]) => (a as number) * (b as number));
   const frameEvents = useTransform(frameIn, (v) => (v > 0.5 ? "auto" : "none") as "auto" | "none");
@@ -122,18 +124,21 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   const skipEvents = useTransform(skipO, (v) => (v > 0.5 ? "auto" : "none") as "auto" | "none");
 
   return (
-    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[600vh] pt-[84px] md:h-[700vh]">
+    <section ref={ref} id="journey" aria-label="How Outrive works, one business at a time" className="relative h-[480vh] pt-[84px] md:h-[700vh]">
       <div onPointerMove={par.onPointerMove} onPointerLeave={par.onPointerLeave} className={`sticky top-[84px] h-[calc(100svh-84px)] overflow-hidden transition-opacity duration-200 ${hydrated ? "opacity-100" : "opacity-0"}`}>
         <motion.div aria-hidden="true" style={{ x: par.glowX, y: par.glowY, marginLeft: -550 }} className="pointer-events-none absolute left-1/2 top-[-18%] h-[620px] w-[1100px] rounded-full bg-[radial-gradient(closest-side,rgba(240,179,74,0.07),transparent)]" />
 
         <motion.div style={{ opacity: copyOpacity, y: copyY }} className="pointer-events-none absolute inset-0 flex flex-col px-[6%] pb-[3%] pt-[6%] md:grid md:grid-cols-[minmax(0,47%)_minmax(0,1fr)] md:items-center md:gap-12 md:pt-[3%]">
           {/* The street scene: on the left beside the copy on wide screens,
-              along the bottom under it on phones. In flow inside a grid, so
-              the copy and the scene can never overlap at any height. It
-              stays at every phone height: the short-screen copy sizes keep
-              copy plus scene shorter than the stage, so hiding it (the old
+              directly under the copy on phones. In flow inside a grid, so
+              the copy and the scene can never overlap at any height. On
+              phones it is NOT pinned to the stage floor (the old mt-auto):
+              that left a dead gap between the CTA and the street and sank
+              the street to the very bottom edge of the screen. It stays at
+              every phone height: the short-screen copy sizes keep copy
+              plus scene shorter than the stage, so hiding it (the older
               short:hidden) only left phones with an empty hero. */}
-          <div className="order-2 mt-auto md:order-1 md:mt-0">
+          <div className="order-2 mt-8 short:mt-6 md:order-1 md:mt-0">
             <HeroStreet />
           </div>
           <motion.div style={{ pointerEvents: copyEvents }} className="order-1 md:order-2">
