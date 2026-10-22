@@ -115,7 +115,7 @@ export function SceneMap({ p }: { p: P }) {
         <span>salons in austin</span>
         <span>13 found</span>
       </motion.div>
-      <motion.div style={{ opacity: hint }} className="absolute bottom-4 left-0 right-0 text-center font-mono text-[11px] text-muted-foreground">
+      <motion.div style={{ opacity: hint }} className="absolute bottom-4 left-0 right-0 hidden text-center font-mono text-[11px] text-muted-foreground md:block">
         scroll
       </motion.div>
     </div>

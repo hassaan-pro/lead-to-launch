@@ -100,9 +100,9 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
   // The frame starts as the hero demo on the right, then grows to fill the screen.
   const grow = [0, 0.08];
   const left = usePct(p, grow, narrow ? [6, 3] : [53, 3.5]);
-  const top = usePct(p, grow, narrow ? [64, 8] : [14, 7]);
+  const top = usePct(p, grow, narrow ? [63, 8] : [14, 7]);
   const width = usePct(p, grow, narrow ? [88, 94] : [44, 93]);
-  const height = usePct(p, grow, narrow ? [26, 76] : [59, 80]);
+  const height = usePct(p, grow, narrow ? [21, 76] : [59, 80]);
   const copyOpacity = useRange(p, [0, 0.025], [1, 0]);
   const copyY = useRange(p, [0, 0.06], [0, -28]);
   const copyEvents = useTransform(p, (v) => (v < 0.015 ? "auto" : "none"));
@@ -146,10 +146,12 @@ function JourneyStage({ narrow }: { narrow: boolean }) {
 
         {/* The street is the hero visual: full width under the copy, lighting
             up shop by shop, then it leaves with the copy as the demo frame
-            takes the screen. The frame's opening position ends at 73% and the
-            band starts at 78%, so the two never touch. On phones the band is
-            a slim strip under the frame, which stays the main visual. */}
-        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[7.5%] md:bottom-[2.5%] md:h-[19.5%]">
+            takes the screen. On wide screens the frame's opening position
+            ends at 73% and the band starts at 78%, so the two never touch.
+            On phones the frame ends at 84% and the band starts at 86%, and
+            the band gets 12% of the height so its caption row and the
+            shopfronts both fit instead of the shops being clipped. */}
+        <motion.div aria-hidden="true" style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-x-[6%] bottom-[2%] h-[12%] md:bottom-[2.5%] md:h-[19.5%]">
           <HeroStreet className="h-full" />
         </motion.div>
 
