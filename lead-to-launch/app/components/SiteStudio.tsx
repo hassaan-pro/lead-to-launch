@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2, Globe, ExternalLink } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Upload, Wand2, Globe, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
@@ -206,15 +206,32 @@ export function SiteStudio({
     copyText(withRules(buildSitePrompt(leadPayload(lead), brief)), "Build prompt copied. Paste it into any chat.");
   }
 
-  function previewFromPaste() {
-    const out = cleanHtml(pasteHtml);
+  function previewFromText(raw: string) {
+    const out = cleanHtml(raw);
     if (!looksLikeFullPage(out)) {
-      setError("That is not a complete HTML page. If the chat cut off mid-page, tell it to continue or to make the page shorter, then paste the whole reply.");
+      setError("That is not a complete HTML page. If the chat cut off mid-page, tell it to continue or to make the page shorter, then use the whole page.");
       return;
     }
     setError(null);
     setHtml(out);
     toast.success("Preview loaded.");
+  }
+
+  function previewFromPaste() {
+    previewFromText(pasteHtml);
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function onUploadPage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      previewFromText(await file.text());
+    } catch {
+      setError("That file could not be read. Pick the .html file the chat gave you.");
+    }
   }
 
   function download() {
@@ -435,7 +452,13 @@ export function SiteStudio({
             <div className="mb-3 space-y-2">
               <div className="text-xs font-medium">Paste a finished page</div>
               <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML from the chat here. Works with or without a creative direction." rows={3} className="text-xs font-mono" />
-              <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+                <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="h-3.5 w-3.5 mr-2" /> Upload an .html file
+                </Button>
+                <input ref={fileInputRef} type="file" accept=".html,.htm,text/html" onChange={onUploadPage} className="hidden" aria-label="Upload an HTML file" />
+              </div>
             </div>
           ) : null}
           {html ? (
