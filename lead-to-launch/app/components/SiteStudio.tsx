@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Wand2, Globe, ExternalLink } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Upload, Wand2, Globe, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
@@ -206,15 +206,32 @@ export function SiteStudio({
     copyText(withRules(buildSitePrompt(leadPayload(lead), brief)), "Build prompt copied. Paste it into any chat.");
   }
 
-  function previewFromPaste() {
-    const out = cleanHtml(pasteHtml);
+  function previewFromText(raw: string) {
+    const out = cleanHtml(raw);
     if (!looksLikeFullPage(out)) {
-      setError("That is not a complete HTML page. If the chat cut off mid-page, tell it to continue or to make the page shorter, then paste the whole reply.");
+      setError("That is not a complete HTML page. If the chat cut off mid-page, tell it to continue or to make the page shorter, then use the whole page.");
       return;
     }
     setError(null);
     setHtml(out);
     toast.success("Preview loaded.");
+  }
+
+  function previewFromPaste() {
+    previewFromText(pasteHtml);
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function onUploadPage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      previewFromText(await file.text());
+    } catch {
+      setError("That file could not be read. Pick the .html file the chat gave you.");
+    }
   }
 
   function download() {
@@ -310,10 +327,13 @@ export function SiteStudio({
                   <Button onClick={() => makeBrief(false)} disabled={briefLoading} className="w-full">
                     {briefLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Thinking about {lead.name}…</> : <><Wand2 className="h-4 w-4 mr-2" /> Create creative direction</>}
                   </Button>
+                  <button type="button" onClick={() => setManualOverride(true)} className="text-[11px] underline text-muted-foreground">
+                    Engine busy? Do it manually with a chat AI instead
+                  </button>
                 </>
               ) : (
                 <div className="space-y-2 rounded-md border border-dashed border-border p-3">
-                  <div className="text-xs font-medium">Free manual mode, no key needed</div>
+                  <div className="text-xs font-medium">Manual mode: build it in a chat AI</div>
                   <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-0.5">
                     <li>Copy the prompt</li>
                     <li>Paste it into Claude.ai, ChatGPT or Gemini</li>
@@ -372,6 +392,11 @@ export function SiteStudio({
               <div className="flex gap-2">
                 <Input value={steer} onChange={(e) => setSteer(e.target.value)} placeholder="Steer the next direction…" maxLength={300} className="h-9" />
               </div>
+              {auto ? (
+                <button type="button" onClick={() => setManualOverride(true)} className="text-[11px] underline text-muted-foreground">
+                  Build it manually with a chat AI instead
+                </button>
+              ) : null}
             </div>
           )}
           {error ? <div className="text-xs text-[color:var(--destructive)] leading-relaxed">{error}</div> : null}
@@ -423,10 +448,17 @@ export function SiteStudio({
               </span>
             </div>
           ) : null}
-          {!auto && !checking && brief ? (
+          {!auto && !checking ? (
             <div className="mb-3 space-y-2">
-              <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML reply from the chat here" rows={3} className="text-xs font-mono" />
-              <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+              <div className="text-xs font-medium">Paste a finished page</div>
+              <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML from the chat here. Works with or without a creative direction." rows={3} className="text-xs font-mono" />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
+                <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="h-3.5 w-3.5 mr-2" /> Upload an .html file
+                </Button>
+                <input ref={fileInputRef} type="file" accept=".html,.htm,text/html" onChange={onUploadPage} className="hidden" aria-label="Upload an HTML file" />
+              </div>
             </div>
           ) : null}
           {html ? (
@@ -440,7 +472,7 @@ export function SiteStudio({
                   <div className="text-xs tabular-nums">{chars.toLocaleString("en-US")} characters written. This usually takes one to three minutes.</div>
                 </>
               ) : (
-                <div className="text-sm">{!brief ? "Create the creative direction first, then build." : auto ? "Direction ready. Build the site to see it here." : "Copy the build prompt, paste it into a chat, then paste the HTML reply above."}</div>
+                <div className="text-sm">{!brief ? (auto ? "Create the creative direction first, then build." : "Paste a finished page above, or set the creative direction first.") : auto ? "Direction ready. Build the site to see it here." : "Copy the build prompt, paste it into a chat, then paste the HTML reply above."}</div>
               )}
             </div>
           )}
