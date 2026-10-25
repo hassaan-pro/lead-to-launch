@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
 import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
-import { cleanHtml, looksLikeFullPage } from "@/lib/generation/html";
+import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml } from "@/lib/generation/html";
 import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -264,7 +264,10 @@ export function SiteStudio({
       const res = await fetch(uploadUrl, {
         method: "POST",
         headers: { "Content-Type": "text/html" },
-        body: new Blob([html], { type: "text/html" }),
+        // Defence in depth: the demo route sanitises again on the server,
+        // which is the real boundary, but the stored file should already
+        // be the safe version, not the raw preview HTML.
+        body: new Blob([sanitizeDemoHtml(html)], { type: "text/html" }),
       });
       if (!res.ok) throw new Error("The upload failed");
       const { storageId } = (await res.json()) as { storageId: string };
