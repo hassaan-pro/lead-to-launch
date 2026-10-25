@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Upload, Wand2, Globe, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
@@ -48,6 +47,21 @@ function leadPayload(l: RankedLead) {
 const withRules = (task: string) => `# YOUR ROLE AND RULES\n${DESIGN_KNOWLEDGE}\n\n# TASK\n${task}`;
 
 type Engine = { provider: "anthropic" | "gemini" | null; model: string | null; allowed: boolean; reason?: string };
+
+/**
+ * Paste boxes must never grow the page. The shared Textarea sizes itself
+ * to its content, so a long pasted prompt or page stretched the whole
+ * studio on a phone. This box stays at one fixed height and scrolls inside
+ * itself instead, with a capped drag handle for users who want more room.
+ */
+function PasteTextarea({ className, ...props }: ComponentProps<"textarea">) {
+  return (
+    <textarea
+      {...props}
+      className={`flex h-40 max-h-60 w-full resize-y overflow-y-auto rounded-lg border border-input bg-transparent px-2.5 py-2 text-xs font-mono outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${className ?? ""}`}
+    />
+  );
+}
 
 export function SiteStudio({
   lead,
@@ -94,7 +108,6 @@ export function SiteStudio({
   }, []);
   const auto = !!engine?.provider && engine.allowed && !manualOverride;
   const checking = engine === null;
-  const engineLabel = engine?.provider === "gemini" ? `Gemini ${engine.model ?? ""}` : engine?.provider === "anthropic" ? `Claude ${engine.model ?? ""}` : "";
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -332,20 +345,25 @@ export function SiteStudio({
                   </button>
                 </>
               ) : (
-                <div className="space-y-2 rounded-md border border-dashed border-border p-3">
-                  <div className="text-xs font-medium">Manual mode: build it in a chat AI</div>
-                  <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-0.5">
-                    <li>Copy the prompt</li>
-                    <li>Paste it into Claude.ai, ChatGPT or Gemini</li>
-                    <li>Paste the JSON reply below</li>
-                  </ol>
-                  {engine?.provider && !engine.allowed && engine.reason ? <div className="text-[11px] text-amber-600">{engine.reason}</div> : null}
-                  <Button variant="outline" onClick={copyBriefPrompt} className="w-full"><Copy className="h-3.5 w-3.5 mr-2" /> Copy direction prompt</Button>
-                  <Textarea value={pasteBrief} onChange={(e) => setPasteBrief(e.target.value)} placeholder="Paste the JSON reply here" rows={4} className="text-xs font-mono" />
-                  <Button onClick={useBriefFromPaste} disabled={!pasteBrief.trim()} className="w-full">Use this direction</Button>
-                  {engine?.provider && engine.allowed ? (
-                    <button type="button" onClick={() => setManualOverride(false)} className="text-[11px] underline text-muted-foreground">Use {engineLabel} instead</button>
-                  ) : null}
+                <div className="space-y-3">
+                  <Button onClick={() => makeBrief(false)} disabled={briefLoading} className="w-full">
+                    {briefLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Thinking about {lead.name}…</> : <><Wand2 className="h-4 w-4 mr-2" /> Create creative direction</>}
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    This generates the direction here in the tool. If the engine is not available for your account, the reason shows below and the manual steps stay open.
+                  </p>
+                  <div className="space-y-2 rounded-md border border-dashed border-border p-3">
+                    <div className="text-xs font-medium">Or do it manually with a chat AI</div>
+                    <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-0.5">
+                      <li>Copy the prompt</li>
+                      <li>Paste it into Claude.ai, ChatGPT or Gemini</li>
+                      <li>Paste the JSON reply below</li>
+                    </ol>
+                    {engine?.provider && !engine.allowed && engine.reason ? <div className="text-[11px] text-amber-600">{engine.reason}</div> : null}
+                    <Button variant="outline" onClick={copyBriefPrompt} className="w-full"><Copy className="h-3.5 w-3.5 mr-2" /> Copy direction prompt</Button>
+                    <PasteTextarea value={pasteBrief} onChange={(e) => setPasteBrief(e.target.value)} placeholder="Paste the JSON reply here" />
+                    <Button onClick={useBriefFromPaste} disabled={!pasteBrief.trim()} className="w-full">Use this direction</Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -396,7 +414,11 @@ export function SiteStudio({
                 <button type="button" onClick={() => setManualOverride(true)} className="text-[11px] underline text-muted-foreground">
                   Build it manually with a chat AI instead
                 </button>
-              ) : null}
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => makeBrief(true)} disabled={briefLoading}>
+                  {briefLoading ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Thinking…</> : <><Wand2 className="h-3.5 w-3.5 mr-2" /> Generate a new direction here</>}
+                </Button>
+              )}
             </div>
           )}
           {error ? <div className="text-xs text-[color:var(--destructive)] leading-relaxed">{error}</div> : null}
@@ -419,15 +441,14 @@ export function SiteStudio({
                 </Button>
               </>
             ) : null}
-            {auto ? (
-              <Button size="sm" onClick={buildSite} disabled={!brief || building || briefLoading}>
-                {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> {html ? "Rebuild" : "Build site"}</>}
-              </Button>
-            ) : (
-              <Button size="sm" onClick={copyBuildPrompt} disabled={!brief}>
+            <Button size="sm" onClick={buildSite} disabled={!brief || building || briefLoading}>
+              {building ? <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> Building</> : <><Sparkles className="h-3.5 w-3.5 mr-2" /> {html ? "Rebuild" : "Build site"}</>}
+            </Button>
+            {!auto ? (
+              <Button size="sm" variant="outline" onClick={copyBuildPrompt} disabled={!brief}>
                 <Copy className="h-3.5 w-3.5 mr-2" /> Copy build prompt
               </Button>
-            )}
+            ) : null}
           </div>
         </CardHeader>
         <CardContent>
@@ -451,7 +472,7 @@ export function SiteStudio({
           {!auto && !checking ? (
             <div className="mb-3 space-y-2">
               <div className="text-xs font-medium">Paste a finished page</div>
-              <Textarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML from the chat here. Works with or without a creative direction." rows={3} className="text-xs font-mono" />
+              <PasteTextarea value={pasteHtml} onChange={(e) => setPasteHtml(e.target.value)} placeholder="Paste the full HTML from the chat here. Works with or without a creative direction." />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" onClick={previewFromPaste} disabled={!pasteHtml.trim()}>Preview this page</Button>
                 <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
