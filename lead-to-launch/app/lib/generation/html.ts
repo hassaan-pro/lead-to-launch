@@ -107,6 +107,30 @@ export function sanitizeDemoHtml(raw: string): string {
 }
 
 /**
+ * A preview of a page that is still streaming, for the build tool only.
+ * Returns null until the stream has real body content, so the preview
+ * does not flicker on a head only chunk. The result is sanitised with
+ * the same rules as a published demo, and it is shown only in the
+ * sandboxed preview iframe, never as a finished site: publish and
+ * download still require the full, validated page from buildSite.
+ * A trailing incomplete tag is cut, because the model often stops
+ * mid tag between stream chunks, and a browser parses the rest fine
+ * without a closing html tag.
+ */
+export function progressivePreviewHtml(raw: string): string | null {
+  let t = raw.replace(/\r\n/g, "\n").trim();
+  if (t.startsWith("```")) t = t.replace(/^```(?:html)?\s*\n?/i, "");
+  const start = t.search(/<!doctype html|<html/i);
+  if (start > 0) t = t.slice(start);
+  const lastOpen = t.lastIndexOf("<");
+  const lastClose = t.lastIndexOf(">");
+  if (lastOpen > lastClose) t = t.slice(0, lastOpen).trimEnd();
+  if (t.length < 500) return null;
+  if (!/<body[\s>]/i.test(t) || !/<section[\s>]/i.test(t)) return null;
+  return sanitizeDemoHtml(t);
+}
+
+/**
  * Headers for a served demo page. The CSP sandbox has no
  * allow-same-origin, so a script in the demo runs with an opaque origin
  * and cannot reach the product origin, its cookies, or its storage.

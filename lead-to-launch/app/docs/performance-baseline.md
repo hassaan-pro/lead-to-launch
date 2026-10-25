@@ -67,3 +67,40 @@ production, because a cap is not a measurement.
   cache header change, no model change, no timeout change. Those are
   later phases, each with its own PR and its own before and after
   numbers from this file.
+
+## Phase 1, measured 2026-10-26
+
+Phase 1 does not change the model, the timeouts, or the bundle. It
+changes when the user first sees something, and it adds the route
+tests Phase 0 said must come before any route change.
+
+- Tests: 46 passing. Main before this PR had 34 (29 from Phase 0
+  plus 5 from PR 45). This PR adds 9 integration tests and 3
+  progressive preview tests. Integration tests: scrape with Apify
+  mocked, market research with Tavily mocked, brief with Gemini
+  mocked, status, audit social, and audit own site with site fetch
+  and PageSpeed mocked.
+- Integration test method: Clerk auth and currentUser are mocked,
+  external calls are mocked with global fetch, and all keys in tests
+  are fake test values. No test calls a real Apify, Tavily, Gemini,
+  or PageSpeed endpoint, and no test needs a live Clerk session.
+- First perf change: progressive preview in SiteStudio. Previously
+  the studio only painted after the full stream passed validation,
+  so a one to three minute build looked like one long loader. Now
+  the preview paints during the stream, throttled to every 400 ms,
+  once the stream has real body content. The preview is sanitised
+  and shown only in the existing sandboxed iframe. Publish,
+  download, and copy still require the full validated page, so a
+  streaming preview can never be published as a finished site.
+- Build after Phase 1: compiled successfully in about 29 seconds,
+  11 static pages, .next/static 2,305,031 bytes uncompressed,
+  largest chunks 310 KB, 203 KB, 186 KB, 186 KB. That is effectively
+  unchanged from the Phase 0 baseline, as expected: this PR adds
+  almost no shipped code, it changes when the preview paints.
+- Live timing still to capture on production, by phone, after this
+  PR deploys: time from clicking Build site to the first preview
+  paint, for three leads, with the model noted. That number, not
+  the bundle number, is how this PR should be judged.
+- Not changed in Phase 1, for a later PR: phase lazy loading,
+  audit caching, recharts removal, rate limits, and any model or
+  timeout change.
