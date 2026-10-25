@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
 import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
-import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml } from "@/lib/generation/html";
+import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml, progressivePreviewHtml } from "@/lib/generation/html";
 import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -78,6 +78,10 @@ export function SiteStudio({
   const [building, setBuilding] = useState(false);
   const [chars, setChars] = useState(0);
   const [html, setHtml] = useState("");
+  // Preview of a page still streaming. It is never the finished site:
+  // publish, download, and copy still use html, which is set only after
+  // the full page passes validation.
+  const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [full, setFull] = useState(false);
@@ -132,6 +136,7 @@ export function SiteStudio({
       if (!res.ok) throw new Error(data.error ?? "Could not create a creative direction");
       onBrief(data.brief as CreativeBrief);
       setHtml("");
+      setPreview(null);
       pushRecent({ concept: data.brief.concept, composition: data.brief.composition.name });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create a creative direction");
@@ -148,6 +153,7 @@ export function SiteStudio({
     setBuilding(true);
     setError(null);
     setChars(0);
+    setPreview(null);
     try {
       const res = await fetch("/api/generate/site", {
         method: "POST",
@@ -170,6 +176,8 @@ export function SiteStudio({
         const now = Date.now();
         if (now - lastPaint > 400) {
           setChars(acc.length);
+          const progressive = progressivePreviewHtml(acc);
+          if (progressive) setPreview(progressive);
           lastPaint = now;
         }
       }
@@ -180,10 +188,12 @@ export function SiteStudio({
         throw new Error("The model could not finish this page, so nothing has been saved as a finished site. Rebuild, or steer toward a simpler page.");
       }
       setHtml(out);
+      setPreview(null);
       setChars(out.length);
       toast.success("Site built. Preview is live.");
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
+      setPreview(null);
       setError(e instanceof Error ? e.message : "Build failed");
     } finally {
       setBuilding(false);
@@ -207,6 +217,7 @@ export function SiteStudio({
       pushRecent({ concept: b.concept, composition: b.composition.name });
       setPasteBrief("");
       setHtml("");
+      setPreview(null);
       setError(null);
       toast.success("Direction loaded.");
     } catch (e) {
@@ -227,6 +238,7 @@ export function SiteStudio({
     }
     setError(null);
     setHtml(out);
+    setPreview(null);
     toast.success("Preview loaded.");
   }
 
@@ -317,6 +329,12 @@ export function SiteStudio({
       <button type="button" onClick={() => setDevice("mobile")} className={`px-2.5 py-1.5 ${device === "mobile" ? "bg-foreground text-background" : "text-muted-foreground"}`} title="Phone"><Smartphone className="h-3.5 w-3.5" /></button>
     </div>
   );
+
+  // What the preview pane shows: a streaming preview while building,
+  // otherwise the finished page. Header actions still gate on html,
+  // so a streaming preview can never be published, downloaded, or copied
+  // as a finished site.
+  const shownHtml = preview ?? html;
 
   return (
     <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-4">
@@ -485,8 +503,8 @@ export function SiteStudio({
               </div>
             </div>
           ) : null}
-          {html ? (
-            previewBox(html, "h-[620px]")
+          {shownHtml ? (
+            previewBox(shownHtml, "h-[620px]")
           ) : (
             <div className="h-[620px] rounded-lg border border-dashed border-border flex flex-col items-center justify-center text-center px-8 gap-2 text-muted-foreground">
               {building ? (
@@ -503,7 +521,7 @@ export function SiteStudio({
         </CardContent>
       </Card>
 
-      {full && html ? (
+      {full && shownHtml ? (
         <div className="fixed inset-0 z-[60] bg-background flex flex-col">
           <div className="flex items-center justify-between px-4 py-2 border-b border-border">
             <div className="text-sm font-medium truncate">{lead.name}</div>
@@ -512,7 +530,7 @@ export function SiteStudio({
               <Button size="icon-xs" variant="ghost" onClick={() => setFull(false)} title="Close"><X className="h-4 w-4" /></Button>
             </div>
           </div>
-          <div className="flex-1 min-h-0 p-3 bg-muted/30">{previewBox(html, "h-full")}</div>
+          <div className="flex-1 min-h-0 p-3 bg-muted/30">{previewBox(shownHtml, "h-full")}</div>
         </div>
       ) : null}
     </div>

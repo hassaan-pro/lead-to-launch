@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml, demoSecurityHeaders } from "./html";
+import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml, demoSecurityHeaders, progressivePreviewHtml } from "./html";
 
 const page = `<!doctype html><html><head><title>Shop</title></head><body>${"x".repeat(600)}</body></html>`;
 
@@ -89,6 +89,30 @@ describe("demoSecurityHeaders", () => {
     expect(headers["x-content-type-options"]).toBe("nosniff");
     expect(headers["referrer-policy"]).toBe("no-referrer");
     expect(headers["cache-control"]).toBe("no-store");
+  });
+});
+
+describe("progressivePreviewHtml", () => {
+  const partial = `<!doctype html><html><head><title>Salon</title><style>.a{color:red}</style></head><body><section><h1>Test Salon</h1><p>${"x".repeat(600)}</p></section><section><h2>Services</h2>`;
+
+  it("returns a preview for a partial page, without requiring a closing html tag", () => {
+    const out = progressivePreviewHtml(partial);
+    expect(out).not.toBeNull();
+    expect(out).toContain("Test Salon");
+    expect(out).toContain("<section>");
+  });
+
+  it("returns null for a short fragment and for a head only stream", () => {
+    expect(progressivePreviewHtml("<html><body>hi</body>")).toBeNull();
+    expect(progressivePreviewHtml(`<!doctype html><html><head><title>Salon</title><style>.a{color:red}</style></head>${"x".repeat(100)}`)).toBeNull();
+  });
+
+  it("cuts a trailing incomplete tag and strips an external script from a partial page", () => {
+    const out = progressivePreviewHtml(`${partial}<script src="https://evil.example/lib.js"></script><div cla`);
+    expect(out).not.toBeNull();
+    expect(out).not.toContain("evil.example");
+    expect(out).not.toContain("cla");
+    expect(out).toContain("Test Salon");
   });
 });
 
