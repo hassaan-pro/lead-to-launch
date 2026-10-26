@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireGenerator } from "@/lib/api-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { llmStream, GenerationConfigError } from "@/lib/generation/llm";
 import { parseBrief } from "@/lib/generation/brief";
 import { buildSitePrompt, type LeadWithAudit } from "@/lib/generation/prompts";
@@ -20,6 +21,12 @@ export async function POST(req: Request) {
     brief = parseBrief(body.brief); // re-validate: never trust the client's copy of the brief
   } catch {
     return NextResponse.json({ error: "A valid lead and creative brief are required" }, { status: 400 });
+  }
+
+  const limit = checkRateLimit(user.userId, "generate-site");
+  if (!limit.allowed) {
+    const r = rateLimitResponse(limit.resetInMs);
+    return NextResponse.json(r.body, { status: r.status, headers: r.headers });
   }
 
   try {

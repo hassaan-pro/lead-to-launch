@@ -68,6 +68,27 @@ describe("POST /api/scrape, with Apify mocked", () => {
     expect(data.leads[0].rating).toBe(4.7);
   });
 
+  it("returns 429 on the 11th scrape in an hour for the same user", async () => {
+    const POST = await loadRoute();
+    async function scrapeOnce() {
+      const req = new Request("http://test/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: "Salon", city: "Austin", count: 25 }),
+      });
+      return POST(req);
+    }
+    for (let i = 0; i < 10; i++) {
+      const res = await scrapeOnce();
+      expect(res.status).toBe(200);
+    }
+    const blocked = await scrapeOnce();
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("Retry-After")).not.toBeNull();
+    const data = (await blocked.json()) as { error: string };
+    expect(data.error).toContain("Rate limit");
+  });
+
   it("rejects a scrape without a numeric count", async () => {
     const POST = await loadRoute();
     const req = new Request("http://test/api/scrape", {
