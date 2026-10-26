@@ -75,6 +75,38 @@ export const publish = mutation({
   },
 });
 
+/**
+ * Delete the signed-in user's demo for one lead, unpublishing it and
+ * removing the stored file. The link stops working on every device:
+ * getBySlug finds no row, so the demo route returns its 404, and the
+ * route serves successful demos with no-store, so there is no cached
+ * copy to keep showing. The lookup is by user plus lead, never by slug
+ * alone, so one user cannot delete another user's demo by guessing a
+ * link. If the demo is already gone, this is a no-op, so tapping
+ * delete twice on a phone does not error. If the stored file is
+ * already gone, the row is still deleted, because taking the link down
+ * matters more than storage cleanup. Publishing again after a delete
+ * creates a new slug, the old link is never revived.
+ */
+export const remove = mutation({
+  args: { leadKey: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx);
+    const demo = await ctx.db
+      .query("demos")
+      .withIndex("by_user_lead", (q) => q.eq("userId", userId).eq("leadKey", args.leadKey))
+      .unique();
+    if (!demo) return null;
+    try {
+      await ctx.storage.delete(demo.storageId);
+    } catch {
+      /* File already gone. The row deletion below still unpublishes. */
+    }
+    await ctx.db.delete(demo._id);
+    return { slug: demo.slug };
+  },
+});
+
 /** The signed-in user's demo for one lead, if they have published one. */
 export const byLeadKey = query({
   args: { leadKey: v.string() },

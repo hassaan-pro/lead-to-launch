@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Upload, Wand2, Globe, ExternalLink } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, Monitor, Smartphone, Maximize2, X, Download, Copy, Upload, Wand2, Globe, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
@@ -93,11 +93,13 @@ export function SiteStudio({
   const [pasteBrief, setPasteBrief] = useState("");
   const [pasteHtml, setPasteHtml] = useState("");
   const [publishing, setPublishing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   // The lead's live demo, if one has been published. The query keeps the
   // link (and its open count) on screen across rebuilds and refreshes.
   const demo = useQuery(api.demos.byLeadKey, { leadKey: placeKeyOf(lead) });
   const generateUploadUrl = useMutation(api.demos.generateUploadUrl);
   const publishDemoMutation = useMutation(api.demos.publish);
+  const removeDemoMutation = useMutation(api.demos.remove);
   const demoUrl = demo ? `${typeof window !== "undefined" ? window.location.origin : ""}/demo/${demo.slug}` : null;
 
   // Which engine is connected decides whether we generate here or hand off to free manual mode.
@@ -303,6 +305,20 @@ export function SiteStudio({
     toast.success("Demo link copied");
   }
 
+  async function deleteDemo() {
+    if (!demo || deleting) return;
+    if (!window.confirm("Delete this live demo? The link will stop working on every device, and it cannot be restored. You can publish again later to get a new link.")) return;
+    setDeleting(true);
+    try {
+      await removeDemoMutation({ leadKey: placeKeyOf(lead) });
+      toast.success("Live demo deleted. The link no longer works.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Deleting failed");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   function copyHtml() {
     navigator.clipboard.writeText(html);
     toast.success("HTML copied");
@@ -486,6 +502,10 @@ export function SiteStudio({
               <a href={demoUrl} target="_blank" rel="noreferrer" title="Open the live demo">
                 <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
               </a>
+              <Button size="sm" variant="destructive" onClick={deleteDemo} disabled={deleting} title="Unpublish and delete this live demo">
+                {deleting ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <Trash2 className="h-3.5 w-3.5 mr-2" />}
+                Delete
+              </Button>
               <span className="ml-auto text-xs text-muted-foreground">
                 {demo.views > 0 ? `Opened ${demo.views} ${demo.views === 1 ? "time" : "times"}` : "Not opened yet"}
               </span>
