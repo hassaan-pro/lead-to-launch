@@ -65,6 +65,61 @@ describe("POST /api/audit, own site with PageSpeed mocked", () => {
   });
 });
 
+describe("POST /api/audit, cached repeat audit", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete process.env.GOOGLE_PAGESPEED_KEY;
+  });
+
+  it("audits a site once, then serves the second lead for the same site from cache with its own lead id", async () => {
+    vi.resetModules();
+    process.env.GOOGLE_PAGESPEED_KEY = "test-psi-key";
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        lighthouseResult: {
+          categories: { performance: { score: 0.9 } },
+          audits: { "largest-contentful-paint": { numericValue: 1200 } },
+        },
+      }),
+    })));
+    const { POST } = await import("./route");
+    const { fetchPage } = await import("@/lib/site-fetch");
+    const { clearAuditCache } = await import("@/lib/audit-cache");
+    clearAuditCache();
+    vi.mocked(fetchPage).mockClear();
+
+    async function auditLead(id: string) {
+      const req = new Request("http://test/api/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lead: {
+            id,
+            name: "Cached Salon",
+            category: "Salon",
+            address: "Main Street, Austin",
+            city: "Austin",
+            website: "https://cachedsalon.example",
+            lat: 30.27,
+            lng: -97.74,
+          },
+        }),
+      });
+      const res = await POST(req);
+      return (await res.json()) as { audit: { leadId: string; siteKind: string }; cached?: boolean };
+    }
+
+    const first = await auditLead("live-90");
+    expect(first.audit.leadId).toBe("live-90");
+    expect(first.cached).toBeUndefined();
+    const second = await auditLead("live-91");
+    expect(second.audit.leadId).toBe("live-91");
+    expect(second.cached).toBe(true);
+    expect(vi.mocked(fetchPage).mock.calls.length).toBe(1);
+  });
+});
+
 describe("POST /api/audit, social page case", () => {
   it("classifies a Facebook page as social, without fetching a site", async () => {
     const { POST } = await import("./route");

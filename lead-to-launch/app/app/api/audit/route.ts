@@ -5,6 +5,7 @@ import type { Lead, AuditResult } from "@/lib/types";
 import { requireUser, clean } from "@/lib/api-guard";
 import { fetchPage } from "@/lib/site-fetch";
 import { analyzeSite, classifyWebsite, describeBiggestGap, describeOpportunity } from "@/lib/site-analyze";
+import { getCachedAudit, setCachedAudit } from "@/lib/audit-cache";
 
 // Fetching a real site plus an optional PageSpeed call can take a while.
 export const maxDuration = 60;
@@ -63,6 +64,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ audit });
   }
 
+  // Repeat audits of the same site within a day skip the site fetch
+  // and PageSpeed call. The cached audit is rewritten to this lead's
+  // id, so scoring and saved lead joins still work when the same site
+  // appears under two different lead ids.
+  const cached = getCachedAudit(user.userId, site);
+  if (cached) return NextResponse.json({ audit: { ...cached, leadId: lead.id }, cached: true });
+
   const [page, psi] = await Promise.all([fetchPage(site), pagespeed(site)]);
   const result = analyzeSite(lead, page, psi);
   const audit: AuditResult = {
@@ -76,5 +84,6 @@ export async function POST(req: Request) {
     ? describeBiggestGap(lead, audit)
     : `Could not load their site from our server (${page.error ?? "no response"}). Check it by hand before pitching.`;
   audit.opportunity = page.ok ? describeOpportunity(lead, audit) : "Site could not be audited automatically. Verify manually.";
+  if (page.ok) setCachedAudit(user.userId, site, audit);
   return NextResponse.json({ audit });
 }
