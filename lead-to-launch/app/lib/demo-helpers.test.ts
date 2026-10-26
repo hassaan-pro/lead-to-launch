@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES, VIEW_THROTTLE_MS } from "../convex/demo-helpers";
+import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES, VIEW_THROTTLE_MS } from "../convex/demos";
 
 describe("demo slug helpers", () => {
   it("slugifies a business name and truncates to 40 characters", () => {
