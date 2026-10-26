@@ -1,7 +1,43 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES } from "./demo-helpers";
+
+// Diagnostic change only, no behaviour change: these helpers used to live
+// in convex/demo-helpers.ts, a separate file in the convex directory.
+// PR 52, the last production deploy that went green, had slugify and
+// suffix inline in this file. This PR returns to that shape, to test
+// whether the separate helper file is what the production convex deploy
+// chokes on. Slug length, view throttle, and file limits are identical.
+// If production goes green with this PR, the helper file was the cause.
+// If it still fails, the cause is elsewhere, most likely the system
+// table file check in publish, which is the next experiment.
+export function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
+    .replace(/-+$/g, "");
+}
+
+const SUFFIX_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
+export const DEMO_SUFFIX_LENGTH = 12;
+
+export function demoSuffix(): string {
+  let s = "";
+  for (let i = 0; i < DEMO_SUFFIX_LENGTH; i++) s += SUFFIX_CHARS[Math.floor(Math.random() * SUFFIX_CHARS.length)];
+  return s;
+}
+
+export const VIEW_THROTTLE_MS = 60_000;
+
+export function shouldCountView(lastViewedAt: number | undefined | null, now: number): boolean {
+  if (lastViewedAt === undefined || lastViewedAt === null) return true;
+  return now - lastViewedAt >= VIEW_THROTTLE_MS;
+}
+
+/** Demo HTML files are generated pages, normally well under 300 KB. */
+export const MAX_DEMO_FILE_BYTES = 1_000_000;
 
 async function requireUserId(ctx: QueryCtx | MutationCtx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
