@@ -137,3 +137,45 @@ size, which includes chunks that load later.
   leads, and confirm each loads without a broken layout.
 - Not changed in Phase 2, for a later PR: audit caching, rate
   limits, and any model or timeout change.
+
+## Phase 3, measured 2026-10-26
+
+Phase 3 is audit caching. It is not a bundle change, so the bundle
+numbers below are unchanged, as expected. It is judged by repeat
+audits skipping the site fetch and PageSpeed call.
+
+- Why it matters: Phase 2 audits every selected lead on every Audit
+  click, even leads already audited in the same run, and a business
+  that appears in two scrapes gets audited twice. Each own site audit
+  pays a site fetch plus a PageSpeed call, up to 25 seconds for
+  PageSpeed alone.
+- Change: new lib/audit-cache.ts, used by app/api/audit/route.ts.
+  Key is user plus normalized URL (host lowercased, www stripped,
+  trailing slash, query, and fragment stripped), so one user's cached
+  audit is never served to another user, and a user only ever gets an
+  audit for a URL they already supplied. TTL is 24 hours. Only
+  successful own site audits are cached. Failed loads, social pages,
+  and no website results are not cached. Max 200 entries, oldest
+  evicted first. A cached audit is rewritten to the current lead's
+  id, so scoring and saved lead joins still work when the same site
+  appears under two lead ids. The response marks a cache hit with
+  cached true.
+- Honest limit: this cache is per server instance, in memory only,
+  not shared across Vercel instances, so a hit is a saving when it
+  happens, never a promise. A shared Convex cache would need a schema
+  and a migration, and is not needed to prove the saving first. If
+  repeat audits still miss across instances in production, that is
+  the next step, not a failure of this one.
+- Tests: 52 passing, up from 46. New: 5 cache unit tests
+  (normalization, per user miss, TTL expiry, null url) and 1 route
+  test (two leads, same site, site fetch called once, second
+  response cached true with its own lead id). tsc: 0 errors.
+- Build after Phase 3: compiled successfully, /app first load
+  1,136,016 bytes, unchanged from Phase 2, total .next/static
+  2,334,627 bytes, unchanged. Cache code is server only.
+- Live check to do on production: audit a lead, audit the same lead
+  again, and confirm the second audit returns fast. The response
+  flag is not shown in the UI yet, so judge it by time, not by a
+  badge.
+- Not changed in Phase 3, for a later PR: rate limits, and any
+  model or timeout change.
