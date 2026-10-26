@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
 import { isConvexConfigured } from "@/lib/convex-config";
+import { csvEscape } from "@/lib/csv";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -15,11 +16,6 @@ import { Textarea } from "./ui/textarea";
 
 const STATUSES = ["new", "pitched", "replied", "won", "lost"] as const;
 type LeadStatus = (typeof STATUSES)[number];
-
-function csvEscape(value: unknown): string {
-  const s = value == null ? "" : String(value);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
 
 function downloadCsv(rows: Doc<"savedLeads">[]) {
   const header = ["Name", "Category", "City", "Phone", "WhatsApp", "Email", "Website", "Rating", "Reviews", "Tier", "Status", "Audit date", "Gaps", "Biggest gap", "Notes"];
