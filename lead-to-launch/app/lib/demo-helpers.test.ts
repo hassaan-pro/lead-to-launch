@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES, VIEW_THROTTLE_MS } from "../convex/demos";
+import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES, VIEW_THROTTLE_MS, parseAllowedEmails, isAllowedEmail } from "../convex/demos";
 
 describe("demo slug helpers", () => {
   it("slugifies a business name and truncates to 40 characters", () => {
@@ -35,5 +35,23 @@ describe("view throttling", () => {
 describe("demo file limits", () => {
   it("caps a demo file at 1 MB", () => {
     expect(MAX_DEMO_FILE_BYTES).toBe(1000000);
+  });
+});
+
+describe("publish allowlist", () => {
+  it("parses a comma separated allowlist, lowercasing and trimming, ignoring blanks", () => {
+    expect(parseAllowedEmails("  Alice@Example.com ,bob@example.com,, ")).toEqual(["alice@example.com", "bob@example.com"]);
+    expect(parseAllowedEmails(undefined)).toEqual([]);
+    expect(parseAllowedEmails("")).toEqual([]);
+  });
+
+  it("allows only an exact email match, case insensitive, and never a missing email", () => {
+    const allowed = ["alice@example.com"];
+    expect(isAllowedEmail("Alice@Example.com", allowed)).toBe(true);
+    expect(isAllowedEmail("alice@example.com", allowed)).toBe(true);
+    expect(isAllowedEmail("mallory@example.com", allowed)).toBe(false);
+    expect(isAllowedEmail(undefined, allowed)).toBe(false);
+    expect(isAllowedEmail(null, allowed)).toBe(false);
+    expect(isAllowedEmail("alice@example.com", [])).toBe(false);
   });
 });
