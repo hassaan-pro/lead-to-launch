@@ -11,6 +11,7 @@ import type { RankedLead, MarketResearchResult } from "@/lib/types";
 import { extractJson, parseBrief, type CreativeBrief } from "@/lib/generation/brief";
 import { DESIGN_KNOWLEDGE } from "@/lib/generation/knowledge";
 import { cleanHtml, looksLikeFullPage, sanitizeDemoHtml, progressivePreviewHtml } from "@/lib/generation/html";
+import { PREVIEW_SANDBOX } from "@/lib/preview-sandbox";
 import { buildBriefPrompt, buildSitePrompt } from "@/lib/generation/prompts";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -307,12 +308,12 @@ export function SiteStudio({
     toast.success("HTML copied");
   }
 
-  // The generated page is untrusted output. Sandbox without allow-same-origin so it cannot touch this app's cookies or storage.
+  // The generated page is untrusted output. Sandbox without allow-same-origin so it cannot touch this app's cookies or storage, and without allow-popups-to-escape-sandbox so a popup cannot leave the sandbox.
   const frame = (h: string, cls: string) => (
     <iframe
       title="Generated site preview"
       srcDoc={h}
-      sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+      sandbox={PREVIEW_SANDBOX}
       className={cls}
     />
   );
