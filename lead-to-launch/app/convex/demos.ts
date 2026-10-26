@@ -2,15 +2,9 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
-// Diagnostic change only, no behaviour change: these helpers used to live
-// in convex/demo-helpers.ts, a separate file in the convex directory.
-// PR 52, the last production deploy that went green, had slugify and
-// suffix inline in this file. This PR returns to that shape, to test
-// whether the separate helper file is what the production convex deploy
-// chokes on. Slug length, view throttle, and file limits are identical.
-// If production goes green with this PR, the helper file was the cause.
-// If it still fails, the cause is elsewhere, most likely the system
-// table file check in publish, which is the next experiment.
+// Helpers live inline in this file on purpose. PR 55 proved that a
+// separate helper file in the convex directory breaks the production
+// convex deploy, while preview and local builds still pass.
 export function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -39,17 +33,69 @@ export function shouldCountView(lastViewedAt: number | undefined | null, now: nu
 /** Demo HTML files are generated pages, normally well under 300 KB. */
 export const MAX_DEMO_FILE_BYTES = 1_000_000;
 
+// Publish allowlist, closing the C1 bypass where any signed-in user could
+// publish a demo, bypassing the generation allowlist in lib/api-guard.ts.
+// Helpers live inline in this file on purpose: PR 55 proved that a
+// separate helper file in the convex directory breaks the production
+// convex deploy, while preview and local builds still pass, so no
+// helper file is added back here.
+// The Next allowlist lives in Vercel as GENERATION_ALLOWED_EMAILS. The
+// Convex allowlist uses the same variable name, but it must be set
+// separately in the Convex dashboard, because Convex does not read
+// Vercel environment variables. The email comes from the Clerk JWT
+// (identity.email), which depends on the Clerk JWT template named
+// "convex" including an email claim. If that claim is missing, the
+// caller is denied with a clear error, never allowed through, because
+// allowing a missing email would let any signed-in user publish.
+export function parseAllowedEmails(value: string | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function isAllowedEmail(email: string | undefined | null, allowed: string[]): boolean {
+  if (!email) return false;
+  return allowed.includes(email.trim().toLowerCase());
+}
+
 async function requireUserId(ctx: QueryCtx | MutationCtx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not signed in");
   return identity.subject;
 }
 
-/** Short-lived upload URL for one demo HTML file (Convex file storage). */
+/**
+ * Publishing is allowlist-only, matching the generation allowlist in
+ * lib/api-guard.ts. This check must live in Convex, not only in the
+ * Next UI, because a signed-in user can call a Convex mutation directly
+ * and bypass any client or Next route check. It is applied to
+ * generateUploadUrl and publish, the two steps that create a live page.
+ * It is deliberately NOT applied to remove: deleting your own demo is
+ * cleanup, not hosting, and a user removed from the allowlist should
+ * still be able to take their own demo down.
+ */
+async function requireGenerator(ctx: QueryCtx | MutationCtx): Promise<string> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new Error("Not signed in");
+  const allowed = parseAllowedEmails(process.env.GENERATION_ALLOWED_EMAILS);
+  if (allowed.length === 0) {
+    throw new Error("Publishing is switched off. Set GENERATION_ALLOWED_EMAILS in Convex to enable it for your email.");
+  }
+  if (!identity.email) {
+    throw new Error("Publishing is allowlist-only, and your account email is not available to Convex. Check the Clerk JWT template named convex includes an email claim.");
+  }
+  if (!isAllowedEmail(identity.email, allowed)) {
+    throw new Error("Your account is not allowed to publish demos.");
+  }
+  return identity.subject;
+}
+
+/** Short-lived upload URL for one demo HTML file (Convex file storage). Allowlist-gated, so a non-allowlisted user cannot even start an upload. */
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireUserId(ctx);
+    await requireGenerator(ctx);
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -62,7 +108,7 @@ export const generateUploadUrl = mutation({
 export const publish = mutation({
   args: { storageId: v.id("_storage"), businessName: v.string(), leadKey: v.string() },
   handler: async (ctx, args) => {
-    const userId = await requireUserId(ctx);
+    const userId = await requireGenerator(ctx);
     // Validate the uploaded file before touching an existing demo, so a
     // rejected file never leaves a republished demo broken. Metadata
     // comes from the _storage system table, the preferred path over the
