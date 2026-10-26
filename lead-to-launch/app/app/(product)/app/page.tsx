@@ -1,17 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
 import { Stepper } from "@/components/Stepper";
 import { DashboardNav } from "@/components/DashboardNav";
 import { RunOverview } from "@/components/RunOverview";
 import { Phase1Scrape } from "@/components/Phase1Scrape";
-import { Phase2Audit } from "@/components/Phase2Audit";
-import { Phase3Rank } from "@/components/Phase3Rank";
-import { Phase4Build } from "@/components/Phase4Build";
-import { Phase5Outreach } from "@/components/Phase5Outreach";
-import { SavedLeads } from "@/components/SavedLeads";
+// Phase 1 stays eager: it is the first screen. Phases 2 to 5 and Saved
+// leads load on demand, so their code is not in the first load of /app.
+// This page is a client component behind auth, so ssr false is allowed
+// and keeps those chunks out of the initial load entirely. The loading
+// fallback shows no data, only a loading line, and the phases still run
+// inside the same protected page, so no auth or data boundary changes.
+function PhaseLoading() {
+  return <div className="text-sm text-muted-foreground">Loading this phase…</div>;
+}
+const Phase2Audit = dynamic(() => import("@/components/Phase2Audit").then((m) => m.Phase2Audit), { ssr: false, loading: PhaseLoading });
+const Phase3Rank = dynamic(() => import("@/components/Phase3Rank").then((m) => m.Phase3Rank), { ssr: false, loading: PhaseLoading });
+const Phase4Build = dynamic(() => import("@/components/Phase4Build").then((m) => m.Phase4Build), { ssr: false, loading: PhaseLoading });
+const Phase5Outreach = dynamic(() => import("@/components/Phase5Outreach").then((m) => m.Phase5Outreach), { ssr: false, loading: PhaseLoading });
+const SavedLeads = dynamic(() => import("@/components/SavedLeads").then((m) => m.SavedLeads), { ssr: false, loading: PhaseLoading });
 import { Button } from "@/components/ui/button";
 import { scoreLead } from "@/lib/scoring";
 import { auditFromSaved, leadFromSaved } from "@/lib/saved-leads";

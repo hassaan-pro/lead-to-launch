@@ -104,3 +104,36 @@ tests Phase 0 said must come before any route change.
 - Not changed in Phase 1, for a later PR: phase lazy loading,
   audit caching, recharts removal, rate limits, and any model or
   timeout change.
+
+## Phase 2, measured 2026-10-26
+
+Phase 2 is a bundle change, judged by the /app first load number
+from .next/diagnostics/route-bundle-stats.json, not by total static
+size, which includes chunks that load later.
+
+- Before, on main after PR 46: /app first load 1,390,873 bytes
+  uncompressed, / first load 1,186,434 bytes, total .next/static
+  2,305,031 bytes.
+- Change: app/(product)/app/page.tsx now loads Phases 2 to 5 and
+  SavedLeads with next/dynamic and ssr false, with a plain loading
+  line that shows no data. Phase 1 stays eager, because it is the
+  first screen. The phases still run inside the same protected page,
+  so no auth or data boundary changes, and no new external call.
+- After: /app first load 1,136,016 bytes, down 254,857 bytes, about
+  18 percent. / first load 1,187,548 bytes, effectively unchanged.
+  Total .next/static 2,334,627 bytes, slightly up, because splitting
+  adds chunk overhead: total size is the wrong number for this PR,
+  first load is the right one.
+- Also in this PR: recharts removed from package.json and the lock
+  file (36 packages removed, lock diff is removals only). It was
+  never imported anywhere, so it does not change first load, and
+  the 1,136,016 number above is the same with and without it. It
+  only removes install size and attack surface.
+- Tests: 46 passing, unchanged from Phase 1. tsc: 0 errors.
+  Lazy loading is a build property, so it is verified by the build
+  manifest numbers above, not by a unit test, and the PR says so.
+- Live check still to do on a phone after deploy: open /app, confirm
+  Phase 1 shows immediately, then step to each later phase and Saved
+  leads, and confirm each loads without a broken layout.
+- Not changed in Phase 2, for a later PR: audit caching, rate
+  limits, and any model or timeout change.
