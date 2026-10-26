@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireGenerator } from "@/lib/api-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { llmText, GenerationConfigError } from "@/lib/generation/llm";
 import { extractJson, parseBrief } from "@/lib/generation/brief";
 import { buildBriefPrompt, type BriefRequest, type LeadWithAudit } from "@/lib/generation/prompts";
@@ -18,6 +19,12 @@ export async function POST(req: Request) {
     if (!body.lead || typeof body.lead.id !== "string" || typeof body.lead.name !== "string" || !body.lead.audit) throw new Error("bad lead");
   } catch {
     return NextResponse.json({ error: "A valid lead with an audit is required" }, { status: 400 });
+  }
+
+  const limit = checkRateLimit(user.userId, "generate-brief");
+  if (!limit.allowed) {
+    const r = rateLimitResponse(limit.resetInMs);
+    return NextResponse.json(r.body, { status: r.status, headers: r.headers });
   }
 
   const seed = Number.isFinite(body.seed) ? Number(body.seed) : Math.floor(Math.random() * 2 ** 31);

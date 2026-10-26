@@ -6,6 +6,7 @@ import { requireUser, clean } from "@/lib/api-guard";
 import { fetchPage } from "@/lib/site-fetch";
 import { analyzeSite, classifyWebsite, describeBiggestGap, describeOpportunity } from "@/lib/site-analyze";
 import { getCachedAudit, setCachedAudit } from "@/lib/audit-cache";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 // Fetching a real site plus an optional PageSpeed call can take a while.
 export const maxDuration = 60;
@@ -70,6 +71,12 @@ export async function POST(req: Request) {
   // appears under two different lead ids.
   const cached = getCachedAudit(user.userId, site);
   if (cached) return NextResponse.json({ audit: { ...cached, leadId: lead.id }, cached: true });
+
+  const limit = checkRateLimit(user.userId, "audit");
+  if (!limit.allowed) {
+    const r = rateLimitResponse(limit.resetInMs);
+    return NextResponse.json(r.body, { status: r.status, headers: r.headers });
+  }
 
   const [page, psi] = await Promise.all([fetchPage(site), pagespeed(site)]);
   const result = analyzeSite(lead, page, psi);

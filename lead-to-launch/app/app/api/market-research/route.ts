@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser, clean } from "@/lib/api-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const TAVILY_ENDPOINT = "https://api.tavily.com/search";
@@ -31,6 +32,12 @@ export async function POST(req: Request) {
   // playbook inspiration in lib/niche-playbooks.ts still applies either way.
   if (!TAVILY_API_KEY) {
     return NextResponse.json({ results: [], configured: false });
+  }
+
+  const limit = checkRateLimit(user.userId, "market-research");
+  if (!limit.allowed) {
+    const r = rateLimitResponse(limit.resetInMs);
+    return NextResponse.json(r.body, { status: r.status, headers: r.headers });
   }
 
   const query = `best rated ${niche} in ${city} website OR booking`;

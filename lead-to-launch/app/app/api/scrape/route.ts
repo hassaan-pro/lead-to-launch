@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Lead } from "@/lib/types";
 import { requireUser, parseScrapeInput, isDemoMode } from "@/lib/api-guard";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 const APIFY_ACTOR = process.env.APIFY_ACTOR ?? "compass~crawler-google-places";
@@ -44,6 +45,12 @@ export async function POST(req: Request) {
 
   if (!APIFY_TOKEN) {
     return NextResponse.json({ error: "Scraping is not configured on this deployment yet." }, { status: 503 });
+  }
+
+  const limit = checkRateLimit(user.userId, "scrape");
+  if (!limit.allowed) {
+    const r = rateLimitResponse(limit.resetInMs);
+    return NextResponse.json(r.body, { status: r.status, headers: r.headers });
   }
 
   try {
