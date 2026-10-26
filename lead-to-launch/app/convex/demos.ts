@@ -1,27 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { slugify, demoSuffix, shouldCountView, MAX_DEMO_FILE_BYTES } from "./demo-helpers";
 
 async function requireUserId(ctx: QueryCtx | MutationCtx): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not signed in");
   return identity.subject;
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40)
-    .replace(/-+$/g, "");
-}
-
-const SUFFIX_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
-function suffix(): string {
-  let s = "";
-  for (let i = 0; i < 6; i++) s += SUFFIX_CHARS[Math.floor(Math.random() * SUFFIX_CHARS.length)];
-  return s;
 }
 
 /** Short-lived upload URL for one demo HTML file (Convex file storage). */
@@ -42,6 +27,22 @@ export const publish = mutation({
   args: { storageId: v.id("_storage"), businessName: v.string(), leadKey: v.string() },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
+    // Validate the uploaded file before touching an existing demo, so a
+    // rejected file never leaves a republished demo broken. Metadata
+    // comes from the _storage system table, the preferred path over the
+    // deprecated storage.getMetadata. A demo is a generated HTML page,
+    // normally well under 300 KB, so 1 MB is generous, and a non-HTML
+    // file is never a demo.
+    const meta = await ctx.db.system.get("_storage", args.storageId);
+    if (!meta) throw new Error("Uploaded file not found, please try publishing again");
+    if (meta.size > MAX_DEMO_FILE_BYTES) {
+      await ctx.storage.delete(args.storageId);
+      throw new Error("Demo file is too large, please rebuild a smaller page");
+    }
+    if (meta.contentType && meta.contentType !== "text/html") {
+      await ctx.storage.delete(args.storageId);
+      throw new Error("Demo file must be an HTML page");
+    }
     const existing = await ctx.db
       .query("demos")
       .withIndex("by_user_lead", (q) => q.eq("userId", userId).eq("leadKey", args.leadKey))
@@ -53,7 +54,7 @@ export const publish = mutation({
     }
     const base = slugify(args.businessName) || "site";
     for (let attempt = 0; attempt < 6; attempt++) {
-      const slug = `${base}-${suffix()}`;
+      const slug = `${base}-${demoSuffix()}`;
       const clash = await ctx.db
         .query("demos")
         .withIndex("by_slug", (q) => q.eq("slug", slug))
@@ -107,7 +108,7 @@ export const getBySlug = query({
   },
 });
 
-/** Public: the /demo/[slug] route records each open of the link. */
+/** Public: the /demo/[slug] route records each open of the link, throttled to at most one counted view per minute per demo, so refreshing cannot inflate the count. lastViewedAt is only updated when a view counts, so repeated calls do not push the window forward forever. */
 export const recordView = mutation({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
@@ -116,6 +117,8 @@ export const recordView = mutation({
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
     if (!demo) return;
-    await ctx.db.patch(demo._id, { views: demo.views + 1, lastViewedAt: Date.now() });
+    const now = Date.now();
+    if (!shouldCountView(demo.lastViewedAt, now)) return;
+    await ctx.db.patch(demo._id, { views: demo.views + 1, lastViewedAt: now });
   },
 });
